@@ -27,8 +27,15 @@ const envSchema = z.object({
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
 
-  // Phase-1 temporary admin auth — replaced by AdminAuthGuard in Phase 4
+  // Phase-1 temporary admin auth — replaced by AdminAuthGuard in Phase 5
   ADMIN_SYNC_TOKEN: z.string().min(32),
+
+  // First-login bootstrap for the seeded admin@akonbutik.com user. The
+  // seed plants a placeholder hash that argon2 cannot verify; a single
+  // POST /api/admin/auth/login that matches this password is allowed
+  // through and writes the real argon2 hash into the DB. Optional —
+  // unset (or rotated) once the password has been bootstrapped.
+  ADMIN_BOOTSTRAP_PASSWORD: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
 
   // Treat empty strings from .env as missing so zod's .optional() applies
   IYZICO_API_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),

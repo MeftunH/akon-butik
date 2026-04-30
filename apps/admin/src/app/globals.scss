@@ -1,5 +1,8 @@
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   background: #f6f7f9;
 }
 
@@ -12,7 +15,7 @@ body {
 .admin-sidebar {
   background: #1f2933;
   color: #e6e9ef;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
 
   a {
     color: inherit;
@@ -20,14 +23,39 @@ body {
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
     text-decoration: none;
+    font-size: 0.95rem;
 
     &:hover,
     &.active {
       background: rgba(255, 255, 255, 0.08);
     }
   }
+
+  .text-muted-light {
+    color: rgba(230, 233, 239, 0.6);
+  }
 }
 
 .admin-main {
   padding: 2rem;
+}
+
+// Login route doesn't render the sidebar shell — full-bleed centered card.
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f6f7f9;
+  padding: 2rem;
+}
+
+.login-card {
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }

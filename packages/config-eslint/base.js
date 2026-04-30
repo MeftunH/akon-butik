@@ -20,6 +20,7 @@ export default [
       '**/storybook-static/**',
       '**/playwright-report/**',
       'vendor/**',
+      '**/next-env.d.ts',
     ],
   },
   js.configs.recommended,

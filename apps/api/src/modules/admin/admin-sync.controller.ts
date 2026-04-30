@@ -1,20 +1,19 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+// NestJS DI binds providers from constructor metadata at runtime.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { Queue } from 'bullmq';
 
-import { AdminTokenGuard } from '../../common/guards/admin-token.guard';
+import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
+import { DIA_SYNC_QUEUE, type DiaSyncJobName } from '../dia/workers/sync.constants';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  DIA_SYNC_QUEUE,
-  type DiaSyncJobName,
-} from '../dia/workers/sync.constants';
 
 const SYNC_JOB_NAMES: readonly DiaSyncJobName[] = ['products', 'stock', 'categories'];
 
 @ApiTags('admin')
-@ApiSecurity('admin-token')
-@UseGuards(AdminTokenGuard)
+@UseGuards(AdminAuthGuard)
 @Controller('admin')
 export class AdminSyncController {
   constructor(
