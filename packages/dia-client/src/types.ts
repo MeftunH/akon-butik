@@ -19,7 +19,7 @@ export interface DiaListResult<T> {
   totalRecord?: number;
 }
 
-export type Sort = { field: string; sorttype: 'ASC' | 'DESC' };
+export interface Sort { field: string; sorttype: 'ASC' | 'DESC' }
 
 export interface StokkartFilter {
   field: string;
@@ -39,16 +39,48 @@ export interface ListParams {
 
 // ─── Entity shapes (loose — DIA fields are free-form; we only type fields we read) ───
 
+/**
+ * Free-form on the wire — DIA returns whichever subset of fields the tenant
+ * actually has populated. The akonbutik tenant schema (verified against
+ * akonbutik.ws.dia.com.tr/api/v3 on 2026-04-30) does not expose
+ * `urungrubu`, `urunmodelkodu`, `markakodu`, `kategorikodu`, `beden`, or
+ * `renk` as selectable columns — `selectedcolumns` requesting any of them
+ * returns HTTP 500 "Hatalı Veri". The columns kept here are the ones
+ * confirmed available on this tenant. Other tenants may expose more; the
+ * mapper layer treats every field as optional.
+ *
+ * Sale price field is `fiyat1` (DIA's free-form fiyat slot 1), not
+ * `satisfiyati1` — the documented field name only exists on certain
+ * defter-i kebir setups.
+ */
 export interface Stokkart {
   _key?: string;
   stokkartkodu: string;
   aciklama: string;
   birimkodu?: string;
-  /** Sale price */
-  satisfiyati1?: number;
+  /**
+   * DIA encodes numeric fields as strings with a fixed decimal scale on
+   * most tenants (e.g. "4000.0000000000"), but a few legacy tenants
+   * return raw numbers. Accept both at the type level — the consumer
+   * normalises via parseDiaDecimalToMinor / parseDiaInt.
+   */
+  fiyat1?: string | number;
+  fiili_stok?: string | number;
   durum?: 'A' | 'P';
+  /** B2C visibility flag — 'E' = Evet (active), 'H' = Hayır (inactive) */
   b2c_durum?: 'E' | 'H';
-  b2c_depomiktari?: number;
+  b2c_depomiktari?: string | number;
+  stokkartturu?: string;
+  anabarkod?: string;
+  marka?: string;
+  markaack?: string;
+  /**
+   * Below fields are documented in the DIA API but NOT exposed by the
+   * akonbutik tenant; kept optional for forward compatibility with other
+   * tenants. Asking for them via `selectedcolumns` against akonbutik
+   * returns 500.
+   */
+  satisfiyati1?: number;
   urungrubu?: string;
   urunmodelkodu?: string;
   markakodu?: string;

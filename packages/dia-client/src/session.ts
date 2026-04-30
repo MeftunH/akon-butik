@@ -100,7 +100,7 @@ export class SessionManager {
       return res.result;
     }
 
-    if (isInvalidSessionCode(res.code) && !options.skipSession) {
+    if (isSessionError(res) && !options.skipSession) {
       // re-login and retry exactly once
       this.sessionId = null;
       await this.login();
@@ -111,7 +111,7 @@ export class SessionManager {
       if (retry.code === '200' && retry.result !== undefined) {
         return retry.result;
       }
-      if (isInvalidSessionCode(retry.code)) {
+      if (isSessionError(retry)) {
         throw new DiaInvalidSessionError(retry.code);
       }
       throw new DiaApiError(retry.code, retry.msg ?? 'unknown error', {
@@ -124,7 +124,20 @@ export class SessionManager {
   }
 }
 
-function isInvalidSessionCode(code: string): boolean {
-  // DIA documents these codes as session-related; widen the set if more turn up in production.
-  return code === '404' || code === 'INVALID_SESSION' || code === 'SESSION_EXPIRED';
+function isSessionError<T>(res: DiaResponse<T>): boolean {
+  // DIA's session-expired path can surface in two ways depending on the
+  // service and tenant config:
+  //   1. {code:"INVALID_SESSION"} or {code:"SESSION_EXPIRED"} — the original
+  //      documented form
+  //   2. {code:"401", msg:"INVALID_SESSION"} — what akonbutik.ws.dia.com.tr
+  //      returns in practice when the session id was evicted by another
+  //      login (`disconnect_same_user: true`)
+  // Treat both as recoverable so the auto re-login kicks in.
+  if (res.code === '404' || res.code === 'INVALID_SESSION' || res.code === 'SESSION_EXPIRED') {
+    return true;
+  }
+  if (res.code === '401' && res.msg && /INVALID_SESSION|SESSION_EXPIRED/i.test(res.msg)) {
+    return true;
+  }
+  return false;
 }
