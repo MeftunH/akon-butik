@@ -112,7 +112,11 @@ export default async function OrdersPage({ searchParams }: PageProps) {
             )}
             {resp.items.map((o) => (
               <tr key={o.id}>
-                <td className="fw-semibold">{o.orderNumber}</td>
+                <td>
+                  <Link href={`/orders/${o.id}`} className="fw-semibold text-decoration-none">
+                    {o.orderNumber}
+                  </Link>
+                </td>
                 <td>
                   <div>{o.customerName}</div>
                   <div className="small text-muted">{o.customerEmail}</div>

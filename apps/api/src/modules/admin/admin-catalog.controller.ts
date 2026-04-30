@@ -17,6 +17,8 @@ import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 // NestJS DI needs the runtime class — `import type` would tree-shake.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { RevalidationService } from '../storefront/revalidation.service';
 
 const ORDER_STATUSES = [
   'pending',
@@ -70,7 +72,10 @@ class UpdateProductDto {
 @UseGuards(AdminAuthGuard)
 @Controller('admin')
 export class AdminCatalogController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly revalidation: RevalidationService,
+  ) {}
 
   @Get('products')
   @ApiOperation({ summary: 'Paginated product list with DIA sync metadata' })
@@ -198,7 +203,14 @@ export class AdminCatalogController {
     }
 
     try {
-      return await this.prisma.product.update({ where: { id }, data });
+      const updated = await this.prisma.product.update({ where: { id }, data });
+      // Bust the storefront cache so visitors see the change immediately.
+      // Failures are swallowed by RevalidationService so a stale cache
+      // never breaks the admin write path.
+      void this.revalidation.revalidate({
+        paths: ['/shop', `/products/${updated.slug}`],
+      });
+      return updated;
     } catch (err: unknown) {
       // Prisma throws P2025 for missing record, P2003 for FK violation
       // when brandId/categoryId points at a row that doesn't exist.

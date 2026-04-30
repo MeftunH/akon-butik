@@ -11,6 +11,7 @@ import { AdminAuthService } from './admin-auth.service';
 import { AdminCatalogController } from './admin-catalog.controller';
 import { AdminCookieService } from './admin-cookie.service';
 import { AdminImagesController } from './admin-images.controller';
+import { AdminOrdersController } from './admin-orders.controller';
 import { AdminSyncController } from './admin-sync.controller';
 import { AdminTaxonomyController } from './admin-taxonomy.controller';
 
@@ -31,6 +32,7 @@ import { AdminTaxonomyController } from './admin-taxonomy.controller';
     AdminCatalogController,
     AdminImagesController,
     AdminTaxonomyController,
+    AdminOrdersController,
   ],
   providers: [AdminAuthService, AdminCookieService],
 })

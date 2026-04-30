@@ -22,6 +22,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { StorefrontModule } from './modules/storefront/storefront.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { StorageModule } from './modules/storage/storage.module';
     PrismaModule,
     QueueModule,
     StorageModule,
+    StorefrontModule,
     HealthModule,
     DiaModule,
     AuthModule,

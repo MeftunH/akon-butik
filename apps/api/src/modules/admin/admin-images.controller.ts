@@ -20,6 +20,8 @@ import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
 import { IMAGE_STORAGE, type ImageStorage } from '../storage/image-storage.port';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { RevalidationService } from '../storefront/revalidation.service';
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'] as const;
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -54,7 +56,19 @@ export class AdminImagesController {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(IMAGE_STORAGE) private readonly storage: ImageStorage,
+    private readonly revalidation: RevalidationService,
   ) {}
+
+  private async bustCache(productId: string): Promise<void> {
+    const slug = await this.prisma.product
+      .findUnique({ where: { id: productId }, select: { slug: true } })
+      .then((p) => p?.slug);
+    if (slug) {
+      void this.revalidation.revalidate({
+        paths: ['/shop', `/products/${slug}`],
+      });
+    }
+  }
 
   @Get()
   @ApiOperation({ summary: 'List images for a product, ordered by sortOrder' })
@@ -113,6 +127,7 @@ export class AdminImagesController {
         source: 'manual',
       },
     });
+    await this.bustCache(productId);
     return toDto(created);
   }
 
@@ -143,6 +158,7 @@ export class AdminImagesController {
           },
         });
       });
+      await this.bustCache(productId);
       return toDto(updated);
     }
 
@@ -153,6 +169,7 @@ export class AdminImagesController {
         ...(dto.isPrimary === false && { isPrimary: false }),
       },
     });
+    await this.bustCache(productId);
     return toDto(updated);
   }
 
@@ -187,6 +204,7 @@ export class AdminImagesController {
         });
       }
     }
+    await this.bustCache(productId);
     return { ok: true };
   }
 

@@ -52,6 +52,13 @@ const envSchema = z.object({
   IMAGE_STORAGE_ROOT: z.string().min(1).default('./storage'),
   IMAGE_PUBLIC_BASE_URL: z.string().url().default('http://localhost:4000/uploads'),
 
+  // Storefront revalidation hook — admin write endpoints POST here so the
+  // customer-facing Next.js cache invalidates immediately, instead of
+  // waiting for the 5-minute ISR window. Optional; if either field is
+  // missing the API's RevalidationService no-ops with a warning.
+  STOREFRONT_REVALIDATE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
+  REVALIDATE_TOKEN: z.preprocess(emptyToUndefined, z.string().min(8).optional()),
+
   CORS_ORIGINS: z
     .string()
     .default('')
