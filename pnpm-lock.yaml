@@ -123,6 +123,9 @@ importers:
       '@fastify/helmet':
         specifier: ^11.1.1
         version: 11.1.1
+      '@fastify/multipart':
+        specifier: ^8
+        version: 8.3.1
       '@fastify/static':
         specifier: ^7
         version: 7.0.4
@@ -1328,8 +1331,14 @@ packages:
   '@fastify/ajv-compiler@4.0.5':
     resolution: {integrity: sha512-KoWKW+MhvfTRWL4qrhUwAAZoaChluo0m0vbiJlGMt2GXvL4LVPQEjt8kSpHI3IBq5Rez8fg+XeH3cneztq+C7A==}
 
+  '@fastify/busboy@3.2.0':
+    resolution: {integrity: sha512-m9FVDXU3GT2ITSe0UaMA5rU3QkfC/UXtCU8y0gSN/GugTqtVldOBWIB5V6V3sbmenVZUIpU6f+mPEO2+m5iTaA==}
+
   '@fastify/cors@9.0.1':
     resolution: {integrity: sha512-YY9Ho3ovI+QHIL2hW+9X4XqQjXLjJqsU+sMV/xFsxZkE8p3GNnYVFpoOxF7SsP5ZL76gwvbo3V9L+FIekBGU4Q==}
+
+  '@fastify/deepmerge@2.0.2':
+    resolution: {integrity: sha512-3wuLdX5iiiYeZWP6bQrjqhrcvBIf0NHbQH1Ur1WbHvoiuTYUEItgygea3zs8aHpiitn0lOB8gX20u1qO+FDm7Q==}
 
   '@fastify/error@3.4.1':
     resolution: {integrity: sha512-wWSvph+29GR783IhmvdwWnN4bUxTD01Vm5Xad4i7i1VuAOItLvbPAb69sb0IQ2N57yprvhNIwAP5B6xfKTmjmQ==}
@@ -1360,6 +1369,9 @@ packages:
 
   '@fastify/middie@8.3.3':
     resolution: {integrity: sha512-+WHavMQr9CNTZoy2cjoDxoWp76kZ3JKjAtZj5sXNlxX5XBzHig0TeCPfPc+1+NQmliXtndT3PFwAjrQHE/6wnQ==}
+
+  '@fastify/multipart@8.3.1':
+    resolution: {integrity: sha512-pncbnG28S6MIskFSVRtzTKE9dK+GrKAJl0NbaQ/CG8ded80okWFsYKzSlP9haaLNQhNRDOoHqmGQNvgbiPVpWQ==}
 
   '@fastify/proxy-addr@5.1.0':
     resolution: {integrity: sha512-INS+6gh91cLUjB+PVHfu1UqcB76Sqtpyp7bnL+FYojhjygvOPA9ctiD/JDKsyD9Xgu4hUhCSJBPig/w7duNajw==}
@@ -5940,6 +5952,10 @@ packages:
       prettier:
         optional: true
 
+  stream-wormhole@1.1.0:
+    resolution: {integrity: sha512-gHFfL3px0Kctd6Po0M8TzEvt3De/xu6cnRrjlfYNhwbhLPLwigI2t1nc6jrzNuaYg5C4YF78PPFuQPzRiqn9ew==}
+    engines: {node: '>=4.0.0'}
+
   string-argv@0.3.2:
     resolution: {integrity: sha512-aqD2Q0144Z+/RqG52NeHEkZauTAUWJO8c6yTftGJKO3Tja5tUgIfmIl6kExvhtxSDP7fXB6DvzkfMpCd/F3G+Q==}
     engines: {node: '>=0.6.19'}
@@ -7284,10 +7300,14 @@ snapshots:
       ajv-formats: 3.0.1(ajv@8.20.0)
       fast-uri: 3.1.0
 
+  '@fastify/busboy@3.2.0': {}
+
   '@fastify/cors@9.0.1':
     dependencies:
       fastify-plugin: 4.5.1
       mnemonist: 0.39.6
+
+  '@fastify/deepmerge@2.0.2': {}
 
   '@fastify/error@3.4.1': {}
 
@@ -7327,6 +7347,15 @@ snapshots:
       fastify-plugin: 4.5.1
       path-to-regexp: 6.3.0
       reusify: 1.1.0
+
+  '@fastify/multipart@8.3.1':
+    dependencies:
+      '@fastify/busboy': 3.2.0
+      '@fastify/deepmerge': 2.0.2
+      '@fastify/error': 4.2.0
+      fastify-plugin: 4.5.1
+      secure-json-parse: 2.7.0
+      stream-wormhole: 1.1.0
 
   '@fastify/proxy-addr@5.1.0':
     dependencies:
@@ -12490,6 +12519,8 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  stream-wormhole@1.1.0: {}
 
   string-argv@0.3.2: {}
 

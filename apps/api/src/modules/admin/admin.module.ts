@@ -10,6 +10,7 @@ import { AdminAuthController } from './admin-auth.controller';
 import { AdminAuthService } from './admin-auth.service';
 import { AdminCatalogController } from './admin-catalog.controller';
 import { AdminCookieService } from './admin-cookie.service';
+import { AdminImagesController } from './admin-images.controller';
 import { AdminSyncController } from './admin-sync.controller';
 
 @Module({
@@ -23,7 +24,12 @@ import { AdminSyncController } from './admin-sync.controller';
       }),
     }),
   ],
-  controllers: [AdminAuthController, AdminSyncController, AdminCatalogController],
+  controllers: [
+    AdminAuthController,
+    AdminSyncController,
+    AdminCatalogController,
+    AdminImagesController,
+  ],
   providers: [AdminAuthService, AdminCookieService],
 })
 export class AdminModule {}

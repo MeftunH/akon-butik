@@ -1,10 +1,11 @@
+import { randomUUID } from 'node:crypto';
+
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
-import { randomUUID } from 'node:crypto';
 
 import { AllExceptionsFilter } from './common/exceptions/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -20,6 +21,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -38,8 +40,13 @@ import { QueueModule } from './modules/queue/queue.module';
     }),
     LoggerModule.forRoot({
       pinoHttp: {
+        // LoggerModule is configured at module-evaluation time, before any
+        // provider can ask ConfigService — direct process.env reads here
+        // are the documented pattern.
+        // eslint-disable-next-line no-restricted-syntax
         level: process.env['LOG_LEVEL'] ?? 'info',
         customProps: () => ({ context: 'HTTP' }),
+        // eslint-disable-next-line no-restricted-syntax
         ...(process.env['NODE_ENV'] === 'production'
           ? {}
           : { transport: { target: 'pino-pretty', options: { singleLine: true } } }),
@@ -48,6 +55,7 @@ import { QueueModule } from './modules/queue/queue.module';
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     PrismaModule,
     QueueModule,
+    StorageModule,
     HealthModule,
     DiaModule,
     AuthModule,

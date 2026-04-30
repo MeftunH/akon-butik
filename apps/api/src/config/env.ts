@@ -42,6 +42,16 @@ const envSchema = z.object({
   IYZICO_SECRET_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   IYZICO_BASE_URL: z.string().url().default('https://sandbox-api.iyzipay.com'),
 
+  // Image storage — admin-uploaded product photography.
+  //   Dev: filesystem under apps/api/storage, served at /uploads via Fastify
+  //   Prod: writes to ~akonbutik/public_html/uploads on the cPanel VPS, served
+  //         directly by Apache at https://akonbutik.com/uploads/
+  // S3 / MinIO is intentionally NOT a dependency — the company runs its
+  // own server and a port/adapter design lets us swap to object storage
+  // later without touching domain code.
+  IMAGE_STORAGE_ROOT: z.string().min(1).default('./storage'),
+  IMAGE_PUBLIC_BASE_URL: z.string().url().default('http://localhost:4000/uploads'),
+
   CORS_ORIGINS: z
     .string()
     .default('')

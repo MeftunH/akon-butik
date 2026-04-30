@@ -1,7 +1,12 @@
 import 'reflect-metadata';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+ 
+import { mkdir } from 'node:fs/promises';
+import path from 'node:path';
+
 import helmet from '@fastify/helmet';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import { ValidationPipe, type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -42,6 +47,32 @@ async function bootstrap(): Promise<void> {
   app.enableCors({
     origin: config.get('CORS_ORIGINS', { infer: true }),
     credentials: true,
+  });
+
+  // Multipart upload — admin product image upload (Phase 5b).
+  // 5 MB per file matches the ValidationPipe / Fastify body limit; the
+  // controller layer enforces image-only mime types.
+  await app.register(multipart as never, {
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+      files: 10,
+    },
+  });
+
+  // Static asset serving for /uploads in development. In production the
+  // images live under ~akonbutik/public_html/uploads and Apache serves
+  // them directly — Node never sees the GET requests. Registering here
+  // anyway is harmless when prod has IMAGE_PUBLIC_BASE_URL pointing at
+  // akonbutik.com (Apache wins by being upstream of the Node process).
+  const storageRoot = config.get('IMAGE_STORAGE_ROOT', { infer: true });
+  const absoluteStorageRoot = path.isAbsolute(storageRoot)
+    ? storageRoot
+    : path.resolve(process.cwd(), storageRoot);
+  await mkdir(absoluteStorageRoot, { recursive: true });
+  await app.register(fastifyStatic as never, {
+    root: absoluteStorageRoot,
+    prefix: '/uploads/',
+    decorateReply: false,
   });
 
   app.useGlobalPipes(
