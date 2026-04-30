@@ -6,14 +6,15 @@ import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 
-import { AllExceptionsFilter } from './common/exceptions/all-exceptions.filter.js';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor.js';
-import { validateEnv, type Env } from './config/env.js';
-import { CatalogModule } from './modules/catalog/catalog.module.js';
-import { DiaModule } from './modules/dia/dia.module.js';
-import { HealthModule } from './modules/health/health.module.js';
-import { PrismaModule } from './modules/prisma/prisma.module.js';
-import { QueueModule } from './modules/queue/queue.module.js';
+import { AllExceptionsFilter } from './common/exceptions/all-exceptions.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { validateEnv, type Env } from './config/env';
+import { AdminModule } from './modules/admin/admin.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { DiaModule } from './modules/dia/dia.module';
+import { HealthModule } from './modules/health/health.module';
+import { PrismaModule } from './modules/prisma/prisma.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
   imports: [
@@ -30,18 +31,14 @@ import { QueueModule } from './modules/queue/queue.module.js';
         idGenerator: () => randomUUID(),
       },
     }),
-    LoggerModule.forRootAsync({
-      inject: [ConfigModule],
-      useFactory: () => ({
-        pinoHttp: {
-          level: process.env['LOG_LEVEL'] ?? 'info',
-          transport:
-            process.env['NODE_ENV'] === 'production'
-              ? undefined
-              : { target: 'pino-pretty', options: { singleLine: true } },
-          customProps: () => ({ context: 'HTTP' }),
-        },
-      }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env['LOG_LEVEL'] ?? 'info',
+        customProps: () => ({ context: 'HTTP' }),
+        ...(process.env['NODE_ENV'] === 'production'
+          ? {}
+          : { transport: { target: 'pino-pretty', options: { singleLine: true } } }),
+      },
     }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     PrismaModule,
@@ -49,6 +46,7 @@ import { QueueModule } from './modules/queue/queue.module.js';
     HealthModule,
     DiaModule,
     CatalogModule,
+    AdminModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

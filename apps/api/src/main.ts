@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import helmet from '@fastify/helmet';
 import { ValidationPipe, type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -8,8 +9,8 @@ import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fa
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 
-import { AppModule } from './app.module.js';
-import type { Env } from './config/env.js';
+import { AppModule } from './app.module';
+import type { Env } from './config/env';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -25,7 +26,9 @@ async function bootstrap(): Promise<void> {
   const logger = app.get(Logger);
   app.useLogger(logger);
 
-  await app.register(helmet, {
+  // @fastify/helmet ships types for a slightly different Fastify version than
+  // @nestjs/platform-fastify carries; the runtime contract is identical.
+  await app.register(helmet as never, {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],

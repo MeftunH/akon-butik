@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { CatalogController } from './catalog.controller.js';
-import { ListProductsUseCase } from './use-cases/list-products.use-case.js';
-import { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case.js';
-import { PRODUCT_REPOSITORY } from './ports/product.repository.js';
-import { PrismaProductRepository } from './adapters/prisma-product.repository.js';
+import { CatalogController } from './catalog.controller';
+import { ListProductsUseCase } from './use-cases/list-products.use-case';
+import { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case';
+import { PRODUCT_REPOSITORY } from './ports/product.repository';
+import { PrismaProductRepository } from './adapters/prisma-product.repository';
 
 /**
  * Catalog bounded context — exposes the public product/category endpoints.

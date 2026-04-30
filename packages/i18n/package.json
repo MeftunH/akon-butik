@@ -2,18 +2,21 @@
   "name": "@akonbutik/i18n",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     },
     "./messages/tr": "./messages/tr.json",
     "./messages/en": "./messages/en.json"
   },
-  "files": ["dist", "messages"],
+  "files": [
+    "src",
+    "dist",
+    "messages"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",

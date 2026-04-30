@@ -7,7 +7,7 @@ import {
   type HealthCheckResult,
 } from '@nestjs/terminus';
 
-import { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../prisma/prisma.service';
 
 @ApiTags('health')
 @Controller('health')

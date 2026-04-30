@@ -2,9 +2,9 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import type { ProductDetail, ProductSummary } from '@akonbutik/types';
 
-import { ListProductsQuery } from './dto/list-products.query.js';
-import { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case.js';
-import { ListProductsUseCase } from './use-cases/list-products.use-case.js';
+import { ListProductsQuery } from './dto/list-products.query';
+import { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case';
+import { ListProductsUseCase } from './use-cases/list-products.use-case';
 
 @ApiTags('catalog')
 @Controller('catalog')

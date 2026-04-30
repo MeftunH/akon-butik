@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { ProductDetail, ProductFilterInput, ProductSummary } from '@akonbutik/types';
 
-import { PrismaService } from '../../prisma/prisma.service.js';
-import type { ProductRepository } from '../ports/product.repository.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import type { ProductRepository } from '../ports/product.repository';
 
 /**
  * Prisma-backed implementation of {@link ProductRepository}.

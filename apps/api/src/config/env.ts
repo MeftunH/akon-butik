@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const emptyToUndefined = (v: unknown): unknown => (v === '' ? undefined : v);
+
 /**
  * The single source of truth for environment-driven configuration.
  *
@@ -25,8 +27,12 @@ const envSchema = z.object({
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
 
-  IYZICO_API_KEY: z.string().min(1).optional(),
-  IYZICO_SECRET_KEY: z.string().min(1).optional(),
+  // Phase-1 temporary admin auth — replaced by AdminAuthGuard in Phase 4
+  ADMIN_SYNC_TOKEN: z.string().min(32),
+
+  // Treat empty strings from .env as missing so zod's .optional() applies
+  IYZICO_API_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  IYZICO_SECRET_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   IYZICO_BASE_URL: z.string().url().default('https://sandbox-api.iyzipay.com'),
 
   CORS_ORIGINS: z

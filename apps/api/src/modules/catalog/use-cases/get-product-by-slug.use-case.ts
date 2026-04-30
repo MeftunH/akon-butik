@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { ProductDetail } from '@akonbutik/types';
 
-import { PRODUCT_REPOSITORY, type ProductRepository } from '../ports/product.repository.js';
+import { PRODUCT_REPOSITORY, type ProductRepository } from '../ports/product.repository';
 
 @Injectable()
 export class GetProductBySlugUseCase {

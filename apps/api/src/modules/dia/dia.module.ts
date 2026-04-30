@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiaClient } from '@akonbutik/dia-client';
 
-import type { Env } from '../../config/env.js';
+import type { Env } from '../../config/env';
 
 export const DIA_CLIENT = Symbol('DIA_CLIENT');
 

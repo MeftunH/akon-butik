@@ -14,7 +14,7 @@ interface ErrorBody {
   message: string;
   path: string;
   timestamp: string;
-  requestId?: string;
+  requestId?: string | undefined;
 }
 
 @Catch()

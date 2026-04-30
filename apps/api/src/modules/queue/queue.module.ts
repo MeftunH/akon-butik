@@ -2,7 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import type { Env } from '../../config/env.js';
+import type { Env } from '../../config/env';
 
 @Global()
 @Module({
