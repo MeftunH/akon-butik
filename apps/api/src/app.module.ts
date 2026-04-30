@@ -10,8 +10,10 @@ import { AllExceptionsFilter } from './common/exceptions/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { validateEnv, type Env } from './config/env';
 import { AdminModule } from './modules/admin/admin.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { CustomersModule } from './modules/customers/customers.module';
 import { DiaModule } from './modules/dia/dia.module';
 import { HealthModule } from './modules/health/health.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -48,6 +50,8 @@ import { QueueModule } from './modules/queue/queue.module';
     QueueModule,
     HealthModule,
     DiaModule,
+    AuthModule,
+    CustomersModule,
     CatalogModule,
     CartModule,
     PaymentsModule,
