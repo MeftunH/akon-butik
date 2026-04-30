@@ -1,11 +1,11 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { DiaClient, Stokkart } from '@akonbutik/dia-client';
 import type { Prisma } from '@akonbutik/database';
+import type { DiaClient, Stokkart } from '@akonbutik/dia-client';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
-import { PrismaService } from '../prisma/prisma.service';
+import type { PrismaService } from '../prisma/prisma.service';
 
+import { DIA_CLIENT } from './dia.tokens';
 import { aggregateStokkarts } from './mapping/aggregate-stokkarts';
-import { DIA_CLIENT } from './dia.module';
 
 const PRODUCT_PAGE_SIZE = 100;
 const STOCK_PAGE_SIZE = 200;

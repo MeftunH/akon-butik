@@ -12,9 +12,15 @@ export interface SessionConfig {
   disconnectSameUser?: boolean;
 }
 
+/**
+ * DIA's `sis_login` response shape (API v3): on success, `code === "200"`
+ * and the **session id is returned in `msg`**, not in a dedicated field.
+ * On failure, `msg` carries the human error and `code` is non-200.
+ */
 interface LoginResponse {
   code: string;
   msg?: string;
+  /** Some older DIA deployments returned session_id here; tolerate both. */
   session_id?: string;
 }
 
@@ -57,14 +63,15 @@ export class SessionManager {
       },
     };
     const res = await postJson<LoginResponse>(url, payload);
-    if (res.code !== '200' || !res.session_id) {
+    const sessionId = res.session_id ?? res.msg;
+    if (res.code !== '200' || !sessionId) {
       throw new DiaApiError(res.code, res.msg ?? 'unknown login error', {
         service: 'login',
         payload,
       });
     }
-    this.sessionId = res.session_id;
-    return res.session_id;
+    this.sessionId = sessionId;
+    return sessionId;
   }
 
   /**

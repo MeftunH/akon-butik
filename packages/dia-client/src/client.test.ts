@@ -4,10 +4,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DiaClient } from './client.js';
 import { DiaApiError, DiaInvalidSessionError } from './errors.js';
 
+// DIA returns session id in `msg` on a successful login (code "200").
+// Real production response confirmed against akonbutik.ws.dia.com.tr/api/v3.
 const loginSuccess = {
   code: '200',
-  msg: 'Login successful',
-  session_id: 'fake-session-token-for-testing',
+  msg: 'fake-session-token-for-testing',
+  warnings: [],
 };
 const invalidSession = { code: 'INVALID_SESSION', msg: 'Session expired' };
 const stokkartListele = {
@@ -95,8 +97,6 @@ describe('DiaClient', () => {
       .reply(200, { code: '500', msg: 'permission denied' });
 
     const client = makeClient();
-    await expect(client.scf.stokkartListele({ limit: 100 })).rejects.toBeInstanceOf(
-      DiaApiError,
-    );
+    await expect(client.scf.stokkartListele({ limit: 100 })).rejects.toBeInstanceOf(DiaApiError);
   });
 });

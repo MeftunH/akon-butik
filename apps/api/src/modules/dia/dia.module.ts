@@ -1,14 +1,22 @@
+import { DiaClient } from '@akonbutik/dia-client';
+import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DiaClient } from '@akonbutik/dia-client';
 
 import type { Env } from '../../config/env';
 
-export const DIA_CLIENT = Symbol('DIA_CLIENT');
+import { DiaSyncService } from './dia-sync.service';
+import { DIA_CLIENT } from './dia.tokens';
+import { CronSchedulerService } from './workers/cron-scheduler.service';
+import { DiaSyncProcessor } from './workers/dia-sync.processor';
+import { DIA_SYNC_QUEUE } from './workers/sync.constants';
+
+// Re-export for backwards compat with existing importers.
+export { DIA_CLIENT } from './dia.tokens';
 
 @Global()
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, BullModule.registerQueue({ name: DIA_SYNC_QUEUE })],
   providers: [
     {
       provide: DIA_CLIENT,
@@ -24,7 +32,10 @@ export const DIA_CLIENT = Symbol('DIA_CLIENT');
           disconnectSameUser: true,
         }),
     },
+    DiaSyncService,
+    DiaSyncProcessor,
+    CronSchedulerService,
   ],
-  exports: [DIA_CLIENT],
+  exports: [DIA_CLIENT, DiaSyncService],
 })
 export class DiaModule {}
