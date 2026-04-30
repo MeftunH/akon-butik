@@ -1,8 +1,8 @@
 import js from '@eslint/js';
+import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import securityPlugin from 'eslint-plugin-security';
 import unicornPlugin from 'eslint-plugin-unicorn';
-import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -31,7 +31,17 @@ export default [
       sourceType: 'module',
       globals: { ...globals.node },
       parserOptions: {
-        projectService: true,
+        // Build/eslint/jest config files live outside any tsconfig include
+        // path; `allowDefaultProject` lets them lint with the default project
+        // so we don't have to pull them into runtime tsconfig include lists.
+        projectService: {
+          allowDefaultProject: [
+            'eslint.config.{js,mjs}',
+            'jest.config.{js,cjs}',
+            'vitest.config.{js,ts}',
+            'packages/config-eslint/*.js',
+          ],
+        },
       },
     },
     plugins: {
@@ -76,13 +86,27 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector:
-            "MemberExpression[object.object.name='process'][object.property.name='env']",
+          selector: "MemberExpression[object.object.name='process'][object.property.name='env']",
           message:
             'Direct process.env access is forbidden outside src/config/env.ts. Read from the typed config module instead.',
         },
       ],
     },
+  },
+  // Config files (eslint.config.*, next.config.*, jest.config.*, vitest.config.*,
+  // and the shared eslint configs in packages/config-eslint) live outside
+  // any runtime tsconfig include path. They lint via the default project,
+  // which doesn't enable strictNullChecks — so type-checked rules can't run
+  // reliably here. Disable them for these files only.
+  {
+    files: [
+      '**/eslint.config.{js,mjs}',
+      '**/next.config.{js,ts,mjs}',
+      '**/jest.config.{js,cjs}',
+      '**/vitest.config.{js,ts}',
+      'packages/config-eslint/*.js',
+    ],
+    ...tseslint.configs.disableTypeChecked,
   },
   prettierConfig,
 ];

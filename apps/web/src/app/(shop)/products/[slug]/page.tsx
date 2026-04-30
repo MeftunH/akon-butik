@@ -1,14 +1,14 @@
-import { Price } from '@akonbutik/ui';
 import type { ProductDetail } from '@akonbutik/types';
+import { Price } from '@akonbutik/ui';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { api, ApiError } from '@/lib/api';
-
 import { AddToCart } from './_components/AddToCart';
 import { ProductSelectionProvider } from './_components/selection-context';
 import { VariantPicker } from './_components/VariantPicker';
+
+import { api, ApiError } from '@/lib/api';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -95,6 +95,10 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="col-lg-7">
           <div className="product-gallery">
             {product.primaryImageUrl ? (
+              // PDP gallery uses static product photos served from the
+              // theme's /images directory. next/image is a Phase 6 task
+              // (CDN domains aren't configured yet); keep the plain tag.
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={product.primaryImageUrl}
                 alt={product.nameTr}

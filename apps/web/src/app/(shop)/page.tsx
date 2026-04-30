@@ -1,7 +1,7 @@
-import { ProductGrid } from '@akonbutik/ui';
 import type { ProductSummary } from '@akonbutik/types';
-import { getTranslations } from 'next-intl/server';
+import { ProductGrid } from '@akonbutik/ui';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 import { api } from '@/lib/api';
 

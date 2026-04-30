@@ -1,7 +1,7 @@
 'use client';
 
-import { useCart } from '@akonbutik/ui';
 import type { ProductDetail } from '@akonbutik/types';
+import { useCart } from '@akonbutik/ui';
 import { useState } from 'react';
 
 import { useProductSelection } from './selection-context';

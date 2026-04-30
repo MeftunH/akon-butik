@@ -1,10 +1,10 @@
-import { ProductGrid } from '@akonbutik/ui';
 import type { ProductSummary } from '@akonbutik/types';
+import { ProductGrid } from '@akonbutik/ui';
 import type { Metadata } from 'next';
 
-import { api } from '@/lib/api';
-
 import { ShopFilters } from './_components/ShopFilters';
+
+import { api } from '@/lib/api';
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -33,9 +33,7 @@ export default async function ShopPage({ searchParams }: Props) {
   }
   if (!queryString.has('pageSize')) queryString.set('pageSize', '24');
 
-  const result = await api<ProductListResponse>(
-    `/catalog/products?${queryString.toString()}`,
-  );
+  const result = await api<ProductListResponse>(`/catalog/products?${queryString.toString()}`);
 
   return (
     <main className="container py-5">
