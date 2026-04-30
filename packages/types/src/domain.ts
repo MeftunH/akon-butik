@@ -72,6 +72,7 @@ export interface AddressInput {
 
 export interface OrderSummary {
   id: OrderId;
+  orderNumber: string;
   diaSiparisKodu: string | null;
   status: 'pending' | 'paid' | 'fulfilling' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   totalMinor: number;

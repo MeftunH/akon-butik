@@ -10,7 +10,8 @@ export interface CartBadgeProps {
 }
 
 export function CartBadge({ href = '/cart', ariaLabel = 'Sepet' }: CartBadgeProps) {
-  const { totalQuantity } = useCart();
+  const { cart } = useCart();
+  const totalQuantity = cart.items.reduce((acc, item) => acc + item.quantity, 0);
   return (
     <Link href={href} className="nav-icon-item" aria-label={ariaLabel}>
       <i className="icon icon-bag" aria-hidden />

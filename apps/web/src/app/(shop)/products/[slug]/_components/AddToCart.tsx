@@ -7,14 +7,15 @@ import { useState } from 'react';
 import { useProductSelection } from './selection-context';
 
 /**
- * Adds the currently-selected variant to the local cart. Phase 3 swaps this
- * to mutate the server-side cart and shows an offcanvas mini-cart.
+ * Posts the chosen variant to /api/cart/items via the cart context.
+ * Backend computes totals and clamps stock; we just send (variantId, qty).
  */
 export function AddToCart({ product }: { product: ProductDetail }) {
   const { add } = useCart();
   const { selectedSize, selectedColor } = useProductSelection();
   const [quantity, setQuantity] = useState(1);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const variant = product.variants.find(
     (v) =>
@@ -22,7 +23,7 @@ export function AddToCart({ product }: { product: ProductDetail }) {
       (v.color === null || v.color === selectedColor),
   );
 
-  const onAdd = () => {
+  const onAdd = async () => {
     if (!variant) {
       setFeedback('Lütfen beden ve renk seçin.');
       return;
@@ -31,15 +32,15 @@ export function AddToCart({ product }: { product: ProductDetail }) {
       setFeedback('Bu varyant şu an stokta yok.');
       return;
     }
-    add({
-      variantId: variant.id,
-      quantity,
-      productSlug: product.slug,
-      productNameTr: product.nameTr,
-      primaryImageUrl: product.primaryImageUrl,
-      variant,
-    });
-    setFeedback('Sepete eklendi.');
+    setBusy(true);
+    try {
+      await add(variant.id, quantity);
+      setFeedback('Sepete eklendi.');
+    } catch {
+      setFeedback('Sepete eklenirken bir hata oluştu.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -62,10 +63,10 @@ export function AddToCart({ product }: { product: ProductDetail }) {
       <button
         type="button"
         className="btn btn-primary btn-lg w-100"
-        onClick={onAdd}
-        disabled={!variant || variant.stockQty <= 0}
+        onClick={() => void onAdd()}
+        disabled={!variant || variant.stockQty <= 0 || busy}
       >
-        {variant && variant.stockQty <= 0 ? 'Stokta Yok' : 'Sepete Ekle'}
+        {busy ? 'Ekleniyor…' : variant && variant.stockQty <= 0 ? 'Stokta Yok' : 'Sepete Ekle'}
       </button>
       {feedback && <p className="small text-muted mt-2 mb-0">{feedback}</p>}
     </div>
