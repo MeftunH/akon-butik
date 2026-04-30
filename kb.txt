@@ -7,7 +7,7 @@ donem kodu : 1
 kaynak ws : https://akonbutik.ws.dia.com.tr/api/v3/
 
 
-
+https://doc.dia.com.tr/doku.php?id=gelistirici:wsapi:stokhizmet&s[]=scf&s[]=stok#dokuwiki__top
 
 https://srv.csweb.com.tr:2087/
 root

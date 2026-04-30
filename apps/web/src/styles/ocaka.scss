@@ -1,8 +1,141 @@
-// Compile the Ocaka theme stylesheet into the storefront bundle.
-//
-// We don't copy the SCSS into apps/web — keep it as the read-only vendor asset.
-// The internal `../icon/...` and `../css/...` imports inside main.scss resolve
-// against the vendor public/ tree (where the file lives).
-// Browser-time url(/icon/...) lookups hit our symlinks under apps/web/public/.
+// Ocaka theme entry — vendor SCSS bundle. Vendor is read-only so we wrap
+// its scss tree here. Vendor's main.scss imports five .css files via
+// sass `@import "...css"` which webpack's sass-loader can't resolve from
+// the relative path inside the vendor public/ tree. Those five CSS files
+// are loaded as ESM imports in apps/web/src/app/layout.tsx instead;
+// here we only pull in the SCSS half.
+@use 'sass:meta';
 
-@import '../../../../vendor/ochaka-theme/reactjs/public/scss/main.scss';
+@include meta.load-css('../../../../vendor/ochaka-theme/reactjs/public/scss/app');
+
+// Custom rules copy-pasted from vendor/scss/main.scss (vendor is read-
+// only — can't edit in place). Keep in sync if upstream changes.
+.infiniteSlider {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  animation: 46.4928s linear 0s infinite normal none running infiniteSlide;
+  &:hover {
+    animation-play-state: paused;
+  }
+  &.reverced {
+    animation-direction: reverse;
+  }
+}
+
+@keyframes infiniteSlide {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-2324.64px, 0, 0);
+  }
+}
+
+.will-sticky {
+  top: -94px;
+}
+
+.header-sticky {
+  top: 0;
+}
+
+.rc-slider .rc-slider-handle {
+  border: solid 2px var(--black);
+  opacity: 1 !important;
+  background-color: #fff !important;
+  width: 20px;
+  border-radius: 10px !important;
+  height: 20px;
+  margin-top: -9px;
+}
+
+.rc-slider .rc-slider-handle:hover {
+  border-color: var(--black);
+}
+
+.rc-slider .rc-slider-handle-dragging {
+  border-color: var(--black) !important;
+  box-shadow: none !important;
+}
+
+.rc-slider .rc-slider-track,
+.rc-slider .rc-slider-tracks {
+  background-color: var(--black);
+}
+
+.offcanvas {
+  .canvas-header {
+    display: flex !important;
+  }
+  .canvas-bottom {
+    display: block !important;
+  }
+}
+
+.filter-drawer-wrap {
+  @media (min-width: 1200px) {
+    .sb-banner {
+      display: none;
+    }
+  }
+}
+
+.color-part-placeholer {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.card-product_wrapper .remove-wishlist.box-icon:hover {
+  button {
+    background-color: var(--black);
+    color: var(--white);
+  }
+}
+
+.tooltip-none {
+  .tooltip {
+    display: none;
+  }
+}
+
+.tfSubscribeMsg {
+  display: none;
+  max-height: 0;
+  overflow: hidden;
+  &.active {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-height: 180px;
+    display: block;
+  }
+}
+
+@media only screen and (max-width: 575px) {
+  .footer-heading-mobile {
+    cursor: pointer;
+  }
+  .footer-col-block .tf-collapse-content {
+    overflow-y: hidden;
+    display: block;
+    height: 0;
+    transition: 0.5s;
+  }
+}
+
+.img-viewer-compare-wrap {
+  button {
+    transition: 0s !important;
+  }
+}
+
+.pswp__img {
+  object-fit: contain !important;
+  display: block;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+button {
+  cursor: pointer;
+}
