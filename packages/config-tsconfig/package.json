@@ -1,0 +1,12 @@
+{
+  "name": "@akonbutik/config-tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "base.json",
+    "library.json",
+    "react-library.json",
+    "nextjs.json",
+    "nestjs.json"
+  ]
+}

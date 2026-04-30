@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits", ":timezone(Europe/Istanbul)"],
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 6am on monday"] },
+  "packageRules": [
+    {
+      "groupName": "NestJS ecosystem",
+      "matchPackagePatterns": ["^@nestjs/", "^nestjs-"]
+    },
+    {
+      "groupName": "Next.js ecosystem",
+      "matchPackagePatterns": ["^next$", "^@next/", "^eslint-config-next$"]
+    },
+    {
+      "groupName": "Prisma",
+      "matchPackagePatterns": ["^@?prisma$", "^prisma$", "^@prisma/"]
+    },
+    {
+      "groupName": "Storybook",
+      "matchPackagePatterns": ["^@storybook/", "^storybook$"]
+    },
+    {
+      "groupName": "TypeScript-ESLint",
+      "matchPackagePatterns": ["^typescript-eslint$", "^@typescript-eslint/"]
+    },
+    {
+      "matchPackagePatterns": ["^@types/"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    }
+  ],
+  "vulnerabilityAlerts": { "enabled": true, "labels": ["security"] }
+}

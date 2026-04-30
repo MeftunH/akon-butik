@@ -1,0 +1,73 @@
+{
+  "common": {
+    "brandName": "Akon Butik",
+    "loading": "Loading…",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search"
+  },
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "blog": "Blog",
+    "about": "About",
+    "contact": "Contact",
+    "account": "Account",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out"
+  },
+  "product": {
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock",
+    "size": "Size",
+    "color": "Color",
+    "quantity": "Qty",
+    "price": "Price",
+    "description": "Description",
+    "specifications": "Specifications",
+    "similar": "Similar products",
+    "related": "Related products"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue shopping"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "billingAddress": "Billing address",
+    "shippingAddress": "Shipping address",
+    "paymentMethod": "Payment method",
+    "placeOrder": "Place order",
+    "orderSuccess": "Order received"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm": "Confirm password",
+    "name": "Full name",
+    "phone": "Phone",
+    "kvkkAccept": "I have read and accept the KVKK information notice",
+    "loginButton": "Log in",
+    "registerButton": "Create account",
+    "forgotPassword": "Forgot password",
+    "remember": "Remember me"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email",
+    "invalidPhone": "Please enter a valid TR mobile phone",
+    "passwordTooShort": "Password must be at least 10 characters"
+  }
+}

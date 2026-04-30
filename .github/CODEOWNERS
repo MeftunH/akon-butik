@@ -1,0 +1,8 @@
+# Default owner for everything
+*       @MeftunH
+
+# Architecture decisions need explicit review
+/docs/adr/  @MeftunH
+
+# Server provisioning is high-blast-radius
+/infra/    @MeftunH

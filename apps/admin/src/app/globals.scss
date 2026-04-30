@@ -1,0 +1,33 @@
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f6f7f9;
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  background: #1f2933;
+  color: #e6e9ef;
+  padding: 1rem;
+
+  a {
+    color: inherit;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+
+    &:hover,
+    &.active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+.admin-main {
+  padding: 2rem;
+}

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+coverage/
+playwright-report/
+test-results/
+storybook-static/
+pnpm-lock.yaml
+*.min.js
+*.min.css
+vendor/
+.eslintcache
+.prettiercache

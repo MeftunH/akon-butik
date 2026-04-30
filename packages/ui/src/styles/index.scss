@@ -1,0 +1,20 @@
+// Akon Butik UI — global theme entry point
+// Imports Ocaka theme's SCSS (kept under vendor/) and applies brand-color overrides.
+
+// 1. Brand color overrides (placeholder — confirm with stakeholder before launch)
+$primary-color: #c8102e !default; // Ocaka default; replace with Akon Butik brand color
+$secondary-color: #d7eb3a !default;
+
+// 2. Bootstrap (already included by Ocaka's main.scss)
+// 3. Ocaka theme styles
+@import '../../../../vendor/ochaka-theme/reactjs/public/scss/main.scss';
+
+// 4. Akon-specific tweaks
+.price {
+  font-weight: 600;
+
+  &__old {
+    font-weight: 400;
+    text-decoration: line-through;
+  }
+}

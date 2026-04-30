@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Test outputs
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+__snapshots__/
+storybook-static/
+
+# Caches
+.cache/
+.parcel-cache/
+.eslintcache
+.prettiercache
+.stryker-tmp/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+private/
+secrets/
+*.pem
+*.key
+*.crt
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated
+.docusaurus/
+.serverless/
+.fusebox/
+.dynamodb/

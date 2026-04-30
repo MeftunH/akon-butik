@@ -1,0 +1,73 @@
+{
+  "common": {
+    "brandName": "Akon Butik",
+    "loading": "Yükleniyor…",
+    "error": "Bir hata oluştu",
+    "retry": "Tekrar dene",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "search": "Ara"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "shop": "Mağaza",
+    "blog": "Blog",
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "account": "Hesabım",
+    "cart": "Sepet",
+    "wishlist": "Favoriler",
+    "login": "Giriş Yap",
+    "register": "Üye Ol",
+    "logout": "Çıkış"
+  },
+  "product": {
+    "addToCart": "Sepete Ekle",
+    "outOfStock": "Stokta Yok",
+    "size": "Beden",
+    "color": "Renk",
+    "quantity": "Adet",
+    "price": "Fiyat",
+    "description": "Ürün Açıklaması",
+    "specifications": "Özellikler",
+    "similar": "Benzer Ürünler",
+    "related": "İlgili Ürünler"
+  },
+  "cart": {
+    "title": "Sepetim",
+    "empty": "Sepetiniz boş",
+    "subtotal": "Ara Toplam",
+    "shipping": "Kargo",
+    "total": "Toplam",
+    "checkout": "Ödemeye Geç",
+    "continueShopping": "Alışverişe Devam Et"
+  },
+  "checkout": {
+    "title": "Ödeme",
+    "billingAddress": "Fatura Adresi",
+    "shippingAddress": "Teslimat Adresi",
+    "paymentMethod": "Ödeme Yöntemi",
+    "placeOrder": "Siparişi Tamamla",
+    "orderSuccess": "Siparişiniz alındı"
+  },
+  "auth": {
+    "email": "E-posta",
+    "password": "Şifre",
+    "passwordConfirm": "Şifre (Tekrar)",
+    "name": "Ad Soyad",
+    "phone": "Telefon",
+    "kvkkAccept": "KVKK aydınlatma metnini okudum, onaylıyorum",
+    "loginButton": "Giriş Yap",
+    "registerButton": "Hesap Oluştur",
+    "forgotPassword": "Şifremi unuttum",
+    "remember": "Beni hatırla"
+  },
+  "errors": {
+    "required": "Bu alan zorunludur",
+    "invalidEmail": "Geçerli bir e-posta girin",
+    "invalidPhone": "Geçerli bir Türk cep telefonu girin",
+    "passwordTooShort": "Şifre en az 10 karakter olmalı"
+  }
+}
