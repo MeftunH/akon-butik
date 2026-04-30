@@ -1,0 +1,49 @@
+api : d87ae239-d09f-4158-ab5b-053f409b7e83
+kulanıcı: akonwb
+şifre   : Akon54Butik2026+++
+Sunucu kodu : akonbutik
+firma kodu : 1
+donem kodu : 1
+kaynak ws : https://akonbutik.ws.dia.com.tr/api/v3/
+
+
+
+
+https://srv.csweb.com.tr:2087/
+root
+5ITZd5htHhQE!oV
+
+severda whm kullaniliyor
+
+bunlae geyim aracı olaraq qısaca. Temada, zatən var olan özəliklərin hamısı qala bilər; təbii ki, optional olaraq açılıb bağlanabiler
+
+Daha sonra, istənilən əsas özəliklər DIA-in integrasiyası işləməlidir, siparişi pəstləməlidir və ya stokları oradan çəkməlidir. Çünki bunlar müasib üçün diyan işlədilər. Həm hələ ki, kateqoriləri orada oluşturmuyublar dediklərini görə, amma kateqoriləri də orada oluşturmalıdırlar, məhsullar üçün oradan gələcəyi.
+
+Hə, optional olaraq şeyi də qoya bilərik. DIA-dakı məhsullar okey, həm də isteğe bağlı olaraq saytın özünə məhsul açıb vermək. Veyahut da DIA-dan veri çəkmək, məsələn, məhsul gəldi, məhsulun verisi gəldi, yalnız şəkli veb saytda əlavə edilə bilər.
+
+ DiA da elə bir sold, yalnız quantity və stokla bağlı detallar, şəkillənmə saytını özündən update edə bilərik. Kimi düşünürsən, başqa? Blog falan bunlar olsun, da olmalıdır.
+
+Ödəniş üçün hər iki izi konu düşünürük. Başqa kargo şeyi inteqrasiya olmalıdır. Mənim bildiyim qədərilə, ya da anlaşma üzərində edilər. Olar, birbaşa özləri eləyir, akkonbutikin özləri eliyer.
+
+Payment olaraq, dün Cəmil abi iyzico ola bilir, bir də QNB pay ola biler İycizo da rahat olar, deyilmi? Düşünürəm, nəsədə orası sən də.
+
+Başqadakı sual yaranabilir, onu soruşarsam da, sən yenə mənimləri. bütün bu, ıdediyin digər işlər,  şeyin backend-inin tamamlanması, kart, payment'ın oturtulması falan.
+
+
+
+Şimdi bunun frontend temasını aldık biz.
+
+Bak, frontend temayı burada bulabilirsin. Bu frontend temanın üstünden, işte ilk mesajda yazdığımız gibi, yapılacak.
+
+Bundan bir tane backend framework lazım. İşte backend'ini tamamen biz yazacağız. DIA ile alakalı olanları yukarıdan, bunun bir de bizim tarafta yazacağımız database olacak.
+
+Bir de bunu işte deploy edebilmemiz lazım. Ona da bakmamız lazım. İşte bunu biz deploy edebiliyor muyuz diye VHM tarafına, bizim server'a yani.
+
+
+Burası biraz karışık olacak. Her detaya dikkat ederek, Best Practice olarak yazmamız lazım burayı.
+
+Mesela, şu anda akonbutik üst folderı görüyorsun. Onun altında Ocaka Package var. Bu, bizim frontend template'ımız olacak. Ocaka React.js var ve onun yanında Documentation var. Bunun frontendini ayrı bir folder olarak yazacağız. Ayrı bir proje olarak yazacağız ve kendine ayrı bir folder, ayrı bir proje olarak yazacağız.
+
+Burada Framework'a karar vermemiz lazım. Kullanacağımız teknolojilere karar vermemiz lazım ki, onu sen vereceksin. Sonrasında, arka tarafta kullanacağımız database'e karar vermemiz lazım. Onu da sen karar vereceksin. Ek teknolojiler varsa, onlarda sen karar vereceksin.
+
+Bu şekilde ilerleyeceğiz.

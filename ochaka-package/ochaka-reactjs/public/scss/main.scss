@@ -1,0 +1,129 @@
+@use "sass:meta";
+@import "../icon/icomoon/style.css";
+
+// CSS
+@import "../css/bootstrap-select.min.css";
+@import "../css/bootstrap.min.css";
+@import "../css/swiper-bundle.min.css";
+@import "../css/animate.css";
+@include meta.load-css("app.scss");
+.infiniteSlider {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  animation: 46.4928s linear 0s infinite normal none running infiniteSlide;
+  &:hover {
+    animation-play-state: paused;
+  }
+  &.reverced {
+    animation-direction: reverse;
+  }
+}
+
+@keyframes infiniteSlide {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-2324.64px, 0, 0);
+  }
+}
+.will-sticky {
+  top: -94px;
+}
+
+.header-sticky {
+  top: 0;
+}
+.rc-slider .rc-slider-handle {
+  border: solid 2px var(--black);
+  opacity: 1 !important;
+  background-color: #fff !important;
+  width: 20px;
+  border-radius: 10px !important;
+  height: 20px;
+
+  margin-top: -9px;
+}
+
+.rc-slider .rc-slider-handle:hover {
+  border-color: var(--black);
+}
+
+.rc-slider .rc-slider-handle-dragging {
+  border-color: var(--black) !important;
+  box-shadow: none !important;
+}
+
+.rc-slider .rc-slider-track,
+.rc-slider .rc-slider-tracks {
+  background-color: var(--black);
+}
+.offcanvas {
+  .canvas-header {
+    display: flex !important;
+  }
+  .canvas-bottom {
+    display: block !important;
+  }
+}
+.filter-drawer-wrap {
+  @media (min-width: 1200px) {
+    .sb-banner {
+      display: none;
+    }
+  }
+}
+.color-part-placeholer {
+  opacity: 0;
+  visibility: hidden;
+}
+.card-product_wrapper .remove-wishlist.box-icon:hover {
+  button {
+    background-color: var(--black);
+    color: var(--white);
+  }
+}
+.tooltip-none {
+  .tooltip {
+    display: none;
+  }
+}
+.tfSubscribeMsg {
+  display: none;
+  max-height: 0px;
+  // transition: 0.4s;
+  overflow: hidden;
+  &.active {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-height: 180px;
+    display: block;
+  }
+}
+@media only screen and (max-width: 575px) {
+  .footer-heading-mobile {
+    cursor: pointer;
+  }
+  .footer-col-block .tf-collapse-content {
+    overflow-y: hidden;
+    display: block;
+    height: 0;
+    transition: 0.5s;
+  }
+}
+.img-viewer-compare-wrap {
+  button {
+    transition: 0s !important;
+  }
+}
+.pswp__img {
+  object-fit: contain !important;
+  display: block;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+button {
+  cursor: pointer;
+}
