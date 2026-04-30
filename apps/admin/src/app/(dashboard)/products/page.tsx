@@ -97,7 +97,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             {resp.items.map((p) => (
               <tr key={p.id}>
                 <td>
-                  <div className="fw-semibold">{p.nameTr}</div>
+                  <Link href={`/products/${p.id}`} className="fw-semibold text-decoration-none">
+                    {p.nameTr}
+                  </Link>
                   <div className="small text-muted">
                     {p.slug}
                     {p.diaParentKey && (

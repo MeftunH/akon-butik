@@ -12,6 +12,7 @@ import { AdminCatalogController } from './admin-catalog.controller';
 import { AdminCookieService } from './admin-cookie.service';
 import { AdminImagesController } from './admin-images.controller';
 import { AdminSyncController } from './admin-sync.controller';
+import { AdminTaxonomyController } from './admin-taxonomy.controller';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AdminSyncController } from './admin-sync.controller';
     AdminSyncController,
     AdminCatalogController,
     AdminImagesController,
+    AdminTaxonomyController,
   ],
   providers: [AdminAuthService, AdminCookieService],
 })

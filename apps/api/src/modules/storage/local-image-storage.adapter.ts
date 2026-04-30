@@ -1,11 +1,12 @@
-// NestJS reads constructor metadata at runtime — value imports stay value imports.
- 
 import { randomBytes } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { Injectable, Logger } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+// NestJS DI reads constructor metadata at runtime — ConfigService MUST be
+// a value import or the parameter binds to `Function` and DI fails at boot.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { ConfigService } from '@nestjs/config';
 
 import type { Env } from '../../config/env';
 

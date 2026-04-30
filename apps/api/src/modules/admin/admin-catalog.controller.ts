@@ -1,6 +1,17 @@
 import type { Prisma } from '@akonbutik/database';
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { IsIn, IsInt, IsOptional, IsString, MaxLength, Min, ValidateIf } from 'class-validator';
 
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 // NestJS DI needs the runtime class — `import type` would tree-shake.
@@ -18,8 +29,42 @@ const ORDER_STATUSES = [
 ] as const;
 type OrderStatusLiteral = (typeof ORDER_STATUSES)[number];
 
+const PRODUCT_STATUSES = ['visible', 'hidden', 'needs_review'] as const;
+type ProductStatusLiteral = (typeof PRODUCT_STATUSES)[number];
+
 const MAX_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE = 25;
+
+class UpdateProductDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  nameTr?: string;
+
+  @IsOptional()
+  @IsString()
+  descriptionMd?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  defaultPriceMinor?: number;
+
+  @IsOptional()
+  @IsIn(PRODUCT_STATUSES)
+  status?: ProductStatusLiteral;
+
+  // Allow null to disconnect the relation, otherwise must be a non-empty string.
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsString()
+  brandId?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsString()
+  categoryId?: string | null;
+}
 
 @ApiTags('admin')
 @UseGuards(AdminAuthGuard)
@@ -82,6 +127,92 @@ export class AdminCatalogController {
     ]);
 
     return { items, total, page, pageSize };
+  }
+
+  @Get('products/:id')
+  @ApiOperation({ summary: 'Single product with full edit-relevant detail' })
+  async getProduct(@Param('id') id: string): Promise<unknown> {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        slug: true,
+        nameTr: true,
+        descriptionMd: true,
+        defaultPriceMinor: true,
+        currency: true,
+        status: true,
+        diaParentKey: true,
+        diaSyncedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        brand: { select: { id: true, name: true } },
+        category: { select: { id: true, nameTr: true } },
+        variants: {
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            sku: true,
+            diaStokkartkodu: true,
+            size: true,
+            color: true,
+            stockQty: true,
+            priceOverrideMinor: true,
+          },
+        },
+        images: {
+          orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }],
+          select: {
+            id: true,
+            url: true,
+            sortOrder: true,
+            isPrimary: true,
+            source: true,
+          },
+        },
+      },
+    });
+    if (!product) {
+      throw new NotFoundException(`Ürün bulunamadı: ${id}`);
+    }
+    return product;
+  }
+
+  @Patch('products/:id')
+  @ApiOperation({
+    summary:
+      'Update editable fields on a product (status / price / description / brand / category)',
+  })
+  async updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto): Promise<unknown> {
+    const data: Prisma.ProductUpdateInput = {};
+    if (dto.nameTr !== undefined) data.nameTr = dto.nameTr;
+    if (dto.descriptionMd !== undefined) data.descriptionMd = dto.descriptionMd;
+    if (dto.defaultPriceMinor !== undefined) data.defaultPriceMinor = dto.defaultPriceMinor;
+    if (dto.status !== undefined) data.status = dto.status;
+    if (dto.brandId !== undefined) {
+      data.brand = dto.brandId === null ? { disconnect: true } : { connect: { id: dto.brandId } };
+    }
+    if (dto.categoryId !== undefined) {
+      data.category =
+        dto.categoryId === null ? { disconnect: true } : { connect: { id: dto.categoryId } };
+    }
+
+    try {
+      return await this.prisma.product.update({ where: { id }, data });
+    } catch (err: unknown) {
+      // Prisma throws P2025 for missing record, P2003 for FK violation
+      // when brandId/categoryId points at a row that doesn't exist.
+      if (err instanceof Error && 'code' in err) {
+        const code = (err as { code: string }).code;
+        if (code === 'P2025') {
+          throw new NotFoundException(`Ürün bulunamadı: ${id}`);
+        }
+        if (code === 'P2003') {
+          throw new BadRequestException('Belirtilen marka veya kategori bulunamadı');
+        }
+      }
+      throw err;
+    }
   }
 
   @Get('orders')
