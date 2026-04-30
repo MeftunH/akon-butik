@@ -19,10 +19,12 @@
     "clean": "rm -rf storybook-static .turbo"
   },
   "peerDependencies": {
+    "next": "^15.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "dependencies": {
+    "@akonbutik/types": "workspace:*",
     "@akonbutik/utils": "workspace:*",
     "bootstrap": "5.3.7",
     "clsx": "^2.1.1",
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@akonbutik/config-eslint": "workspace:*",
     "@akonbutik/config-tsconfig": "workspace:*",
+    "next": "^15.1.3",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
     "@storybook/react-vite": "^8.4.7",

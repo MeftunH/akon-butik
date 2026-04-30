@@ -7,9 +7,13 @@ const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   output: 'standalone',
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
+  transpilePackages: [
+    '@akonbutik/ui',
+    '@akonbutik/utils',
+    '@akonbutik/types',
+    '@akonbutik/i18n',
+  ],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'akonbutik.com' },

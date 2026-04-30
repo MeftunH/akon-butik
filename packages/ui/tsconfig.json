@@ -1,10 +1,11 @@
 {
   "extends": "@akonbutik/config-tsconfig/react-library.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "noEmit": true,
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src/**/*", ".storybook/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "storybook-static", "**/*.stories.tsx", ".storybook"]
 }

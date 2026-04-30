@@ -1,4 +1,4 @@
-import { env } from '../config/env.js';
+import { env } from '../config/env';
 
 /**
  * Server-side fetch helper with sensible defaults for RSC.

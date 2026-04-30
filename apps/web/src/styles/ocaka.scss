@@ -1,0 +1,8 @@
+// Compile the Ocaka theme stylesheet into the storefront bundle.
+//
+// We don't copy the SCSS into apps/web — keep it as the read-only vendor asset.
+// The internal `../icon/...` and `../css/...` imports inside main.scss resolve
+// against the vendor public/ tree (where the file lives).
+// Browser-time url(/icon/...) lookups hit our symlinks under apps/web/public/.
+
+@import '../../../../vendor/ochaka-theme/reactjs/public/scss/main.scss';
