@@ -21,6 +21,19 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="tr">
+      {/* Afacad Google Font — vendor `$font-main` defined in
+          public/scss/abstracts/_variable.scss. Without this load every
+          `.title` / `.h1`-`h6` / heading falls back to the system font
+          stack and visually drifts from the vendor demo. */}
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&display=swap"
+        />
+      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   );

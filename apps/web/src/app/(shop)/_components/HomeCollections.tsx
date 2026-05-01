@@ -14,13 +14,23 @@ interface CollectionSlide {
 }
 
 /**
- * Two-up wide collection swiper — mirrors vendor
- * `home-fashion-2/Collections.tsx` (`s-collection` + `wg-cls-2 type-space-2`).
- * Each card is image-left + title/Shop now-right with a vertical divider.
+ * Three-up wide collection swiper — mirrors vendor `home-1/Collections.tsx`
+ * (`s-collection` + `wg-cls-2` cards with `tag_cls h3 link` title).
+ * Each card is image-left + title/Şimdi Keşfet-right with a vertical
+ * divider; click navigates to the relevant /shop?category=... slug.
  */
 const COLLECTIONS: readonly CollectionSlide[] = [
-  { imgSrc: '/images/collections/cls-4.jpg', title: 'Elbise Koleksiyonu', href: '/shop' },
-  { imgSrc: '/images/collections/cls-5.jpg', title: 'Sezon Vitrini', href: '/shop' },
+  { imgSrc: '/images/collections/cls-1.jpg', title: 'Yeni Sezon', href: '/shop?sort=newest' },
+  {
+    imgSrc: '/images/collections/cls-2.jpg',
+    title: 'Tişört Koleksiyonu',
+    href: '/shop?category=kadin',
+  },
+  {
+    imgSrc: '/images/collections/cls-3.jpg',
+    title: 'Elbise Koleksiyonu',
+    href: '/shop?category=elbise',
+  },
 ];
 
 export function HomeCollections() {
@@ -34,27 +44,27 @@ export function HomeCollections() {
           0: { slidesPerView: 1 },
           575: { slidesPerView: 2 },
           768: { slidesPerView: 2, spaceBetween: 15 },
-          1200: { slidesPerView: 2, spaceBetween: 24 },
+          1200: { slidesPerView: 3, spaceBetween: 24 },
         }}
         modules={[Pagination]}
         pagination={{ clickable: true, el: '.akon-cls-pagination' }}
       >
         {COLLECTIONS.map((item, index) => (
           <SwiperSlide className="swiper-slide" key={index}>
-            <div className="wg-cls-2 type-space-2 d-flex hover-img">
+            <div className="wg-cls-2 d-flex hover-img">
               <Link href={item.href} className="image img-style">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className="lazyload"
                   src={item.imgSrc}
                   alt={item.title}
-                  width={1386}
-                  height={945}
+                  width={912}
+                  height={704}
                 />
               </Link>
-              <div className="cls-content_wrap">
+              <div className="cls-content_wrap b-16">
                 <div className="cls-content">
-                  <Link href={item.href} className="tag_cls h2 type-semibold link">
+                  <Link href={item.href} className="tag_cls h3 link">
                     {item.title}
                   </Link>
                   <span className="br-line type-vertical" />
