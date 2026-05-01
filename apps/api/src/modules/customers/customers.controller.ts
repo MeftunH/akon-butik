@@ -11,9 +11,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { IsString, MaxLength, MinLength } from 'class-validator';
 
 import { RequiredUserId } from '../../common/decorators/current-user.decorator';
 // NestJS DI requires the runtime class — `import type` would tree-shake.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { AuthService } from '../auth/auth.service';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -22,12 +25,24 @@ import { CustomersService } from './customers.service';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
 
+class ChangePasswordDto {
+  @IsString()
+  @MinLength(1, { message: 'Mevcut şifrenizi girin' })
+  currentPassword!: string;
+
+  @IsString()
+  @MinLength(10, { message: 'Yeni şifre en az 10 karakter olmalı' })
+  @MaxLength(128)
+  newPassword!: string;
+}
+
 @ApiTags('customers')
 @Controller('customers')
 export class CustomersController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly customers: CustomersService,
+    private readonly auth: AuthService,
   ) {}
 
   @Get('me')
@@ -126,5 +141,18 @@ export class CustomersController {
     });
     if (!order) throw new NotFoundException();
     return order;
+  }
+
+  @Post('me/password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Change the current user’s password — verifies the existing password before persisting the new argon2id hash',
+  })
+  async changePassword(
+    @RequiredUserId() userId: string,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<void> {
+    await this.auth.changePassword(userId, dto.currentPassword, dto.newPassword);
   }
 }

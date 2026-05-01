@@ -6,9 +6,12 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
 
-import type { ListProductsQuery } from './dto/list-products.query';
-import type { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case';
-import type { ListProductsUseCase } from './use-cases/list-products.use-case';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { ListProductsQuery } from './dto/list-products.query';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { ListProductsUseCase } from './use-cases/list-products.use-case';
 
 interface TaxonomySummary {
   id: string;

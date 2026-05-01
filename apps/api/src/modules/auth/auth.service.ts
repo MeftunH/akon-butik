@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import {
   BadRequestException,
   ConflictException,
@@ -5,10 +7,9 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { hash, verify, argon2id } from 'argon2';
-import { createHash } from 'node:crypto';
+import { argon2id, hash, verify } from 'argon2';
 
-import { PrismaService } from '../prisma/prisma.service';
+import type { PrismaService } from '../prisma/prisma.service';
 
 import { JwtCookieService } from './jwt-cookie.service';
 
@@ -31,6 +32,36 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly cookies: JwtCookieService,
   ) {}
+
+  /**
+   * Verify the customer's current password and persist a new argon2id
+   * hash. Throws UnauthorizedException on a wrong currentPassword so
+   * the caller can surface a 401 the storefront can act on.
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordHash: true },
+    });
+    if (!user) throw new UnauthorizedException();
+    const ok = await verify(user.passwordHash, currentPassword);
+    if (!ok) throw new UnauthorizedException('Mevcut şifre hatalı');
+    const passwordHash = await hash(newPassword, {
+      type: argon2id,
+      memoryCost: 19_456,
+      timeCost: 2,
+      parallelism: 1,
+    });
+    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+    // Existing refresh tokens stay valid — typical "force re-login on
+    // password change" UX needs a `Session` table sweep here. Defer to
+    // Phase 6 since the storefront has no session-listing screen yet.
+    this.logger.log(`User ${userId} changed their password`);
+  }
 
   async register(input: {
     email: string;
