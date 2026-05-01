@@ -11,6 +11,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "jest --config test/jest-e2e.json",
+    "seed:images": "node scripts/seed-images.mjs",
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
