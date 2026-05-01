@@ -4,9 +4,39 @@
 // the relative path inside the vendor public/ tree. Those five CSS files
 // are loaded as ESM imports in apps/web/src/app/layout.tsx instead;
 // here we only pull in the SCSS half.
+//
+// We chain `meta.load-css` calls per module instead of just calling it
+// once on `app.scss`: that file uses `@use ./component/index` which
+// declares modules but emits no CSS at the call site. Loading each
+// component file directly forces every rule (including
+// .card-product_wrapper { aspect-ratio: ... } at line 641 of
+// component/_product.scss) into the compiled bundle.
 @use 'sass:meta';
 
-@include meta.load-css('../../../../vendor/ochaka-theme/reactjs/public/scss/app');
+$vendor: '../../../../vendor/ochaka-theme/reactjs/public/scss';
+
+@include meta.load-css('#{$vendor}/abstracts/index');
+@include meta.load-css('#{$vendor}/reset');
+@include meta.load-css('#{$vendor}/component/header');
+@include meta.load-css('#{$vendor}/component/footer');
+@include meta.load-css('#{$vendor}/component/slider');
+@include meta.load-css('#{$vendor}/component/button');
+@include meta.load-css('#{$vendor}/component/form');
+@include meta.load-css('#{$vendor}/component/nice-select');
+@include meta.load-css('#{$vendor}/component/carousel');
+@include meta.load-css('#{$vendor}/component/pop-up');
+@include meta.load-css('#{$vendor}/component/box-icon');
+@include meta.load-css('#{$vendor}/component/hover');
+@include meta.load-css('#{$vendor}/component/product');
+@include meta.load-css('#{$vendor}/component/blog');
+@include meta.load-css('#{$vendor}/component/testimonial');
+@include meta.load-css('#{$vendor}/component/accordion');
+@include meta.load-css('#{$vendor}/component/zoom');
+@include meta.load-css('#{$vendor}/component/cart');
+@include meta.load-css('#{$vendor}/component/animation');
+@include meta.load-css('#{$vendor}/component/shop');
+@include meta.load-css('#{$vendor}/component/tabs');
+@include meta.load-css('#{$vendor}/sections');
 
 // Custom rules copy-pasted from vendor/scss/main.scss (vendor is read-
 // only — can't edit in place). Keep in sync if upstream changes.
