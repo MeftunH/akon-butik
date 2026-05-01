@@ -7,8 +7,11 @@ import { useState } from 'react';
 import { useProductSelection } from './selection-context';
 
 /**
- * Posts the chosen variant to /api/cart/items via the cart context.
- * Backend computes totals and clamps stock; we just send (variantId, qty).
+ * Vendor PDP add-to-cart strip — `wg-quantity` quantity stepper +
+ * `tf-btn animate-btn type-large w-100` action button. Resolves the
+ * matching `ProductVariantSummary` from the current size/color selection
+ * and clamps quantity to its `stockQty`. Backend computes totals; we
+ * just send (variantId, qty).
  */
 export function AddToCart({ product }: { product: ProductDetail }) {
   const { add } = useCart();
@@ -23,7 +26,11 @@ export function AddToCart({ product }: { product: ProductDetail }) {
       (v.color === null || v.color === selectedColor),
   );
 
-  const onAdd = async () => {
+  const stockCap = variant?.stockQty ?? 1;
+  const outOfStock = variant !== undefined && variant.stockQty <= 0;
+  const noSelection = variant === undefined;
+
+  const onAdd = async (): Promise<void> => {
     if (!variant) {
       setFeedback('Lütfen beden ve renk seçin.');
       return;
@@ -43,31 +50,52 @@ export function AddToCart({ product }: { product: ProductDetail }) {
     }
   };
 
+  const dec = (): void => {
+    setQuantity((q) => Math.max(1, q - 1));
+  };
+  const inc = (): void => {
+    setQuantity((q) => Math.min(stockCap, q + 1));
+  };
+
   return (
-    <div className="add-to-cart">
-      <div className="d-flex gap-3 align-items-center mb-3">
-        <label className="form-label fw-semibold mb-0" htmlFor="qty-input">
-          Adet
-        </label>
-        <input
-          id="qty-input"
-          type="number"
-          min={1}
-          max={variant?.stockQty ?? 99}
-          value={quantity}
-          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-          className="form-control"
-          style={{ maxWidth: 100 }}
-        />
+    <div className="tf-product-info-quantity">
+      <div className="quantity-title fw-medium mb-2">Adet</div>
+      <div className="wg-quantity d-inline-flex align-items-center gap-2">
+        <button
+          type="button"
+          className="btn-quantity"
+          onClick={dec}
+          aria-label="Azalt"
+          disabled={busy || quantity <= 1}
+        >
+          −
+        </button>
+        <span className="quantity-product fw-bold" style={{ minWidth: 32, textAlign: 'center' }}>
+          {quantity}
+        </span>
+        <button
+          type="button"
+          className="btn-quantity"
+          onClick={inc}
+          aria-label="Arttır"
+          disabled={busy || quantity >= stockCap}
+        >
+          +
+        </button>
       </div>
-      <button
-        type="button"
-        className="btn btn-primary btn-lg w-100"
-        onClick={() => void onAdd()}
-        disabled={!variant || variant.stockQty <= 0 || busy}
-      >
-        {busy ? 'Ekleniyor…' : variant && variant.stockQty <= 0 ? 'Stokta Yok' : 'Sepete Ekle'}
-      </button>
+
+      <div className="tf-product-info-buy-button mt-3">
+        <button
+          type="button"
+          className="tf-btn animate-btn type-large w-100 fw-semibold"
+          onClick={() => void onAdd()}
+          disabled={noSelection || outOfStock || busy}
+        >
+          {busy ? 'Ekleniyor…' : outOfStock ? 'Stokta Yok' : 'Sepete Ekle'}
+          {!busy && !outOfStock && <i className="icon icon-arrow-right ms-2" />}
+        </button>
+      </div>
+
       {feedback && <p className="small text-muted mt-2 mb-0">{feedback}</p>}
     </div>
   );

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { AddToCart } from './_components/AddToCart';
+import { ProductGallery } from './_components/ProductGallery';
+import { ProductInfoExtras } from './_components/ProductInfoExtras';
 import { ProductSelectionProvider } from './_components/selection-context';
 import { VariantPicker } from './_components/VariantPicker';
 
@@ -40,6 +42,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * Storefront PDP — vendor `product-details/Details1.tsx` mirror, scoped
+ * down to the features Akon Butik ships in Phase 5f:
+ *
+ *   s-page-title (breadcrumb)
+ *     -> flat-single-product flat-spacing-3
+ *        -> tf-main-product section-image-zoom
+ *           -> col-md-6: ProductGallery (Slider1 thumbs-left)
+ *           -> col-md-6: tf-product-info-list
+ *                        -> name + price-on-sale + VariantPicker + AddToCart
+ *                        -> tf-product-description
+ *                        -> ProductInfoExtras (delivery/payment/sku/cat)
+ *
+ * Vendor's countdown / BoughtTogether / RelatedProducts / sticky panel
+ * are deferred to Phase 6.
+ */
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const product = await loadProduct(slug);
@@ -65,78 +83,115 @@ export default async function ProductDetailPage({ params }: Props) {
     },
   };
 
+  const firstVariantSku = product.variants[0]?.sku ?? null;
+
   return (
-    <main className="container py-5">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <nav aria-label="breadcrumb" className="mb-4 small text-muted">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link href="/" className="text-muted">
-              Ana Sayfa
-            </Link>
-          </li>
-          {product.category && (
-            <li className="breadcrumb-item">
-              <Link href={`/category/${product.category.slug}`} className="text-muted">
-                {product.category.name}
-              </Link>
-            </li>
-          )}
-          <li className="breadcrumb-item active" aria-current="page">
-            {product.nameTr}
-          </li>
-        </ol>
-      </nav>
 
-      <div className="row gx-5">
-        <div className="col-lg-7">
-          <div className="product-gallery">
-            {product.primaryImageUrl ? (
-              // PDP gallery uses static product photos served from the
-              // theme's /images directory. next/image is a Phase 6 task
-              // (CDN domains aren't configured yet); keep the plain tag.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.primaryImageUrl}
-                alt={product.nameTr}
-                className="img-fluid rounded"
-              />
-            ) : (
-              <div className="placeholder-image rounded bg-light" style={{ aspectRatio: '4/5' }} />
-            )}
+      <section className="s-page-title">
+        <div className="container">
+          <div className="content">
+            <h1 className="title-page">{product.nameTr}</h1>
+            <ul className="breadcrumbs-page">
+              <li>
+                <Link href="/" className="h6 link">
+                  Ana Sayfa
+                </Link>
+              </li>
+              <li className="d-flex">
+                <i className="icon icon-caret-right" />
+              </li>
+              <li>
+                <Link href="/shop" className="h6 link">
+                  Mağaza
+                </Link>
+              </li>
+              {product.category && (
+                <>
+                  <li className="d-flex">
+                    <i className="icon icon-caret-right" />
+                  </li>
+                  <li>
+                    <Link href={`/shop?category=${product.category.slug}`} className="h6 link">
+                      {product.category.name}
+                    </Link>
+                  </li>
+                </>
+              )}
+              <li className="d-flex">
+                <i className="icon icon-caret-right" />
+              </li>
+              <li>
+                <h6 className="current-page fw-normal">{product.nameTr}</h6>
+              </li>
+            </ul>
           </div>
         </div>
+      </section>
 
-        <div className="col-lg-5">
-          <h1 className="h2 fw-bold mb-3">{product.nameTr}</h1>
-          {product.brand && (
-            <p className="text-muted mb-3">
-              Marka:{' '}
-              <Link href={`/brand/${product.brand.slug}`} className="text-decoration-none">
-                {product.brand.name}
-              </Link>
-            </p>
-          )}
-          <Price
-            amount={{ amountMinor: product.defaultPriceMinor, currency: 'TRY' }}
-            size="lg"
-            className="mb-4 d-block"
-          />
+      <section className="flat-single-product flat-spacing-3">
+        <div className="tf-main-product section-image-zoom">
+          <div className="container">
+            <div className="row">
+              <div className="col-md-6">
+                <ProductGallery
+                  productSlug={product.slug}
+                  productName={product.nameTr}
+                  images={product.images}
+                />
+              </div>
 
-          <ProductSelectionProvider>
-            <VariantPicker product={product} />
-            <AddToCart product={product} />
-          </ProductSelectionProvider>
+              <div className="col-md-6">
+                <div className="tf-product-info-wrap position-relative">
+                  <div className="tf-product-info-list other-image-zoom">
+                    {product.brand && (
+                      <div className="tf-product-info-brand">
+                        <span className="text-large">Marka:</span>
+                        <Link
+                          href={`/shop?brand=${product.brand.slug}`}
+                          className="h6 text-primary"
+                        >
+                          {product.brand.name}
+                        </Link>
+                      </div>
+                    )}
 
-          <div className="mt-4 pt-4 border-top">
-            <h2 className="h6 fw-bold">Ürün Açıklaması</h2>
-            <div className="text-muted">{product.descriptionMd}</div>
+                    <h2 className="product-info-name">{product.nameTr}</h2>
+
+                    <div className="tf-product-heading">
+                      <Price
+                        amount={{ amountMinor: product.defaultPriceMinor, currency: 'TRY' }}
+                        size="lg"
+                        className="price-on-sale"
+                      />
+                    </div>
+
+                    <ProductSelectionProvider>
+                      <VariantPicker product={product} />
+                      <AddToCart product={product} />
+                    </ProductSelectionProvider>
+
+                    <div className="tf-product-description mt-4 pt-4 border-top">
+                      <h3 className="h6 fw-bold mb-2">Ürün Açıklaması</h3>
+                      <div className="text-main">{product.descriptionMd}</div>
+                    </div>
+
+                    <ProductInfoExtras
+                      sku={firstVariantSku}
+                      {...(product.brand && { brand: product.brand })}
+                      {...(product.category && { category: product.category })}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </section>
+    </>
   );
 }
