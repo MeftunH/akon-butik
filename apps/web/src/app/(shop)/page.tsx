@@ -1,10 +1,11 @@
 import type { ProductSummary } from '@akonbutik/types';
-import { ProductGrid } from '@akonbutik/ui';
-import Link from 'next/link';
 
-
+import { HomeBestSellers } from './_components/HomeBestSellers';
+import { HomeCategories } from './_components/HomeCategories';
 import { HomeCollections } from './_components/HomeCollections';
+import { HomeFeatures } from './_components/HomeFeatures';
 import { HomeHero } from './_components/HomeHero';
+import { HomeTrending } from './_components/HomeTrending';
 
 import { api } from '@/lib/api';
 
@@ -17,6 +18,17 @@ interface ProductListResponse {
 
 export const revalidate = 300;
 
+/**
+ * Storefront home — composition mirrors vendor `home-fashion-2`:
+ *
+ *   Hero → Collections (s-collection, 2-wide) → Categories (circles)
+ *     → Best Sellers (Swiper grid, 2 rows × 4 cols) → Trending banners
+ *     → Features strip
+ *
+ * Header/footer come from the shop layout. Swap to real category /
+ * banner data from the catalog API once admin finishes seeding it; the
+ * placeholders use vendor demo imagery so the page never renders empty.
+ */
 export default async function HomePage() {
   const featured = await api<ProductListResponse>('/catalog/products?pageSize=8&sort=newest');
 
@@ -24,39 +36,10 @@ export default async function HomePage() {
     <main>
       <HomeHero />
       <HomeCollections />
-
-      <section className="flat-spacing-7">
-        <div className="container">
-          <header className="d-flex justify-content-between align-items-end mb-4">
-            <div>
-              <h2 className="fw-bold mb-1">Öne çıkan ürünler</h2>
-              <p className="text-muted mb-0">DIA stoğundan gelen güncel kapsam.</p>
-            </div>
-            <Link href="/shop" className="text-decoration-none fw-semibold">
-              Tümünü gör <i className="icon icon-arrow-right" />
-            </Link>
-          </header>
-          <ProductGrid products={featured.items} columns={4} />
-        </div>
-      </section>
-
-      <section className="flat-spacing-7 bg-light">
-        <div className="container">
-          <div className="row align-items-center justify-content-center text-center">
-            <div className="col-lg-7">
-              <h2 className="fw-bold mb-2">Akon Butik</h2>
-              <p className="text-muted mb-4">
-                Şıklığın butik adresi — zarif kesimleri, doğal kumaşları ve özenle seçilmiş
-                koleksiyonlarıyla. Her parça günün ritmine ayak uydurur, gardırobunuzun temel
-                parçası olur.
-              </p>
-              <Link href="/about" className="tf-btn animate-btn fw-semibold">
-                Hikayemiz <i className="icon icon-arrow-right" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HomeCategories />
+      <HomeBestSellers products={featured.items} />
+      <HomeTrending />
+      <HomeFeatures />
     </main>
   );
 }

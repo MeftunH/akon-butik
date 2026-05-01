@@ -11,37 +11,58 @@ import 'swiper/css/pagination';
 
 interface HeroSlide {
   imgSrc: string;
+  subtitle: string;
   titleHtml: string;
   description: string;
-  cta: { label: string; href: string };
+  contentClass: string;
+  columnClass: string;
+  wrapClass: string;
+  textColorClass: string;
+  btnClass: string;
 }
 
 /**
- * Mirrors the structure of vendor `home-1/Hero.tsx` but with the Akon
- * Butik copy and Next.js routing. Imagery is pulled from the symlinked
- * vendor public/images tree (apps/web/public/images → vendor/.../public/
- * images), so changing the array below to point at /images/products/...
- * once real campaign photography lands won't require any code edits
- * elsewhere.
+ * Mirrors vendor `home-fashion-2/Hero.tsx` (`slider-wrap style-2`). Each
+ * slide composes its own content alignment — center, end, white-on-dark —
+ * via vendor utility classes. Imagery uses the symlinked vendor stills
+ * until campaign photography lands.
  */
 const SLIDES: readonly HeroSlide[] = [
   {
-    imgSrc: '/images/slider/slider-1.jpg',
-    titleHtml: 'Yeni Sezon<br class="d-sm-none" /> Koleksiyonu',
-    description: 'Yumuşak dokular ve zarif kesimlerle yeni sezonu keşfedin.',
-    cta: { label: 'Mağazaya Git', href: '/shop' },
+    imgSrc: '/images/slider/slider-4.jpg',
+    subtitle: 'YENİ SEZON',
+    titleHtml: 'Modern &amp; Zarif',
+    description:
+      'Sezonun yumuşak dokuları ve sade kesimleri.<br class="d-none d-sm-block" />Akon Butik’in seçkisiyle.',
+    contentClass: 'type-center text-sm-center',
+    columnClass: 'col-sm-8 col-10',
+    wrapClass: 'content-sld_wrap',
+    textColorClass: 'text-black',
+    btnClass: 'tf-btn animate-btn fw-normal',
   },
   {
-    imgSrc: '/images/slider/slider-2.jpg',
-    titleHtml: 'İlkbahar Yaz<br class="d-sm-none" /> Esintileri',
-    description: 'Pastel tonlar ve hafif kumaşlarla yaz hazırlıklı.',
-    cta: { label: 'Koleksiyonu İncele', href: '/shop' },
+    imgSrc: '/images/slider/slider-5.jpg',
+    subtitle: 'KOLEKSİYON',
+    titleHtml: 'Cesur &amp; Klasik',
+    description:
+      'Zamansız parçalarla tarzınızı tamamlayın.<br class="d-none d-sm-block" />Şehirde her güne uyumlu.',
+    contentClass: 'type-center text-end text-sm-center',
+    columnClass: 'ms-auto col-sm-8 col-10',
+    wrapClass: 'content-sld_wrap ms-sm-auto',
+    textColorClass: 'text-black',
+    btnClass: 'tf-btn animate-btn fw-normal',
   },
   {
-    imgSrc: '/images/slider/slider-3.jpg',
-    titleHtml: 'Şehir<br class="d-sm-none" /> Şıklığı',
-    description: 'Her güne uyan minimalist parçalar.',
-    cta: { label: 'Şimdi Keşfet', href: '/shop' },
+    imgSrc: '/images/slider/slider-6.jpg',
+    subtitle: 'YALIN ÇİZGİLER',
+    titleHtml: 'Sade &amp; Şık',
+    description:
+      'Her güne yakışan minimalist seçkiyi keşfedin.<br class="d-none d-sm-block" />Akon Butik kalitesiyle.',
+    contentClass: 'text-center',
+    columnClass: 'col-sm-12',
+    wrapClass: 'content-sld_wrap mx-auto',
+    textColorClass: 'text-white',
+    btnClass: 'tf-btn btn-white animate-btn animate-dark fw-normal',
   },
 ];
 
@@ -52,40 +73,48 @@ export function HomeHero() {
         dir="ltr"
         className="swiper tf-swiper sw-slide-show slider_effect_fade"
         loop
-        modules={[Autoplay, EffectFade, Pagination, Navigation]}
+        modules={[Autoplay, EffectFade, Navigation, Pagination]}
         autoplay={{ delay: 6000 }}
         effect="fade"
         pagination={{ clickable: true, el: '.akon-hero-pagination' }}
-        navigation={{
-          prevEl: '.akon-hero-prev',
-          nextEl: '.akon-hero-next',
-        }}
+        navigation={{ prevEl: '.akon-hero-prev', nextEl: '.akon-hero-next' }}
       >
         {SLIDES.map((item, index) => (
           <SwiperSlide className="swiper-slide" key={index}>
-            <div className="slider-wrap">
+            <div className="slider-wrap style-2">
               <div className="sld_image">
-                {/* Static hero photography served from the vendor public
-                    tree via symlink — Next/Image isn't worth the config
-                    cost at this stage. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imgSrc} alt="Akon Butik koleksiyonu" width={2880} height={1380} />
+                <img
+                  src={item.imgSrc}
+                  alt="Akon Butik koleksiyonu"
+                  className="lazyload scale-item"
+                  width={2880}
+                  height={1350}
+                />
               </div>
-              <div className="sld_content">
+              <div className={`sld_content ${item.contentClass}`}>
                 <div className="container">
-                  <div className="content-sld_wrap">
-                    <h1
-                      className="title_sld text-display fade-item fade-item-1"
-                      dangerouslySetInnerHTML={{ __html: item.titleHtml }}
-                    />
-                    <p className="sub-text_sld h5 text-black fade-item fade-item-2">
-                      {item.description}
-                    </p>
-                    <div className="fade-item fade-item-3">
-                      <Link href={item.cta.href} className="tf-btn animate-btn fw-semibold">
-                        {item.cta.label}
-                        <i className="icon icon-arrow-right" />
-                      </Link>
+                  <div className="row">
+                    <div className={item.columnClass}>
+                      <div className={item.wrapClass}>
+                        <p className="sub-title_sld h3 text-primary fade-item fade-item-1">
+                          {item.subtitle}
+                        </p>
+                        <h1
+                          className="title_sld text-display fade-item fade-item-2"
+                          dangerouslySetInnerHTML={{ __html: item.titleHtml }}
+                        />
+                        <p
+                          className={`sub-text_sld h5 ${item.textColorClass} fade-item fade-item-3`}
+                          dangerouslySetInnerHTML={{ __html: item.description }}
+                        />
+                        <div className="fade-item fade-item-4">
+                          <Link href="/shop" className={item.btnClass}>
+                            Mağazaya Git
+                            <i className="icon icon-arrow-right" />
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

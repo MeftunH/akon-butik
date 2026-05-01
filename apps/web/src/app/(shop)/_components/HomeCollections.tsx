@@ -7,73 +7,67 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-interface Collection {
+interface CollectionSlide {
   imgSrc: string;
   title: string;
   href: string;
 }
 
 /**
- * Three-up category showcase mirroring vendor `Categories.tsx`. The
- * `box-image_category style-2` block puts the photo full-bleed with a
- * bottom-aligned action button overlay, which is what the demo
- * actually looks like — the prior `wg-cls-2` layout I had rendered
- * the title + button as a sidebar next to the image, which is not
- * the demo style.
+ * Two-up wide collection swiper — mirrors vendor
+ * `home-fashion-2/Collections.tsx` (`s-collection` + `wg-cls-2 type-space-2`).
+ * Each card is image-left + title/Shop now-right with a vertical divider.
  */
-const COLLECTIONS: readonly Collection[] = [
-  {
-    imgSrc: '/images/collections/cls-1.jpg',
-    title: 'Elbiseler',
-    href: '/shop',
-  },
-  {
-    imgSrc: '/images/collections/cls-2.jpg',
-    title: 'Yeni Sezon',
-    href: '/shop',
-  },
-  {
-    imgSrc: '/images/collections/cls-3.jpg',
-    title: 'Üstler',
-    href: '/shop',
-  },
+const COLLECTIONS: readonly CollectionSlide[] = [
+  { imgSrc: '/images/collections/cls-4.jpg', title: 'Elbise Koleksiyonu', href: '/shop' },
+  { imgSrc: '/images/collections/cls-5.jpg', title: 'Sezon Vitrini', href: '/shop' },
 ];
 
 export function HomeCollections() {
   return (
-    <section className="flat-spacing pb-0">
-      <div className="container">
-        <Swiper
-          dir="ltr"
-          className="swiper tf-swiper"
-          spaceBetween={12}
-          breakpoints={{
-            0: { slidesPerView: 1 },
-            575: { slidesPerView: 2 },
-            768: { slidesPerView: 2, spaceBetween: 16 },
-            1200: { slidesPerView: 3, spaceBetween: 24 },
-          }}
-          modules={[Pagination]}
-          pagination={{ clickable: true, el: '.akon-cls-pagination' }}
-        >
-          {COLLECTIONS.map((item, index) => (
-            <SwiperSlide className="swiper-slide" key={index}>
-              <div className="box-image_category style-2 hover-img">
-                <Link href={item.href} className="box-image_image img-style">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imgSrc} alt={item.title} width={512} height={592} />
-                </Link>
-                <div className="box-image_content">
-                  <Link href={item.href} className="tf-btn btn-white animate-btn animate-dark">
-                    <span className="h5 fw-medium">{item.title}</span>
+    <div className="s-collection">
+      <Swiper
+        dir="ltr"
+        className="swiper tf-swiper"
+        spaceBetween={10}
+        breakpoints={{
+          0: { slidesPerView: 1 },
+          575: { slidesPerView: 2 },
+          768: { slidesPerView: 2, spaceBetween: 15 },
+          1200: { slidesPerView: 2, spaceBetween: 24 },
+        }}
+        modules={[Pagination]}
+        pagination={{ clickable: true, el: '.akon-cls-pagination' }}
+      >
+        {COLLECTIONS.map((item, index) => (
+          <SwiperSlide className="swiper-slide" key={index}>
+            <div className="wg-cls-2 type-space-2 d-flex hover-img">
+              <Link href={item.href} className="image img-style">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="lazyload"
+                  src={item.imgSrc}
+                  alt={item.title}
+                  width={1386}
+                  height={945}
+                />
+              </Link>
+              <div className="cls-content_wrap">
+                <div className="cls-content">
+                  <Link href={item.href} className="tag_cls h2 type-semibold link">
+                    {item.title}
+                  </Link>
+                  <span className="br-line type-vertical" />
+                  <Link href={item.href} className="tf-btn-line text-nowrap">
+                    Şimdi Keşfet
                   </Link>
                 </div>
               </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        <div className="sw-dot-default tf-sw-pagination text-center mt-3 akon-cls-pagination" />
-      </div>
-    </section>
+            </div>
+          </SwiperSlide>
+        ))}
+        <div className="sw-dot-default tf-sw-pagination akon-cls-pagination" />
+      </Swiper>
+    </div>
   );
 }
