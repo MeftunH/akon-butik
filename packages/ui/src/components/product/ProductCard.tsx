@@ -94,6 +94,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
         )}
 
+        {product.badges && product.badges.length > 0 && (
+          <ul className="product-badge_list">
+            {product.badges.map((b) => (
+              <li key={b.type} className={`product-badge_item h6 ${b.type}`}>
+                {b.text}
+              </li>
+            ))}
+          </ul>
+        )}
+
         <ul className="product-action_list">
           <li className="wishlist">
             <WishlistButton productId={product.id} />
@@ -105,12 +115,41 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <Link href={href} className="name-product h4 link" title={product.nameTr}>
           {product.nameTr}
         </Link>
-        <div className="price-wrap mt-2">
+        <div className="price-wrap mt-2 d-flex align-items-baseline gap-2">
+          {product.compareAtPriceMinor !== null && (
+            <Price
+              amount={{ amountMinor: product.compareAtPriceMinor, currency: 'TRY' }}
+              className="price-old h6 fw-normal text-decoration-line-through text-main-2"
+            />
+          )}
           <Price
             amount={{ amountMinor: product.defaultPriceMinor, currency: 'TRY' }}
             className="price-new h6"
           />
         </div>
+
+        {product.availableColors.length > 0 && (
+          <ul className="product-color_list mt-2 d-flex gap-1 flex-wrap mb-0 list-unstyled">
+            {product.availableColors.map((c) => (
+              <li
+                key={c.name}
+                className="product-color-item color-swatch"
+                title={c.name}
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  backgroundColor: c.hex || '#e5e5e5',
+                  border: '1px solid var(--line-1, #e1e4e8)',
+                  display: 'inline-block',
+                }}
+              >
+                <span className="visually-hidden">{c.name}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
         {product.brand && <div className="text-muted small mt-1">{product.brand.name}</div>}
       </div>
     </div>
