@@ -1,12 +1,40 @@
-import type { ProductSummary } from '@akonbutik/types';
+import type { ProductBadge, ProductSummary } from '@akonbutik/types';
 import { Injectable } from '@nestjs/common';
 
 // NestJS DI requires the runtime class — `import type` would tree-shake.
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
 
+const NEW_ARRIVAL_WINDOW_DAYS = 30;
+
 function dedupe<T>(items: readonly T[]): T[] {
   return Array.from(new Set(items));
+}
+
+function deriveSale(
+  defaultPriceMinor: number,
+  variants: readonly { priceOverrideMinor: number | null }[],
+): number | null {
+  const overrides = variants
+    .map((v) => v.priceOverrideMinor)
+    .filter((p): p is number => p !== null);
+  if (overrides.length === 0) return null;
+  const minOverride = Math.min(...overrides);
+  return minOverride < defaultPriceMinor ? defaultPriceMinor : null;
+}
+
+function deriveBadges(opts: {
+  compareAtPriceMinor: number | null;
+  createdAt: Date;
+  inStock: boolean;
+}): ProductBadge[] {
+  const out: ProductBadge[] = [];
+  if (opts.compareAtPriceMinor !== null) out.push({ type: 'sale', text: 'İndirim' });
+  const ageDays = (Date.now() - opts.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+  if (ageDays <= NEW_ARRIVAL_WINDOW_DAYS && opts.inStock) {
+    out.push({ type: 'new', text: 'Yeni' });
+  }
+  return out;
 }
 
 /**
@@ -31,28 +59,42 @@ export class WishlistService {
             brand: true,
             category: true,
             images: { where: { isPrimary: true }, take: 1 },
-            variants: { select: { size: true, color: true, stockQty: true } },
+            variants: {
+              select: { size: true, color: true, stockQty: true, priceOverrideMinor: true },
+            },
           },
         },
       },
     });
-    return rows.map(({ product: p }) => ({
-      id: p.id,
-      slug: p.slug,
-      nameTr: p.nameTr,
-      brand: p.brand ? { id: p.brand.id, name: p.brand.name, slug: p.brand.slug } : null,
-      category: p.category
-        ? { id: p.category.id, name: p.category.nameTr, slug: p.category.slug }
-        : null,
-      defaultPriceMinor: p.defaultPriceMinor,
-      primaryImageUrl: p.images[0]?.url ?? null,
-      availableSizes: dedupe(p.variants.map((v) => v.size).filter((s): s is string => s !== null)),
-      availableColors: dedupe(
-        p.variants.map((v) => v.color).filter((c): c is string => c !== null),
-      ).map((name) => ({ name, hex: '' })),
-      inStock: p.variants.some((v) => v.stockQty > 0),
-      status: p.status,
-    }));
+    return rows.map(({ product: p }) => {
+      const inStock = p.variants.some((v) => v.stockQty > 0);
+      const compareAtPriceMinor = deriveSale(p.defaultPriceMinor, p.variants);
+      return {
+        id: p.id,
+        slug: p.slug,
+        nameTr: p.nameTr,
+        brand: p.brand ? { id: p.brand.id, name: p.brand.name, slug: p.brand.slug } : null,
+        category: p.category
+          ? { id: p.category.id, name: p.category.nameTr, slug: p.category.slug }
+          : null,
+        defaultPriceMinor: p.defaultPriceMinor,
+        compareAtPriceMinor,
+        primaryImageUrl: p.images[0]?.url ?? null,
+        availableSizes: dedupe(
+          p.variants.map((v) => v.size).filter((s): s is string => s !== null),
+        ),
+        availableColors: dedupe(
+          p.variants.map((v) => v.color).filter((c): c is string => c !== null),
+        ).map((name) => ({ name, hex: '' })),
+        badges: deriveBadges({
+          compareAtPriceMinor,
+          createdAt: p.createdAt,
+          inStock,
+        }),
+        inStock,
+        status: p.status,
+      };
+    });
   }
 
   async productIds(userId: string): Promise<string[]> {

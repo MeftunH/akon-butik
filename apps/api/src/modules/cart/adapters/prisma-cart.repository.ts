@@ -1,6 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import type { CartSnapshot } from '@akonbutik/types';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
+// NestJS DI requires the runtime class — `import type` would tree-shake.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../../prisma/prisma.service';
 import type { CartIdentity, CartRepository } from '../ports/cart.repository';
 
@@ -158,9 +160,11 @@ export class PrismaCartRepository implements CartRepository {
             brand: null,
             category: null,
             defaultPriceMinor: product.defaultPriceMinor,
+            compareAtPriceMinor: null,
             primaryImageUrl: primaryImage,
             availableSizes: [],
             availableColors: [],
+            badges: [],
             inStock: variant.stockQty > 0,
             status: product.status,
           },
