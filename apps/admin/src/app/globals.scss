@@ -6,24 +6,21 @@ body {
   background: var(--bg-2, #f6f7f9);
 }
 
-// Login route doesn't render the sidebar shell — full-bleed centered card.
-.login-shell {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-2, #f6f7f9);
-  padding: 2rem;
-}
+// Login uses the vendor `s-log` form-login layout (see app/login/LoginForm.tsx).
+// `btn-reset` strips the default button chrome on icon-style buttons (e.g. the
+// password show/hide toggle inside `password-wrapper`).
+.btn-reset {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  line-height: 1;
 
-.login-card {
-  background: var(--white, #fff);
-  border: 1px solid var(--line-1, #e1e4e8);
-  border-radius: 12px;
-  padding: 2rem;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  &:focus-visible {
+    outline: 2px solid var(--main, #000);
+    outline-offset: 2px;
+  }
 }
 
 // Admin tables — vendor doesn't ship a generic admin table style. Keep
