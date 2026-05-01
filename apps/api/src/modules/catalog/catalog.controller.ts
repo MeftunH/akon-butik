@@ -20,6 +20,17 @@ interface TaxonomySummary {
   productCount: number;
 }
 
+interface SitemapEntry {
+  slug: string;
+  updatedAt: string;
+}
+
+interface SitemapPayload {
+  products: readonly SitemapEntry[];
+  categories: readonly SitemapEntry[];
+  brands: readonly SitemapEntry[];
+}
+
 @ApiTags('catalog')
 @Controller('catalog')
 export class CatalogController {
@@ -86,5 +97,36 @@ export class CatalogController {
       name: r.name,
       productCount: r._count.products,
     }));
+  }
+
+  @Get('sitemap')
+  @ApiOperation({
+    summary: 'Slim slug + updatedAt feed for storefront sitemap.xml generation',
+  })
+  async sitemap(): Promise<SitemapPayload> {
+    const [products, categories, brands] = await Promise.all([
+      this.prisma.product.findMany({
+        where: { status: 'visible' },
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      this.prisma.category.findMany({
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      this.prisma.brand.findMany({
+        select: { slug: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+      }),
+    ]);
+    const toEntry = (r: { slug: string; updatedAt: Date }): SitemapEntry => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt.toISOString(),
+    });
+    return {
+      products: products.map(toEntry),
+      categories: categories.map(toEntry),
+      brands: brands.map(toEntry),
+    };
   }
 }
