@@ -1,0 +1,198 @@
+// EditSection — anchor-target section primitive used by the product
+// edit page. The page uses a 2-up layout: a quiet anchor sidebar on
+// the left, sections on the right. Sections are NOT cards — they're
+// typographic blocks separated by hairlines, so the page reads as one
+// continuous editorial flow rather than a stack of dashboard tiles.
+
+.editLayout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .editLayout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.sectionNav {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.sectionNavTitle {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-2, #8a8c8a);
+  font-weight: 600;
+  margin: 0 0 12px 12px;
+}
+
+.sectionNavItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--text, #5f615e);
+  text-decoration: none;
+  border-radius: 0;
+  position: relative;
+  transition: color 120ms ease;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font-weight: 500;
+  appearance: none;
+
+  &:hover {
+    color: var(--black, #000);
+  }
+
+  &[data-active='true'] {
+    color: var(--black, #000);
+    font-weight: 600;
+    background: var(--bg-2, #f5f5f5);
+  }
+
+  // Bottom-accent divider for active item — NOT a side stripe; we use an
+  // inline icon that picks up the brand color when the section is active.
+  .navDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--text-3, #acafab);
+    flex: 0 0 auto;
+    transition: background-color 120ms ease;
+  }
+
+  &[data-active='true'] .navDot {
+    background: var(--primary, #c8102e);
+  }
+}
+
+@media (max-width: 992px) {
+  .sectionNav {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0 0 16px;
+    border-bottom: 1px solid var(--line, #ededed);
+  }
+  .sectionNavTitle {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+.sectionStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  padding: 28px 0 36px;
+  border-bottom: 1px solid var(--line, #ededed);
+  scroll-margin-top: 32px;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--black, #000);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sectionEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-2, #8a8c8a);
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.sectionMeta {
+  font-size: 12px;
+  color: var(--text-2, #8a8c8a);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sectionDescription {
+  font-size: 14px;
+  color: var(--text, #5f615e);
+  margin: -10px 0 18px;
+  line-height: 1.5;
+  max-width: 56ch;
+}
+
+// Danger zone — visually muted; the page says "this would delete the
+// product permanently" but the action is disabled until an API endpoint
+// exists. We mute the block so it doesn't compete for attention with
+// real edits.
+.dangerSection {
+  background: rgba(200, 16, 46, 0.025);
+  padding: 24px 24px 28px;
+  border: 1px solid rgba(200, 16, 46, 0.18);
+
+  .sectionTitle {
+    color: var(--primary, #c8102e);
+  }
+
+  .dangerBody {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dangerCopy {
+    font-size: 13px;
+    color: var(--text, #5f615e);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 48ch;
+  }
+
+  .dangerButton {
+    appearance: none;
+    background: transparent;
+    border: 1px solid rgba(200, 16, 46, 0.4);
+    color: var(--primary, #c8102e);
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

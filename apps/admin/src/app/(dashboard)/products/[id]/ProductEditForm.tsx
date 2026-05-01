@@ -6,6 +6,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { EditSection } from '../_components/EditSection';
+
+import styles from './ProductEditForm.module.scss';
+
 interface BrandOption {
   id: string;
   name: string;
@@ -18,11 +22,13 @@ interface CategoryOption {
 
 interface ProductLite {
   id: string;
+  slug: string;
   nameTr: string;
   descriptionMd: string;
   defaultPriceMinor: number;
   currency: string;
   status: 'visible' | 'hidden' | 'needs_review';
+  diaSyncedAt: string | null;
   brand: { id: string; name: string } | null;
   category: { id: string; nameTr: string } | null;
 }
@@ -33,14 +39,27 @@ const STATUS_LABELS: Record<ProductLite['status'], string> = {
   needs_review: 'İncelemede',
 };
 
+const STATUS_DESCRIPTIONS: Record<ProductLite['status'], string> = {
+  visible: 'Mağaza vitrininde ve arama sonuçlarında listelenir.',
+  hidden: 'Yalnızca admin panelinden erişilir; müşteriler göremez.',
+  needs_review: "İçerik tamamlanana kadar storefront'tan gizli; ekip bunun üzerinde çalışıyor.",
+};
+
 const formSchema = z.object({
-  nameTr: z.string().trim().min(1, 'Ad zorunlu').max(255),
-  descriptionMd: z.string().max(10000),
-  // Display in TL with 2 decimals; convert to minor units on submit.
+  nameTr: z
+    .string()
+    .trim()
+    .min(2, 'Ürün adı en az 2 karakter olmalı')
+    .max(255, 'Ürün adı 255 karakteri aşamaz'),
+  descriptionMd: z.string().max(10_000, 'Açıklama 10.000 karakteri aşamaz'),
+  // Display in TL with up to 2 decimals; convert to minor units on submit.
   priceTl: z
     .string()
-    .min(1, 'Fiyat zorunlu')
-    .regex(/^\d+([.,]\d{1,2})?$/, 'Geçerli bir fiyat girin (örn. 1299,90)'),
+    .min(1, 'Fiyat boş bırakılamaz')
+    .regex(
+      /^\d+([.,]\d{1,2})?$/,
+      'Fiyatı yalnızca rakam ve virgül kullanarak yazın (örn. 1299,90)',
+    ),
   status: z.enum(['visible', 'hidden', 'needs_review']),
   brandId: z.string(),
   categoryId: z.string(),
@@ -48,17 +67,24 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ProductEditFormProps {
+export interface ProductEditFormProps {
   product: ProductLite;
   brands: readonly BrandOption[];
   categories: readonly CategoryOption[];
 }
 
 /**
- * Sectioned product edit form (Genel / Fiyat & Durum / Açıklama). Each
- * section reads as a vendor `box-info` card with vendor input styles
- * (see `_form.scss`). Submit hits PATCH /api/admin/products/:id with
- * the same payload as before — only the chrome changed.
+ * Sectioned product edit form. Each section is rendered as a typographic
+ * `<EditSection>` block (NOT a dashboard card) so the page reads as one
+ * continuous editorial flow. Inputs use a vendor-tinted but non-pill
+ * surface (square corners, hairline border) to feel like a buyer's
+ * spreadsheet rather than a marketing form.
+ *
+ * Errors are announced via a polite live region next to the save bar so
+ * screen-reader users hear validation feedback at the moment of submit.
+ *
+ * Submit hits PATCH /api/admin/products/:id with the same payload as
+ * before — only the chrome and feedback layer changed.
  */
 export function ProductEditForm({ product, brands, categories }: ProductEditFormProps) {
   const router = useRouter();
@@ -68,7 +94,7 @@ export function ProductEditForm({ product, brands, categories }: ProductEditForm
 
   const initialPriceTl = (product.defaultPriceMinor / 100).toFixed(2).replace('.', ',');
 
-  const { register, handleSubmit, formState, reset } = useForm<FormValues>({
+  const { register, handleSubmit, formState, reset, watch } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       nameTr: product.nameTr,
@@ -78,7 +104,10 @@ export function ProductEditForm({ product, brands, categories }: ProductEditForm
       brandId: product.brand?.id ?? '',
       categoryId: product.category?.id ?? '',
     },
+    mode: 'onBlur',
   });
+
+  const watchedStatus = watch('status');
 
   const onSubmit = handleSubmit(async (values) => {
     setFeedback(null);
@@ -100,7 +129,8 @@ export function ProductEditForm({ product, brands, categories }: ProductEditForm
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { message?: string } | null;
-        throw new Error(body?.message ?? `Güncelleme başarısız (${res.status.toString()})`);
+        const fallback = `Sunucu yanıtı: ${res.status.toString()}`;
+        throw new Error(body?.message ?? `Güncelleme başarısız oldu. ${fallback}`);
       }
       const updated = (await res.json()) as ProductLite & { defaultPriceMinor: number };
       reset({
@@ -112,117 +142,230 @@ export function ProductEditForm({ product, brands, categories }: ProductEditForm
     } catch (err) {
       setFeedback({
         tone: 'danger',
-        message: err instanceof Error ? err.message : 'Beklenmeyen bir hata oluştu',
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Bağlantı sırasında bilinmeyen bir hata oluştu, lütfen tekrar deneyin.',
       });
     }
   });
 
+  // Concise list of validation errors for the live region (vs. only the
+  // inline label below each field). Helps screen-reader users hear all
+  // problems at submit time without scrolling.
+  const errorList = Object.entries(formState.errors)
+    .map(([field, err]) => {
+      const message = (err as { message?: string } | undefined)?.message;
+      if (!message) return null;
+      return { field, message };
+    })
+    .filter(Boolean) as { field: string; message: string }[];
+
   return (
-    <form className="product-edit-form" onSubmit={(e) => void onSubmit(e)} noValidate>
-      <section className="dashboard-card mb-4">
-        <h3 className="account-title type-semibold h5 mb-3">Genel Bilgiler</h3>
-        <div className="list-ver">
-          <fieldset>
-            <label htmlFor="nameTr" className="form-label h6 fw-semibold">
-              Ürün adı
-            </label>
+    <form
+      className={styles.editForm}
+      onSubmit={(e) => void onSubmit(e)}
+      noValidate
+      aria-label="Ürün düzenleme formu"
+    >
+      <EditSection
+        id="temel"
+        eyebrow="Bölüm 01"
+        title="Temel Bilgi"
+        description="Müşterilerin ilk gördüğü bilgi: ürün adı, slug ve açıklama. Slug DIA senkronundan üretilir; gerekirse yeniden senkronla yenileyebilirsiniz."
+      >
+        <div className={styles.fieldGrid}>
+          <div className={`${styles.field} ${styles.fieldFull}`}>
+            <label htmlFor="nameTr">Ürün adı</label>
             <input
               id="nameTr"
               type="text"
               placeholder="Örn. Kruvaze Yaka Triko Bluz"
               aria-invalid={Boolean(formState.errors.nameTr)}
+              aria-describedby={formState.errors.nameTr ? 'nameTr-err' : undefined}
               {...register('nameTr')}
             />
             {formState.errors.nameTr && (
-              <small className="text-danger d-block mt-2">{formState.errors.nameTr.message}</small>
+              <span id="nameTr-err" className={styles.fieldError}>
+                {formState.errors.nameTr.message}
+              </span>
             )}
-          </fieldset>
+          </div>
 
-          <div className="row g-3">
-            <fieldset className="col-md-6">
-              <label htmlFor="brandId" className="form-label h6 fw-semibold">
-                Marka
-              </label>
-              <select id="brandId" className="form-select" {...register('brandId')}>
-                <option value="">— Atanmadı —</option>
-                {brands.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-            </fieldset>
-            <fieldset className="col-md-6">
-              <label htmlFor="categoryId" className="form-label h6 fw-semibold">
-                Kategori
-              </label>
-              <select id="categoryId" className="form-select" {...register('categoryId')}>
-                <option value="">— Atanmadı —</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nameTr}
-                  </option>
-                ))}
-              </select>
-            </fieldset>
+          <div className={`${styles.field} ${styles.fieldFull}`}>
+            <label htmlFor="slug-display">Slug</label>
+            <div className={styles.slugRow}>
+              <input
+                id="slug-display"
+                type="text"
+                value={product.slug}
+                readOnly
+                className={styles.slugInput}
+                aria-describedby="slug-hint"
+              />
+              <span id="slug-hint" className={styles.slugHint}>
+                Slug DIA senkronundan üretilir, manuel değiştirilemez.
+              </span>
+            </div>
+          </div>
+
+          <div className={`${styles.field} ${styles.fieldFull}`}>
+            <label htmlFor="descriptionMd">Açıklama</label>
+            <textarea
+              id="descriptionMd"
+              rows={8}
+              placeholder="Markdown destekli ürün açıklaması (kumaş, yıkama, kalıp notları)"
+              aria-invalid={Boolean(formState.errors.descriptionMd)}
+              {...register('descriptionMd')}
+            />
+            {formState.errors.descriptionMd && (
+              <span className={styles.fieldError}>{formState.errors.descriptionMd.message}</span>
+            )}
+            <span className={styles.fieldHint}>
+              Başlıklar için ##, vurgu için *italik*, kalın için **kalın** kullanın.
+            </span>
           </div>
         </div>
-      </section>
+      </EditSection>
 
-      <section className="dashboard-card mb-4">
-        <h3 className="account-title type-semibold h5 mb-3">Fiyat & Durum</h3>
-        <div className="row g-3">
-          <fieldset className="col-md-6">
-            <label htmlFor="priceTl" className="form-label h6 fw-semibold">
-              Fiyat ({product.currency})
-            </label>
-            <input
-              id="priceTl"
-              type="text"
-              inputMode="decimal"
-              placeholder="1299,90"
-              aria-invalid={Boolean(formState.errors.priceTl)}
-              {...register('priceTl')}
-            />
+      <EditSection
+        id="fiyat"
+        eyebrow="Bölüm 02"
+        title="Fiyatlandırma"
+        description="Varsayılan satış fiyatı. Variant özel fiyatları yine DIA tarafından yönetilir."
+      >
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="priceTl">Liste fiyatı ({product.currency})</label>
+            <div className={styles.priceRow}>
+              <span className={styles.priceCurrency} aria-hidden>
+                ₺
+              </span>
+              <input
+                id="priceTl"
+                type="text"
+                inputMode="decimal"
+                placeholder="1299,90"
+                aria-invalid={Boolean(formState.errors.priceTl)}
+                aria-describedby={formState.errors.priceTl ? 'priceTl-err' : undefined}
+                {...register('priceTl')}
+              />
+            </div>
             {formState.errors.priceTl && (
-              <small className="text-danger d-block mt-2">{formState.errors.priceTl.message}</small>
+              <span id="priceTl-err" className={styles.fieldError}>
+                {formState.errors.priceTl.message}
+              </span>
             )}
-          </fieldset>
-          <fieldset className="col-md-6">
-            <label htmlFor="status" className="form-label h6 fw-semibold">
-              Durum
-            </label>
-            <select id="status" className="form-select" {...register('status')}>
-              {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
+            <span className={styles.fieldHint}>
+              Ondalık ayırıcı virgül; binlik ayraç kullanmayın.
+            </span>
+          </div>
+        </div>
+      </EditSection>
+
+      <EditSection
+        id="siniflandirma"
+        eyebrow="Bölüm 03"
+        title="Sınıflandırma"
+        description="Marka ve kategori, mağaza filtrelerini ve menü gezintisini şekillendirir. Her ikisi de boş bırakılabilir; o zaman ürün yalnızca ana listede görünür."
+      >
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="brandId">Marka</label>
+            <select id="brandId" {...register('brandId')}>
+              <option value="">Atanmadı</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
                 </option>
               ))}
             </select>
-          </fieldset>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="categoryId">Kategori</label>
+            <select id="categoryId" {...register('categoryId')}>
+              <option value="">Atanmadı</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nameTr}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </section>
+      </EditSection>
 
-      <section className="dashboard-card mb-4">
-        <h3 className="account-title type-semibold h5 mb-3">Açıklama</h3>
-        <fieldset>
-          <label htmlFor="descriptionMd" className="form-label h6 fw-semibold">
-            Markdown destekli açıklama
-          </label>
-          <textarea id="descriptionMd" rows={8} {...register('descriptionMd')} />
-        </fieldset>
-      </section>
-
-      {feedback && (
-        <div className={`alert alert-${feedback.tone} mb-3`} role="status">
-          <span className="h6 fw-normal">{feedback.message}</span>
+      <EditSection
+        id="yayin"
+        eyebrow="Bölüm 05"
+        title="Yayın"
+        description="Storefront yayın durumu. DIA senkron tarihi referans amaçlıdır; sahada yapılan değişiklikler otomatik üzerine yazılır."
+        meta={
+          product.diaSyncedAt ? (
+            <span>
+              Son senkron: <strong>{new Date(product.diaSyncedAt).toLocaleString('tr-TR')}</strong>
+            </span>
+          ) : (
+            <span>Henüz senkronlanmadı</span>
+          )
+        }
+      >
+        <div className={styles.statusRail}>
+          {(['visible', 'needs_review', 'hidden'] as const).map((value) => (
+            <label
+              key={value}
+              className={styles.statusOption}
+              data-active={watchedStatus === value ? 'true' : 'false'}
+            >
+              <input type="radio" value={value} {...register('status')} />
+              <div className={styles.statusOptionBody}>
+                <span className={styles.statusOptionTitle}>{STATUS_LABELS[value]}</span>
+                <span className={styles.statusOptionDesc}>{STATUS_DESCRIPTIONS[value]}</span>
+              </div>
+            </label>
+          ))}
         </div>
-      )}
+      </EditSection>
 
-      <button type="submit" className="tf-btn animate-btn" disabled={formState.isSubmitting}>
-        <i className="icon icon-check-1 me-2" />
-        {formState.isSubmitting ? 'Kaydediliyor…' : 'Kaydet'}
-      </button>
+      <div className={styles.saveBar} role="region" aria-label="Form eylemleri">
+        <div className={styles.saveBarFeedback} aria-live="polite" aria-atomic>
+          {feedback && (
+            <span className={styles.feedback} data-tone={feedback.tone}>
+              <span className={styles.feedbackDot} aria-hidden />
+              {feedback.message}
+            </span>
+          )}
+          {!feedback && errorList.length > 0 && formState.isSubmitted && (
+            <span className={styles.feedback} data-tone="danger">
+              <span className={styles.feedbackDot} aria-hidden />
+              {errorList.length === 1
+                ? (errorList[0]?.message ?? 'Form geçersiz.')
+                : `${errorList.length.toString()} alanı düzeltin: ` +
+                  errorList.map((e) => e.message).join(' · ')}
+            </span>
+          )}
+          {!feedback && formState.isDirty && errorList.length === 0 && (
+            <span className={styles.feedback} data-tone="muted">
+              Kaydedilmemiş değişiklikleriniz var.
+            </span>
+          )}
+        </div>
+        <button
+          type="submit"
+          className={styles.saveButton}
+          disabled={formState.isSubmitting || !formState.isDirty}
+          data-busy={formState.isSubmitting ? 'true' : 'false'}
+        >
+          {formState.isSubmitting ? (
+            <>
+              <span className={styles.spinner} aria-hidden />
+              Kaydediliyor
+            </>
+          ) : (
+            <>Değişiklikleri Kaydet</>
+          )}
+        </button>
+      </div>
     </form>
   );
 }
