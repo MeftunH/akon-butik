@@ -1,16 +1,13 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
-// NestJS DI requires the runtime class — `import type` would silently break startup.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type {
   BlogCategoryWithCount,
   BlogPostDetail,
   BlogPostSummary,
   PaginatedPosts,
 } from './cms.service';
-import type { CmsService } from './cms.service';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { CmsService } from './cms.service';
 import { ListPostsQuery } from './dto/list-posts.query';
 
 /**

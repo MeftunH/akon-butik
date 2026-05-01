@@ -62,7 +62,14 @@ const config: NextConfig = {
     if (!apiInternalUrl) return Promise.resolve([]);
     // API_INTERNAL_URL ends in `/api`; strip it so the rewrite preserves it.
     const origin = apiInternalUrl.replace(/\/api\/?$/, '');
-    return Promise.resolve([{ source: '/api/:path*', destination: `${origin}/api/:path*` }]);
+    return Promise.resolve([
+      { source: '/api/:path*', destination: `${origin}/api/:path*` },
+      // Product, blog, about images live under the api's @fastify/static
+      // mount at /uploads/. Proxying here keeps storefront image URLs
+      // same-origin so they don't trip the CSP img-src 'self' tightening
+      // and so next/image can lazy-load them through the dev cache.
+      { source: '/uploads/:path*', destination: `${origin}/uploads/:path*` },
+    ]);
   },
   headers() {
     return Promise.resolve([{ source: '/:path*', headers: securityHeaders }]);

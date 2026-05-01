@@ -13,15 +13,10 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard';
 
-// NestJS DI requires the runtime class — `import type` would silently break startup.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { BlogPostDetail, PaginatedPosts } from './cms.service';
-import type { CmsService } from './cms.service';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { CmsService } from './cms.service';
 import { AdminListPostsQuery } from './dto/admin-list-posts.query';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { CreatePostDto } from './dto/create-post.dto';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { UpdatePostDto } from './dto/update-post.dto';
 
 /**

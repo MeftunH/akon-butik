@@ -17,6 +17,13 @@ export default [
       '@typescript-eslint/no-extraneous-class': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/parameter-properties': 'off',
+      // Nest binds constructor params by class reference at runtime; the
+      // autofix that converts to `import type` deletes that runtime
+      // binding and silently breaks DI on first save. Disabling the rule
+      // (instead of relying on per-import disable directives) is the
+      // version we don't have to think about. The 4× regression history
+      // is in commits 132aa29, bd9b87e, 3973c68, 7497947.
+      '@typescript-eslint/consistent-type-imports': 'off',
     },
   },
 ];
