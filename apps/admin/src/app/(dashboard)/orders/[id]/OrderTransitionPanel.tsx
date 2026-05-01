@@ -23,11 +23,28 @@ const STATUS_LABELS: Record<string, string> = {
   refunded: 'İade',
 };
 
+const STATUS_CLASS: Record<string, string> = {
+  pending: 'stt-pending',
+  paid: 'stt-complete',
+  fulfilling: 'stt-delivery',
+  shipped: 'stt-delivery',
+  delivered: 'stt-complete',
+  cancelled: 'stt-cancel',
+  refunded: 'stt-cancel',
+};
+
 interface OrderTransitionPanelProps {
   orderId: string;
   currentStatus: string;
 }
 
+/**
+ * Admin-only state-machine panel pinned to the order detail right-rail.
+ * Renders allowed forward transitions for `currentStatus` as vendor-style
+ * `tf-btn` buttons, with an optional note textarea (sent through to the
+ * audit payload). API contract unchanged: PATCH /api/admin/orders/:id/status
+ * with `{ status, note? }`.
+ */
 export function OrderTransitionPanel({ orderId, currentStatus }: OrderTransitionPanelProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
@@ -60,24 +77,26 @@ export function OrderTransitionPanel({ orderId, currentStatus }: OrderTransition
   };
 
   return (
-    <section className="border rounded bg-white p-4">
-      <h2 className="h6 fw-bold mb-3">Durum Geçişi</h2>
-      <p className="small text-muted mb-3">
-        Mevcut durum: <strong>{STATUS_LABELS[currentStatus] ?? currentStatus}</strong>
-      </p>
+    <section className="order-transition-panel">
+      <h3 className="account-title type-semibold h5 mb-3">Durum Geçişi</h3>
+      <div className="d-flex align-items-center gap-2 mb-3">
+        <span className="h6 text-main">Mevcut:</span>
+        <span className={`tb-order_status ${STATUS_CLASS[currentStatus] ?? 'stt-pending'}`}>
+          {STATUS_LABELS[currentStatus] ?? currentStatus}
+        </span>
+      </div>
 
       {targets.length === 0 ? (
-        <p className="small text-muted mb-0">Bu sipariş terminal durumda — yeni geçiş yapılamaz.</p>
+        <p className="h6 text-main mb-0">Bu sipariş terminal durumda — yeni geçiş yapılamaz.</p>
       ) : (
         <>
           <div className="mb-3">
-            <label htmlFor="transition-note" className="form-label small">
+            <label htmlFor="transition-note" className="form-label h6 fw-semibold">
               Not (opsiyonel)
             </label>
             <textarea
               id="transition-note"
               rows={2}
-              className="form-control form-control-sm"
               placeholder="Kargo firması, takip no, iade sebebi, vb."
               value={note}
               onChange={(e) => {
@@ -91,18 +110,19 @@ export function OrderTransitionPanel({ orderId, currentStatus }: OrderTransition
               <button
                 key={target}
                 type="button"
-                className="btn btn-outline-primary btn-sm"
+                className="tf-btn animate-btn w-100"
                 onClick={() => void transition(target)}
                 disabled={busy !== null}
               >
+                <i className="icon icon-arrow-right me-2" />
                 {busy === target ? 'İşleniyor…' : (STATUS_LABELS[target] ?? target)}
               </button>
             ))}
           </div>
           {error && (
-            <p className="text-danger small mt-3 mb-0" role="alert">
-              {error}
-            </p>
+            <div className="alert alert-danger mt-3 mb-0" role="alert">
+              <span className="h6 fw-normal">{error}</span>
+            </div>
           )}
         </>
       )}

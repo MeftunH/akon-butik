@@ -24,3 +24,10 @@ export { WishlistButton, type WishlistButtonProps } from './components/product/W
 // Product
 export { ProductCard, type ProductCardProps } from './components/product/ProductCard';
 export { ProductGrid, type ProductGridProps } from './components/product/ProductGrid';
+
+// Order
+export {
+  OrderTimeline,
+  type OrderTimelineProps,
+  type OrderTimelineStep,
+} from './components/order/OrderTimeline';

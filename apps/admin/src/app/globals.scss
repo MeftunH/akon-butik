@@ -93,3 +93,77 @@ body {
   background: #6b72800d;
   color: #6b7280;
 }
+
+// `tb-order_status` is sized with `max-width: 116px`; on the order detail
+// hero, allow the badge to size naturally so the label "Teslim Edildi"
+// doesn't get cropped.
+.detail-info_status.tb-order_status {
+  max-width: none;
+  display: inline-flex;
+  width: auto;
+  padding-inline: 16px;
+}
+
+// Generic admin card frame — used by ödeme / audit feed / transition panel.
+// Vendor doesn't ship a ".card" pattern for the dashboard, so this is the
+// minimum we need: vendor line color + bg-2-tinted padding.
+.dashboard-card {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 24px;
+}
+
+// Order detail hero left rail when no product image is available — vendor
+// always renders a real product image; admin shows a placeholder badge.
+.dashboard-order-image-fallback {
+  background: var(--bg-2, #f6f7f9);
+  border: 1px solid var(--line, #e1e4e8);
+  aspect-ratio: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--main, #6b7280);
+
+  .icon {
+    font-size: 96px;
+  }
+}
+
+// Right-rail audit feed — per-entry vertical bar in vendor green.
+.audit-feed {
+  display: grid;
+  gap: 16px;
+
+  .audit-feed_item {
+    border-left: 2px solid var(--line, #e1e4e8);
+    padding-left: 16px;
+
+    &:has(+ .audit-feed_item) {
+      padding-bottom: 4px;
+    }
+  }
+}
+
+// Transition panel uses the dashboard-card frame plus a textarea reset that
+// matches vendor form inputs (no Bootstrap form-control border-radius).
+.order-transition-panel {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 24px;
+
+  textarea {
+    width: 100%;
+    border: 1px solid var(--line, #e1e4e8);
+    background: var(--bg-2, #f6f7f9);
+    padding: 12px;
+    font-size: 14px;
+    line-height: 20px;
+    resize: vertical;
+    min-height: 64px;
+
+    &:focus-visible {
+      outline: 2px solid var(--main, #000);
+      outline-offset: -2px;
+    }
+  }
+}

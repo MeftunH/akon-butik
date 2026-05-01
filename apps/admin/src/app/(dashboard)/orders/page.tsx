@@ -1,3 +1,4 @@
+import { Pagination } from '@akonbutik/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -31,33 +32,39 @@ interface PageProps {
 export const metadata = { title: 'Siparişler' };
 
 const STATUS_FILTERS = [
-  'all',
-  'pending',
-  'paid',
-  'fulfilling',
-  'shipped',
-  'delivered',
-  'cancelled',
-  'refunded',
+  { key: 'all', label: 'Tümü' },
+  { key: 'pending', label: 'Bekleyen' },
+  { key: 'paid', label: 'Ödendi' },
+  { key: 'fulfilling', label: 'Hazırlanıyor' },
+  { key: 'shipped', label: 'Kargoda' },
+  { key: 'delivered', label: 'Teslim Edildi' },
+  { key: 'cancelled', label: 'İptal' },
+  { key: 'refunded', label: 'İade' },
 ] as const;
 
-const STATUS_TONE: Record<string, string> = {
-  pending: 'bg-warning-subtle text-warning',
-  paid: 'bg-success-subtle text-success',
-  fulfilling: 'bg-info-subtle text-info',
-  shipped: 'bg-info-subtle text-info',
-  delivered: 'bg-success-subtle text-success',
-  cancelled: 'bg-secondary-subtle text-secondary',
-  refunded: 'bg-secondary-subtle text-secondary',
+const STATUS_LABELS: Record<string, string> = Object.fromEntries(
+  STATUS_FILTERS.map((f) => [f.key, f.label]),
+);
+
+const STATUS_CLASS: Record<string, string> = {
+  pending: 'stt-pending',
+  paid: 'stt-complete',
+  fulfilling: 'stt-delivery',
+  shipped: 'stt-delivery',
+  delivered: 'stt-complete',
+  cancelled: 'stt-cancel',
+  refunded: 'stt-cancel',
 };
+
+const formatTl = (minor: number): string =>
+  `₺${(minor / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
 
 export default async function OrdersPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1);
-  const statusParam =
-    sp.status && STATUS_FILTERS.includes(sp.status as (typeof STATUS_FILTERS)[number])
-      ? sp.status
-      : 'all';
+  const knownStatus = STATUS_FILTERS.some((f) => f.key === sp.status);
+  const statusParam = knownStatus ? (sp.status ?? 'all') : 'all';
+
   const qs = new URLSearchParams({ page: page.toString(), pageSize: '25' });
   if (statusParam !== 'all') qs.set('status', statusParam);
 
@@ -66,125 +73,113 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
   const lastPage = Math.max(1, Math.ceil(resp.total / resp.pageSize));
 
+  const buildHref = (p: number): string => {
+    const next = new URLSearchParams({ page: p.toString() });
+    if (statusParam !== 'all') next.set('status', statusParam);
+    return `/orders?${next.toString()}`;
+  };
+
   return (
-    <article>
-      <div className="d-flex justify-content-between align-items-center mb-4 gap-3">
-        <h1 className="h3 fw-bold mb-0">Siparişler</h1>
-        <span className="text-muted small">{resp.total} kayıt</span>
+    <div className="my-account-content">
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h2 className="account-title type-semibold mb-0">Siparişler</h2>
+        <span className="h6 text-main">{resp.total} kayıt</span>
       </div>
 
-      <div className="d-flex gap-2 mb-3 flex-wrap">
-        {STATUS_FILTERS.map((s) => {
-          const href = s === 'all' ? '/orders' : `/orders?status=${s}`;
-          const active = statusParam === s;
-          return (
-            <Link
-              key={s}
-              href={href}
-              className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline-secondary'}`}
-            >
-              {s}
-            </Link>
-          );
-        })}
+      <div className="account-order_tab mb-4">
+        <ul className="tab-order_detail nav nav-pills flex-wrap gap-2 list-unstyled mb-0">
+          {STATUS_FILTERS.map((f) => {
+            const href = f.key === 'all' ? '/orders' : `/orders?status=${f.key}`;
+            const active = statusParam === f.key;
+            return (
+              <li key={f.key} className="nav-tab-item">
+                <Link href={href} className={`tf-btn-line tf-btn-tab${active ? ' active' : ''}`}>
+                  <span className="h6">{f.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
-      <div className="table-responsive">
-        <table className="table align-middle bg-white">
-          <thead>
-            <tr>
-              <th>Sipariş</th>
-              <th>Müşteri</th>
-              <th>Ürün</th>
-              <th>Tutar</th>
-              <th>Durum</th>
-              <th>DIA</th>
-              <th>Tarih</th>
-            </tr>
-          </thead>
-          <tbody>
-            {resp.items.length === 0 && (
+      {resp.items.length === 0 ? (
+        <div className="dashboard-empty">
+          <i className="icon icon-package-thin mb-3" aria-hidden />
+          <h6 className="fw-semibold mb-1">Bu filtre için sipariş yok</h6>
+          <p className="h6 text-main mb-0">
+            Farklı bir durum seçerek diğer siparişleri görüntüleyebilirsiniz.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-auto">
+          <table className="table-my_order">
+            <thead>
               <tr>
-                <td colSpan={7} className="text-center text-muted py-4">
-                  Bu filtre için sipariş yok.
-                </td>
+                <th>Sipariş</th>
+                <th>Müşteri</th>
+                <th>Ürün</th>
+                <th>Tutar</th>
+                <th>Durum</th>
+                <th>DIA</th>
+                <th>Tarih</th>
+                <th>İşlem</th>
               </tr>
-            )}
-            {resp.items.map((o) => (
-              <tr key={o.id}>
-                <td>
-                  <Link href={`/orders/${o.id}`} className="fw-semibold text-decoration-none">
-                    {o.orderNumber}
-                  </Link>
-                </td>
-                <td>
-                  <div>{o.customerName}</div>
-                  <div className="small text-muted">{o.customerEmail}</div>
-                </td>
-                <td>{o._count.items}</td>
-                <td>
-                  ₺{(o.totalMinor / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
-                </td>
-                <td>
-                  <span
-                    className={`badge ${STATUS_TONE[o.status] ?? 'bg-secondary-subtle text-secondary'}`}
-                  >
-                    {o.status}
-                  </span>
-                </td>
-                <td className="small">
-                  {o.diaSiparisKodu ? (
-                    <code>{o.diaSiparisKodu}</code>
-                  ) : (
-                    <span className="text-muted">—</span>
-                  )}
-                </td>
-                <td className="small text-muted">
-                  {new Date(o.createdAt).toLocaleString('tr-TR')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {resp.items.map((o) => (
+                <tr key={o.id} className="tb-order-item">
+                  <td className="tb-order_code">
+                    <Link
+                      href={`/orders/${o.id}`}
+                      className="link fw-semibold text-decoration-none"
+                    >
+                      {o.orderNumber}
+                    </Link>
+                  </td>
+                  <td>
+                    <div className="infor-prd">
+                      <h6 className="prd_name mb-1">{o.customerName}</h6>
+                      <p className="prd_select text-small mb-0">
+                        <span>{o.customerEmail}</span>
+                      </p>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="h6">{o._count.items} ürün</span>
+                  </td>
+                  <td className="tb-order_price">{formatTl(o.totalMinor)}</td>
+                  <td>
+                    <div className={`tb-order_status ${STATUS_CLASS[o.status] ?? 'stt-pending'}`}>
+                      {STATUS_LABELS[o.status] ?? o.status}
+                    </div>
+                  </td>
+                  <td>
+                    {o.diaSiparisKodu ? (
+                      <code className="h6">{o.diaSiparisKodu}</code>
+                    ) : (
+                      <span className="h6 text-main">—</span>
+                    )}
+                  </td>
+                  <td className="h6 text-main">
+                    {new Date(o.createdAt).toLocaleDateString('tr-TR')}
+                  </td>
+                  <td className="tb-order_action">
+                    <Link href={`/orders/${o.id}`} className="link fw-semibold">
+                      Detay
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {lastPage > 1 && (
-        <nav className="d-flex justify-content-between mt-3">
-          <span className="text-muted small">
-            Sayfa {page} / {lastPage}
-          </span>
-          <div className="d-flex gap-2">
-            <Link
-              href={
-                page > 1
-                  ? `/orders?${new URLSearchParams({
-                      page: (page - 1).toString(),
-                      ...(statusParam !== 'all' && { status: statusParam }),
-                    }).toString()}`
-                  : '/orders'
-              }
-              className={`btn btn-sm btn-outline-secondary${page === 1 ? ' disabled' : ''}`}
-              aria-disabled={page === 1}
-            >
-              ← Önceki
-            </Link>
-            <Link
-              href={
-                page < lastPage
-                  ? `/orders?${new URLSearchParams({
-                      page: (page + 1).toString(),
-                      ...(statusParam !== 'all' && { status: statusParam }),
-                    }).toString()}`
-                  : '/orders'
-              }
-              className={`btn btn-sm btn-outline-secondary${page === lastPage ? ' disabled' : ''}`}
-              aria-disabled={page === lastPage}
-            >
-              Sonraki →
-            </Link>
-          </div>
-        </nav>
+        <div className="wd-full">
+          <Pagination page={page} lastPage={lastPage} buildHref={buildHref} />
+        </div>
       )}
-    </article>
+    </div>
   );
 }
