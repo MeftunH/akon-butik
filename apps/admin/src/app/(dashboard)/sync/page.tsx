@@ -2,124 +2,168 @@ import { redirect } from 'next/navigation';
 
 import { ADMIN_NOT_AUTHENTICATED, fetchAdmin } from '../../../lib/admin-fetch';
 
-import { SyncTriggers } from './SyncTriggers';
-
-interface SyncLogEntry {
-  id: string;
-  entity: string;
-  status: 'running' | 'success' | 'failed';
-  startedAt: string;
-  finishedAt: string | null;
-  error: string | null;
-  stats: Record<string, unknown> | null;
-}
+import {
+  SYNC_ENTITY_META,
+  type SyncEntity,
+  type SyncEntitySnapshot,
+  type SyncLogEntry,
+} from './_components/sync-page.types';
+import {
+  findLastRun,
+  formatAbsoluteTr,
+  formatRelativeTr,
+  isEntityRunning,
+} from './_components/sync-page.utils';
+import styles from './_components/sync.module.scss';
+import { SyncEmptyState } from './_components/SyncEmptyState';
+import { SyncLogTable } from './_components/SyncLogTable';
+import { SyncPagePoller } from './_components/SyncPagePoller';
+import { SyncTriggerBoard } from './_components/SyncTriggerBoard';
 
 export const metadata = { title: 'DIA Senkron' };
 
-const SYNC_LABELS: Record<string, string> = {
-  products: 'Ürünler',
-  stock: 'Stok',
-  categories: 'Kategoriler',
-};
+const LOG_LIMIT = 50;
 
-const SYNC_TONE: Record<SyncLogEntry['status'], string> = {
-  success: 'stt-complete',
-  failed: 'stt-cancel',
-  running: 'stt-pending',
-};
+const SYNC_KEYS: readonly SyncEntity[] = ['products', 'stock', 'categories'];
 
-const SYNC_TEXT: Record<SyncLogEntry['status'], string> = {
-  success: 'Başarılı',
-  failed: 'Hata',
-  running: 'Çalışıyor',
-};
+/**
+ * DIA sync admin page. Surfaces three editorial trigger cards, a fleet
+ * status rail, and the dense log table. Re-renders every 5 s (via
+ * SyncPagePoller calling router.refresh) while at least one entity is
+ * running; falls idle once all rows settle.
+ */
+export default async function SyncPage(): Promise<React.ReactElement> {
+  // Fetch the log slice. Only one sub-fetch today, but the structure is
+  // ready for a parallel "is running now" probe once the API ships one.
+  const log = await fetchAdmin<SyncLogEntry[]>(`/admin/sync/log?limit=${LOG_LIMIT.toString()}`);
+  if (log === ADMIN_NOT_AUTHENTICATED) {
+    // Single quiet console line on auth fallback so the parent dashboard
+    // tail can grep for it; the redirect itself terminates this render.
+    console.warn('[admin/sync] auth required, redirecting to /login');
+    redirect('/login');
+  }
 
-const formatDuration = (start: string, end: string | null): string => {
-  if (!end) return '—';
-  const ms = new Date(end).getTime() - new Date(start).getTime();
-  if (ms < 1000) return `${ms.toString()} ms`;
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)} sn`;
-  return `${(ms / 60_000).toFixed(1)} dk`;
-};
+  const snapshots: SyncEntitySnapshot[] = SYNC_KEYS.map((key) => ({
+    entity: key,
+    lastRun: findLastRun(log, key),
+    isRunning: isEntityRunning(log, key),
+  }));
 
-export default async function SyncPage() {
-  const log = await fetchAdmin<SyncLogEntry[]>('/admin/sync/log?limit=20');
-  if (log === ADMIN_NOT_AUTHENTICATED) redirect('/login');
+  const isAnyRunning = snapshots.some((s) => s.isRunning);
+  const hasLogRows = log.length > 0;
+  const newestRun = log[0] ?? null;
 
   return (
     <div className="my-account-content">
-      <h2 className="account-title type-semibold">DIA Senkron</h2>
-      <p className="h6 text-main mb-4">
-        Ürün, stok ve kategori senkronlarını manuel tetikleyin. İşler arka planda BullMQ
-        worker&apos;ında çalışır; senkron süresince bu sayfayı yenilemek log&apos;u günceller.
-      </p>
+      <SyncPagePoller isAnyRunning={isAnyRunning} />
 
-      <section className="mb-4">
-        <SyncTriggers />
+      <header className={styles.hero}>
+        <div>
+          <p className={styles.heroEyebrow}>DIA Bağlantısı</p>
+          <h1 className={styles.heroTitle}>Senkron Köprüsü</h1>
+          <p className={styles.heroLead}>
+            Akon Butik’in fiziksel envanteri ile çevrimiçi katalog DIA üzerinden buluşur. Aşağıdaki
+            üç giriş noktasından manuel senkron tetikleyin; BullMQ kuyruğu eşzamanlı tek çalışmayı
+            zaten garanti eder.
+          </p>
+        </div>
+        <FleetStatusRail snapshots={snapshots} isAnyRunning={isAnyRunning} newestRun={newestRun} />
+      </header>
+
+      <section aria-labelledby="sync-board-heading">
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.sectionEyebrow}>Tetikleyici Kartlar</p>
+            <h2 id="sync-board-heading" className={styles.sectionTitle}>
+              Kuyruğa al
+            </h2>
+          </div>
+          <span className={styles.sectionMeta}>
+            <strong>{SYNC_ENTITY_META.length.toString()}</strong> giriş noktası
+          </span>
+        </div>
+        <SyncTriggerBoard snapshots={snapshots} />
       </section>
 
-      <section>
-        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-          <h3 className="account-title type-semibold mb-0 h5">Son 20 Senkron</h3>
-          <span className="h6 text-main">{log.length} kayıt</span>
+      <section aria-labelledby="sync-log-heading">
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.sectionEyebrow}>Çalışma Günlüğü</p>
+            <h2 id="sync-log-heading" className={styles.sectionTitle}>
+              Son senkron kayıtları
+            </h2>
+          </div>
+          <span className={styles.sectionMeta}>
+            <strong>{log.length.toString()}</strong> kayıt
+            {log.length === LOG_LIMIT ? ' (üst sınır)' : ''}
+          </span>
         </div>
 
-        {log.length === 0 ? (
-          <div className="dashboard-empty">
-            <i className="icon icon-arrow-clockwise mb-3" aria-hidden />
-            <h6 className="fw-semibold mb-1">Henüz senkron kaydı yok</h6>
-            <p className="h6 text-main mb-0">
-              Yukarıdaki kartlardan birini tetikleyerek ilk senkronu başlatın.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-auto">
-            <table className="table-my_order">
-              <thead>
-                <tr>
-                  <th>Tür</th>
-                  <th>Durum</th>
-                  <th>Başladı</th>
-                  <th>Süre</th>
-                  <th>Detay</th>
-                </tr>
-              </thead>
-              <tbody>
-                {log.map((r) => (
-                  <tr key={r.id} className="tb-order-item">
-                    <td className="tb-order_code">
-                      <span className="fw-semibold">{SYNC_LABELS[r.entity] ?? r.entity}</span>
-                    </td>
-                    <td>
-                      <div className={`tb-order_status ${SYNC_TONE[r.status]}`}>
-                        {SYNC_TEXT[r.status]}
-                      </div>
-                    </td>
-                    <td className="h6 text-main">
-                      {new Date(r.startedAt).toLocaleString('tr-TR')}
-                    </td>
-                    <td className="h6">{formatDuration(r.startedAt, r.finishedAt)}</td>
-                    <td className="h6">
-                      {r.error ? (
-                        <span className="text-danger">{r.error.slice(0, 100)}</span>
-                      ) : r.stats ? (
-                        <span className="text-main">
-                          {Object.entries(r.stats)
-                            .slice(0, 4)
-                            .map(([k, v]) => `${k}: ${String(v)}`)
-                            .join(' · ')}
-                        </span>
-                      ) : (
-                        <span className="text-main">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        {hasLogRows ? <SyncLogTable rows={log} /> : <SyncEmptyState />}
       </section>
+    </div>
+  );
+}
+
+interface FleetStatusRailProps {
+  snapshots: readonly SyncEntitySnapshot[];
+  isAnyRunning: boolean;
+  newestRun: SyncLogEntry | null;
+}
+
+/**
+ * Right-rail status tape: live state, last activity, scheduled cadence
+ * notes. SSR-only — gives the page an at-a-glance "is the bridge alive"
+ * answer without dragging the operator into the table.
+ */
+function FleetStatusRail({
+  snapshots,
+  isAnyRunning,
+  newestRun,
+}: FleetStatusRailProps): React.ReactElement {
+  const successInLast24h = snapshots.reduce((acc, s) => {
+    const last = s.lastRun;
+    if (!last || last.status !== 'success') return acc;
+    const ageMs = Date.now() - new Date(last.startedAt).getTime();
+    return ageMs < 24 * 60 * 60 * 1000 ? acc + 1 : acc;
+  }, 0);
+
+  const failedSnapshots = snapshots.filter((s) => s.lastRun?.status === 'failed');
+
+  return (
+    <div className={styles.heroFleet} aria-live="polite">
+      <div className={styles.heroFleetRow}>
+        <span className={styles.heroFleetLabel}>
+          {isAnyRunning ? <span className={styles.pulse} aria-hidden /> : null}
+          Kuyruk durumu
+        </span>
+        <span className={styles.heroFleetValue}>
+          {isAnyRunning ? 'Bir senkron çalışıyor' : 'Boşta'}
+        </span>
+      </div>
+      <div className={styles.heroFleetRow}>
+        <span className={styles.heroFleetLabel}>Son aktivite</span>
+        <span
+          className={styles.heroFleetValue}
+          title={newestRun ? formatAbsoluteTr(newestRun.startedAt) : undefined}
+        >
+          {newestRun ? formatRelativeTr(newestRun.startedAt, Date.now()) : 'Henüz yok'}
+        </span>
+      </div>
+      <div className={styles.heroFleetRow}>
+        <span className={styles.heroFleetLabel}>Son 24 sa başarılı</span>
+        <span className={styles.heroFleetValue}>
+          {successInLast24h.toString()} / {snapshots.length.toString()}
+        </span>
+      </div>
+      {failedSnapshots.length > 0 ? (
+        <div className={styles.heroFleetRow}>
+          <span className={styles.heroFleetLabel}>Hatalı</span>
+          <span className={styles.heroFleetValue} style={{ color: 'var(--primary, #c8102e)' }}>
+            {failedSnapshots.map((s) => s.entity).join(', ')}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }
