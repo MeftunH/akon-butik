@@ -169,3 +169,48 @@ $vendor: '../../../../vendor/ochaka-theme/reactjs/public/scss';
 button {
   cursor: pointer;
 }
+
+// ---- Akon Butik overrides ---------------------------------------------------
+// Vendor `.card-product_wrapper .product-img` ships with only `overflow` +
+// `position`. The anchor stays inline and the image inside collapses to its
+// intrinsic auto sizing inside the aspect-ratio wrapper, leaving an empty
+// box. Force the anchor + child img to fill the wrapper.
+.card-product_wrapper .product-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.card-product_wrapper .product-img > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Vendor `.box-image_category` does the same: relies on inline-flow + intrinsic
+// sizing. Keep the image lock-stepped to the grid cell.
+.box-image_category .img-style {
+  display: block;
+}
+
+.box-image_category .img-style > img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+// Hero slider images need to fill the slide; vendor source assumes lazysizes
+// .js will mutate them to a containing-style.
+.tf-slideshow .sld_image > img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+// `.tf-grid-layout` on its own has the right grid-template-columns but no
+// vertical spacing for sub-elements; the rest of the demo pads via
+// `.flat-spacing-2` on the section. Make sure cards inside the grid don't
+// collapse to zero gap.
+.tf-grid-layout {
+  row-gap: 32px;
+}
