@@ -71,19 +71,19 @@ export function Footer() {
                     <i className="icon icon-map-pin" />
                     <span className="br-line" />
                     <a
-                      href="https://www.google.com/maps?q=Akon+Butik+İstanbul"
+                      href="https://www.google.com/maps/search/?api=1&query=Akon+Butik+%C3%87ark+Caddesi+Sakarya"
                       target="_blank"
                       rel="noreferrer"
                       className="h6 link text-main"
                     >
-                      İstanbul, Türkiye
+                      Çark Cd. No:13, Adapazarı / Sakarya
                     </a>
                   </li>
                   <li>
                     <i className="icon icon-phone" />
                     <span className="br-line" />
-                    <a href="tel:+908502550000" className="h6 link text-main">
-                      +90 (850) 255 00 00
+                    <a href="tel:+905335196988" className="h6 link text-main">
+                      +90 533 519 69 88
                     </a>
                   </li>
                   <li>
@@ -97,7 +97,7 @@ export function Footer() {
                 <ul className="tf-social-icon_2">
                   <li>
                     <a
-                      href="https://www.instagram.com/akonbutik"
+                      href="https://www.instagram.com/akonbutik/"
                       target="_blank"
                       rel="noreferrer"
                       className="link"
@@ -108,7 +108,7 @@ export function Footer() {
                   </li>
                   <li>
                     <a
-                      href="https://www.facebook.com/akonbutik"
+                      href="https://www.facebook.com/akon.butik/"
                       target="_blank"
                       rel="noreferrer"
                       className="link"
@@ -119,18 +119,18 @@ export function Footer() {
                   </li>
                   <li>
                     <a
-                      href="https://www.tiktok.com/@akonbutik"
+                      href="https://tr.pinterest.com/akonbutik/"
                       target="_blank"
                       rel="noreferrer"
                       className="link"
-                      aria-label="TikTok"
+                      aria-label="Pinterest"
                     >
-                      <i className="icon-tiktok" />
+                      <i className="icon-pinterest" />
                     </a>
                   </li>
                   <li>
                     <a
-                      href="https://wa.me/908502550000"
+                      href="https://wa.me/905335196988"
                       target="_blank"
                       rel="noreferrer"
                       className="link"

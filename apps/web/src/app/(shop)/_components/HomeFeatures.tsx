@@ -16,11 +16,23 @@ const FEATURES: readonly Feature[] = [
   {
     iconClass: 'icon-package',
     title: '14 Gün İçinde İade',
-    text: '14 gün içinde koşulsuz iade hakkı',
+    text: 'Teslim tarihinden itibaren koşulsuz iade hakkı',
   },
-  { iconClass: 'icon-calender', title: 'Güvenli Ödeme', text: '256-bit SSL ile şifrelenmiş ödeme' },
-  { iconClass: 'icon-boat', title: 'Ücretsiz Kargo', text: '1.500₺ üzeri siparişlerde ücretsiz' },
-  { iconClass: 'icon-headset', title: 'WhatsApp Destek', text: 'Hafta içi 09:00 – 18:00 arası' },
+  {
+    iconClass: 'icon-calender',
+    title: 'Güvenli Ödeme',
+    text: 'iyzico ve 3D Secure ile şifrelenmiş tahsilat',
+  },
+  {
+    iconClass: 'icon-boat',
+    title: 'Ücretsiz Kargo',
+    text: '450₺ üzeri tüm siparişlerde kargo bedeli yok',
+  },
+  {
+    iconClass: 'icon-headset',
+    title: 'WhatsApp Destek',
+    text: 'Hafta içi 09:00 ile 18:00 arası canlı yardım',
+  },
 ];
 
 /**
