@@ -67,6 +67,27 @@ body {
   }
 }
 
+// DIA sync trigger cards — vendor `order-box` is laid out for stat counters
+// (icon + label + value); admin sync trigger needs a CTA button so this is
+// a slim variant.
+.sync-trigger-card {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .sync-trigger-card_icon {
+    color: var(--main, #6b7280);
+    font-size: 36px;
+  }
+
+  .sync-trigger-card_body {
+    flex-grow: 1;
+  }
+}
+
 // Empty-state callout used when a list is empty (orders/products/sync).
 .dashboard-empty {
   background: var(--bg-2, #f6f7f9);
