@@ -23,44 +23,73 @@ body {
   }
 }
 
-// Admin tables — vendor doesn't ship a generic admin table style. Keep
-// it simple (subtle border, comfortable row height) instead of dragging
-// in DataTables / shadcn for a single screen.
-.admin-table {
-  width: 100%;
-  background: var(--white, #fff);
-  border: 1px solid var(--line-1, #e1e4e8);
-  border-radius: 8px;
-  overflow: hidden;
+// Admin lists use vendor `.table-my_order` (see _sections.scss) instead of
+// a bespoke .admin-table. The few admin-only tone helpers below extend the
+// vendor `.tb-order_status` palette.
 
-  th,
-  td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--line-1, #e1e4e8);
-  }
-
-  thead th {
-    background: var(--bg-2, #f6f7f9);
-    font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--main-2, #6b7280);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  tbody tr:hover td {
-    background: rgba(0, 0, 0, 0.015);
+// `account-content` is vendor — used as the main content frame on the
+// right of the sidebar. Add breathing room around content sections so
+// dashboard pages don't butt up against the sidebar.
+.account-content {
+  > section + section,
+  .my-account-content > section + section {
+    margin-top: 32px;
   }
 }
 
-// `account-content` is vendor — used as the main content frame on the
-// right of the sidebar. Add some breathing room around the page-title
-// block so dashboard sections don't butt up against the sidebar.
-.account-content > section + section {
-  margin-top: 24px;
+// Dashboard sync card — condensed read of the last DIA sync (the sync
+// page itself shows the full log table). Vendor doesn't ship a card
+// pattern that quite fits, so this is a thin custom one in vendor tokens.
+.dashboard-sync-card {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 24px;
+}
+
+.dashboard-sync-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 2fr);
+  gap: 16px;
+  align-items: center;
+
+  .dashboard-sync-row_detail {
+    text-align: right;
+    word-break: break-word;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    .dashboard-sync-row_detail {
+      text-align: left;
+    }
+  }
+}
+
+// Empty-state callout used when a list is empty (orders/products/sync).
+.dashboard-empty {
+  background: var(--bg-2, #f6f7f9);
+  border: 1px dashed var(--line, #e1e4e8);
+  padding: 48px 24px;
+  text-align: center;
+
+  .icon {
+    font-size: 40px;
+    color: var(--main, #6b7280);
+    display: block;
+  }
+}
+
+// `tb-order_status` vendor variants beyond stt-{complete,pending,delivery,cancel}
+// for admin-only states (e.g. needs_review, hidden product status). Keep tones
+// aligned with vendor stt-pending tone family so the page reads consistent.
+.tb-order_status.stt-info {
+  background: #3ba8bc0d;
+  color: #3ba8bc;
+}
+
+.tb-order_status.stt-muted {
+  background: #6b72800d;
+  color: #6b7280;
 }
