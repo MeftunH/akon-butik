@@ -144,13 +144,105 @@ body {
   }
 }
 
-// Transition panel uses the dashboard-card frame plus a textarea reset that
-// matches vendor form inputs (no Bootstrap form-control border-radius).
-.order-transition-panel {
+// Product images panel — dropzone + 2-up tile gallery. Vendor doesn't ship
+// an admin image-uploader pattern, so this is the minimum that reads like
+// the rest of the dashboard (vendor line color, vendor `tf-btn` actions).
+.product-images-panel {
+  .alert + .row {
+    margin-top: 0;
+  }
+}
+
+.product-images-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  background: var(--bg-2, #f6f7f9);
+  border: 1.5px dashed var(--line, #e1e4e8);
+  padding: 32px 16px;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  .icon {
+    font-size: 36px;
+    color: var(--main, #6b7280);
+    margin-bottom: 4px;
+  }
+
+  &:hover,
+  &.is-drag-over {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--black, #000);
+  }
+
+  &.is-busy {
+    opacity: 0.6;
+    cursor: progress;
+  }
+}
+
+.product-image-tile {
+  position: relative;
   background: var(--white, #fff);
   border: 1px solid var(--line, #e1e4e8);
-  padding: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
+  img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-image-tile_meta {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: flex;
+    gap: 4px;
+  }
+
+  .product-image-tile_actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-top: 1px solid var(--line, #e1e4e8);
+
+    > * {
+      flex: 1;
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    .btn-danger-line {
+      flex: 0 0 auto;
+      color: #c8102e;
+      border-color: rgba(200, 16, 46, 0.3);
+
+      &:hover {
+        background: rgba(200, 16, 46, 0.06);
+        color: #c8102e;
+        border-color: #c8102e;
+      }
+    }
+  }
+}
+
+// Transition panel uses the dashboard-card frame plus a textarea reset that
+// matches vendor form inputs (no Bootstrap form-control border-radius).
+.order-transition-panel,
+.product-edit-form {
   textarea {
     width: 100%;
     border: 1px solid var(--line, #e1e4e8);
@@ -166,4 +258,10 @@ body {
       outline-offset: -2px;
     }
   }
+}
+
+.order-transition-panel {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 24px;
 }

@@ -54,6 +54,21 @@ interface PageProps {
 
 export const metadata = { title: 'Ürün Düzenle' };
 
+const STATUS_LABELS: Record<AdminProductDetail['status'], string> = {
+  visible: 'Görünür',
+  hidden: 'Gizli',
+  needs_review: 'İncelemede',
+};
+
+const STATUS_CLASS: Record<AdminProductDetail['status'], string> = {
+  visible: 'stt-complete',
+  hidden: 'stt-muted',
+  needs_review: 'stt-pending',
+};
+
+const formatTl = (minor: number): string =>
+  `₺${(minor / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+
 export default async function ProductEditPage({ params }: PageProps) {
   const { id } = await params;
   const [product, brands, categories] = await Promise.all([
@@ -71,11 +86,11 @@ export default async function ProductEditPage({ params }: PageProps) {
   if (!product) notFound();
 
   return (
-    <article>
-      <nav aria-label="breadcrumb" className="mb-3 small">
+    <div className="my-account-content">
+      <nav aria-label="breadcrumb" className="mb-3 h6">
         <ol className="breadcrumb mb-0">
           <li className="breadcrumb-item">
-            <Link href="/products" className="text-muted text-decoration-none">
+            <Link href="/products" className="text-decoration-none link">
               Ürünler
             </Link>
           </li>
@@ -85,21 +100,26 @@ export default async function ProductEditPage({ params }: PageProps) {
         </ol>
       </nav>
 
-      <div className="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+      <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
-          <h1 className="h3 fw-bold mb-1">{product.nameTr}</h1>
-          <p className="small text-muted mb-0">
+          <h2 className="account-title type-semibold mb-1">{product.nameTr}</h2>
+          <div className="d-flex flex-wrap align-items-center gap-2 h6 text-main">
             <code>{product.slug}</code>
             {product.diaParentKey && (
-              <>
-                {' · DIA: '}
-                <code>{product.diaParentKey}</code>
-              </>
+              <span>
+                · DIA: <code>{product.diaParentKey}</code>
+              </span>
             )}
             {product.diaSyncedAt && (
-              <> · Son senkron: {new Date(product.diaSyncedAt).toLocaleString('tr-TR')}</>
+              <span>· Son senkron: {new Date(product.diaSyncedAt).toLocaleString('tr-TR')}</span>
             )}
-          </p>
+          </div>
+        </div>
+        <div className="d-flex flex-column align-items-end gap-2">
+          <span className={`tb-order_status ${STATUS_CLASS[product.status]}`}>
+            {STATUS_LABELS[product.status]}
+          </span>
+          <span className="h5 fw-bold mb-0">{formatTl(product.defaultPriceMinor)}</span>
         </div>
       </div>
 
@@ -107,47 +127,57 @@ export default async function ProductEditPage({ params }: PageProps) {
         <div className="col-lg-7">
           <ProductEditForm product={product} brands={brands} categories={categories} />
 
-          <section className="mt-5">
-            <h2 className="h6 fw-bold mb-3">Variantlar</h2>
-            <p className="small text-muted">
+          <section className="dashboard-card mt-4">
+            <h3 className="account-title type-semibold h5 mb-2">Variantlar</h3>
+            <p className="h6 text-main mb-3">
               Variant verisi DIA senkronundan gelir; admin panelden düzenlenmez.
             </p>
-            <div className="table-responsive">
-              <table className="table align-middle bg-white">
-                <thead>
-                  <tr>
-                    <th>SKU</th>
-                    <th>DIA Stokkart</th>
-                    <th>Beden</th>
-                    <th>Renk</th>
-                    <th>Stok</th>
-                    <th>Fiyat Override</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.variants.map((v) => (
-                    <tr key={v.id}>
-                      <td>
-                        <code>{v.sku}</code>
-                      </td>
-                      <td>
-                        <code>{v.diaStokkartkodu}</code>
-                      </td>
-                      <td>{v.size ?? '—'}</td>
-                      <td>{v.color ?? '—'}</td>
-                      <td>{v.stockQty}</td>
-                      <td>
-                        {v.priceOverrideMinor !== null
-                          ? `₺${(v.priceOverrideMinor / 100).toLocaleString('tr-TR', {
-                              minimumFractionDigits: 2,
-                            })}`
-                          : '—'}
-                      </td>
+            {product.variants.length === 0 ? (
+              <div className="dashboard-empty">
+                <i className="icon icon-list mb-2" aria-hidden />
+                <h6 className="fw-semibold mb-1">Variant yok</h6>
+                <p className="h6 text-main mb-0">
+                  DIA senkronu çalıştırarak variantları getirebilirsiniz.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-auto">
+                <table className="table-my_order">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>DIA Stokkart</th>
+                      <th>Beden</th>
+                      <th>Renk</th>
+                      <th>Stok</th>
+                      <th>Fiyat Override</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {product.variants.map((v) => (
+                      <tr key={v.id} className="tb-order-item">
+                        <td>
+                          <code>{v.sku}</code>
+                        </td>
+                        <td>
+                          <code>{v.diaStokkartkodu}</code>
+                        </td>
+                        <td className="h6">{v.size ?? '—'}</td>
+                        <td className="h6">{v.color ?? '—'}</td>
+                        <td className="h6 fw-semibold">{v.stockQty}</td>
+                        <td className="h6">
+                          {v.priceOverrideMinor !== null ? (
+                            formatTl(v.priceOverrideMinor)
+                          ) : (
+                            <span className="text-main">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         </div>
 
@@ -155,6 +185,6 @@ export default async function ProductEditPage({ params }: PageProps) {
           <ProductImagesPanel productId={product.id} initialImages={product.images} />
         </div>
       </div>
-    </article>
+    </div>
   );
 }

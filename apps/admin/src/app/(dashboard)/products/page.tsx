@@ -1,3 +1,4 @@
+import { Pagination } from '@akonbutik/ui';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -31,11 +32,20 @@ interface PageProps {
 
 export const metadata = { title: 'Ürünler' };
 
-const STATUS_TONE: Record<AdminProduct['status'], string> = {
-  visible: 'bg-success-subtle text-success',
-  hidden: 'bg-secondary-subtle text-secondary',
-  needs_review: 'bg-warning-subtle text-warning',
+const STATUS_LABELS: Record<AdminProduct['status'], string> = {
+  visible: 'Görünür',
+  hidden: 'Gizli',
+  needs_review: 'İncelemede',
 };
+
+const STATUS_CLASS: Record<AdminProduct['status'], string> = {
+  visible: 'stt-complete',
+  hidden: 'stt-muted',
+  needs_review: 'stt-pending',
+};
+
+const formatTl = (minor: number): string =>
+  `₺${(minor / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
 
 export default async function ProductsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
@@ -49,124 +59,117 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const lastPage = Math.max(1, Math.ceil(resp.total / resp.pageSize));
 
+  const buildHref = (p: number): string => {
+    const next = new URLSearchParams({ page: p.toString() });
+    if (q) next.set('q', q);
+    return `/products?${next.toString()}`;
+  };
+
   return (
-    <article>
-      <div className="d-flex justify-content-between align-items-center mb-4 gap-3">
-        <h1 className="h3 fw-bold mb-0">Ürünler</h1>
-        <span className="text-muted small">{resp.total} kayıt</span>
+    <div className="my-account-content">
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h2 className="account-title type-semibold mb-0">Ürünler</h2>
+        <span className="h6 text-main">{resp.total} kayıt</span>
       </div>
 
-      <form className="mb-3 d-flex gap-2" method="get">
-        <input
-          type="text"
-          name="q"
-          className="form-control"
-          placeholder="İsim, slug veya DIA parent key ile ara…"
-          defaultValue={q}
-        />
-        <button type="submit" className="btn btn-outline-primary">
+      <form className="d-flex flex-wrap gap-2 mb-4" method="get">
+        <div className="flex-grow-1" style={{ minWidth: 220 }}>
+          <input
+            type="text"
+            name="q"
+            placeholder="İsim, slug veya DIA parent key ile ara…"
+            defaultValue={q}
+            aria-label="Ürün ara"
+          />
+        </div>
+        <button type="submit" className="tf-btn animate-btn">
+          <i className="icon icon-search me-2" />
           Ara
         </button>
         {q && (
-          <Link href="/products" className="btn btn-outline-secondary">
+          <Link href="/products" className="tf-btn style-line">
             Temizle
           </Link>
         )}
       </form>
 
-      <div className="table-responsive">
-        <table className="table align-middle bg-white">
-          <thead>
-            <tr>
-              <th>Ürün</th>
-              <th>Marka / Kategori</th>
-              <th>Fiyat</th>
-              <th>Variant</th>
-              <th>Durum</th>
-              <th>Son Senkron</th>
-            </tr>
-          </thead>
-          <tbody>
-            {resp.items.length === 0 && (
+      {resp.items.length === 0 ? (
+        <div className="dashboard-empty">
+          <i className="icon icon-bag-simple mb-3" aria-hidden />
+          <h6 className="fw-semibold mb-1">Eşleşen ürün yok</h6>
+          <p className="h6 text-main mb-0">
+            Arama kriterini değiştirin veya DIA senkronu ile yeni ürünleri getirin.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-auto">
+          <table className="table-my_order">
+            <thead>
               <tr>
-                <td colSpan={6} className="text-center text-muted py-4">
-                  Eşleşen ürün yok.
-                </td>
+                <th>Ürün</th>
+                <th>Marka / Kategori</th>
+                <th>Fiyat</th>
+                <th>Variant</th>
+                <th>Durum</th>
+                <th>Son Senkron</th>
+                <th>İşlem</th>
               </tr>
-            )}
-            {resp.items.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <Link href={`/products/${p.id}`} className="fw-semibold text-decoration-none">
-                    {p.nameTr}
-                  </Link>
-                  <div className="small text-muted">
-                    {p.slug}
-                    {p.diaParentKey && (
-                      <>
-                        {' · '}
-                        <code>{p.diaParentKey}</code>
-                      </>
-                    )}
-                  </div>
-                </td>
-                <td className="small">
-                  {p.brand?.name ?? <span className="text-muted">—</span>}
-                  {' / '}
-                  {p.category?.nameTr ?? <span className="text-muted">—</span>}
-                </td>
-                <td>
-                  ₺
-                  {(p.defaultPriceMinor / 100).toLocaleString('tr-TR', {
-                    minimumFractionDigits: 2,
-                  })}
-                </td>
-                <td>{p._count.variants}</td>
-                <td>
-                  <span className={`badge ${STATUS_TONE[p.status]}`}>{p.status}</span>
-                </td>
-                <td className="small text-muted">
-                  {p.diaSyncedAt ? new Date(p.diaSyncedAt).toLocaleString('tr-TR') : '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {resp.items.map((p) => (
+                <tr key={p.id} className="tb-order-item">
+                  <td>
+                    <div className="infor-prd">
+                      <h6 className="prd_name mb-1">
+                        <Link
+                          href={`/products/${p.id}`}
+                          className="link fw-semibold text-decoration-none"
+                        >
+                          {p.nameTr}
+                        </Link>
+                      </h6>
+                      <p className="prd_select text-small mb-0">
+                        <span>{p.slug}</span>
+                        {p.diaParentKey && (
+                          <span>
+                            DIA: <code>{p.diaParentKey}</code>
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="h6">
+                    {p.brand?.name ?? <span className="text-main">—</span>}
+                    <br />
+                    <span className="text-main">{p.category?.nameTr ?? '—'}</span>
+                  </td>
+                  <td className="tb-order_price">{formatTl(p.defaultPriceMinor)}</td>
+                  <td className="h6">{p._count.variants}</td>
+                  <td>
+                    <div className={`tb-order_status ${STATUS_CLASS[p.status]}`}>
+                      {STATUS_LABELS[p.status]}
+                    </div>
+                  </td>
+                  <td className="h6 text-main">
+                    {p.diaSyncedAt ? new Date(p.diaSyncedAt).toLocaleDateString('tr-TR') : '—'}
+                  </td>
+                  <td className="tb-order_action">
+                    <Link href={`/products/${p.id}`} className="link fw-semibold">
+                      Düzenle
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      <Pagination page={page} lastPage={lastPage} q={q} />
-    </article>
-  );
-}
-
-function Pagination({ page, lastPage, q }: { page: number; lastPage: number; q: string }) {
-  if (lastPage <= 1) return null;
-  const buildHref = (p: number): string => {
-    const sp = new URLSearchParams({ page: p.toString() });
-    if (q) sp.set('q', q);
-    return `/products?${sp.toString()}`;
-  };
-  return (
-    <nav className="d-flex align-items-center justify-content-between mt-3">
-      <span className="text-muted small">
-        Sayfa {page} / {lastPage}
-      </span>
-      <div className="d-flex gap-2">
-        <Link
-          href={page > 1 ? buildHref(page - 1) : '/products'}
-          className={`btn btn-sm btn-outline-secondary${page === 1 ? ' disabled' : ''}`}
-          aria-disabled={page === 1}
-        >
-          ← Önceki
-        </Link>
-        <Link
-          href={page < lastPage ? buildHref(page + 1) : '/products'}
-          className={`btn btn-sm btn-outline-secondary${page === lastPage ? ' disabled' : ''}`}
-          aria-disabled={page === lastPage}
-        >
-          Sonraki →
-        </Link>
-      </div>
-    </nav>
+      {lastPage > 1 && (
+        <div className="wd-full">
+          <Pagination page={page} lastPage={lastPage} buildHref={buildHref} />
+        </div>
+      )}
+    </div>
   );
 }

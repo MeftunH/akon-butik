@@ -19,10 +19,20 @@ interface ProductImagesPanelProps {
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const MAX_BYTES = 5 * 1024 * 1024;
 
+/**
+ * Vendor `product-bottom-thumbnail` inspired gallery panel — a 2-up grid of
+ * uploaded images with hover-revealed actions. The drag-drop dropzone uses
+ * a vendor-style dashed border block; clicking it (or the gallery+ tile)
+ * opens the file picker. Multi-select uploads sequentially and patches the
+ * UI optimistically.
+ *
+ * API contract unchanged: POST/PATCH/DELETE /api/admin/products/:id/images.
+ */
 export function ProductImagesPanel({ productId, initialImages }: ProductImagesPanelProps) {
   const router = useRouter();
   const [images, setImages] = useState<readonly ProductImage[]>(initialImages);
   const [busy, setBusy] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFiles = async (files: readonly File[]): Promise<void> => {
@@ -66,6 +76,14 @@ export function ProductImagesPanel({ productId, initialImages }: ProductImagesPa
     e.target.value = '';
   };
 
+  const onDrop = (e: React.DragEvent<HTMLLabelElement>): void => {
+    e.preventDefault();
+    setDragOver(false);
+    if (busy) return;
+    const list = e.dataTransfer.files;
+    if (list.length > 0) void handleFiles(Array.from(list));
+  };
+
   const setPrimary = async (imageId: string): Promise<void> => {
     setError(null);
     setBusy(true);
@@ -105,57 +123,72 @@ export function ProductImagesPanel({ productId, initialImages }: ProductImagesPa
   };
 
   return (
-    <section>
-      <h2 className="h6 fw-bold mb-3">Görseller</h2>
-      <p className="small text-muted mb-3">
+    <section className="dashboard-card product-images-panel">
+      <h3 className="account-title type-semibold h5 mb-2">Görseller</h3>
+      <p className="h6 text-main mb-3">
         Ürün fotoğrafları DIA&apos;dan değil, bu panelden yüklenir. JPG / PNG / WebP, en fazla 5 MB.
       </p>
 
-      <div className="border rounded bg-white p-3 mb-3">
-        <label className="btn btn-outline-primary btn-sm w-100 mb-0">
-          {busy ? 'Yükleniyor…' : 'Görsel Ekle'}
-          <input
-            type="file"
-            accept={ALLOWED_MIMES.join(',')}
-            multiple
-            onChange={onSelect}
-            disabled={busy}
-            hidden
-          />
-        </label>
-      </div>
+      <label
+        className={`product-images-dropzone${dragOver ? ' is-drag-over' : ''}${busy ? ' is-busy' : ''}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!busy) setDragOver(true);
+        }}
+        onDragLeave={() => {
+          setDragOver(false);
+        }}
+        onDrop={onDrop}
+      >
+        <i className="icon icon-image-square" aria-hidden />
+        <span className="h6 fw-semibold">
+          {busy ? 'Yükleniyor…' : 'Sürükle bırak ya da seçmek için tıkla'}
+        </span>
+        <span className="h6 text-main">Birden çok dosya seçebilirsiniz</span>
+        <input
+          type="file"
+          accept={ALLOWED_MIMES.join(',')}
+          multiple
+          onChange={onSelect}
+          disabled={busy}
+          hidden
+        />
+      </label>
 
       {error && (
-        <div className="alert alert-danger small mb-3" role="alert">
-          {error}
+        <div className="alert alert-danger mt-3 mb-0" role="alert">
+          <span className="h6 fw-normal">{error}</span>
         </div>
       )}
 
       {images.length === 0 ? (
-        <p className="text-muted small">Henüz görsel yüklenmedi.</p>
+        <div className="dashboard-empty mt-3">
+          <i className="icon icon-image-square mb-2" aria-hidden />
+          <h6 className="fw-semibold mb-1">Henüz görsel yüklenmedi</h6>
+          <p className="h6 text-main mb-0">
+            Ürün listesinde, kart önizlemesinde ve detay sayfasında ilk yüklediğiniz görsel görünür.
+          </p>
+        </div>
       ) : (
-        <div className="row g-3">
+        <div className="row g-3 mt-2">
           {images.map((img) => (
             <div key={img.id} className="col-6">
-              <div className="border rounded bg-white p-2 h-100 d-flex flex-column">
+              <div className="product-image-tile">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.url}
                   alt={`Ürün görseli ${img.sortOrder.toString()}`}
-                  className="img-fluid rounded mb-2"
-                  style={{ aspectRatio: '4/5', objectFit: 'cover' }}
+                  loading="lazy"
                 />
-                <div className="small text-muted mb-2">
-                  {img.isPrimary && (
-                    <span className="badge bg-primary-subtle text-primary me-2">Birincil</span>
-                  )}
-                  <span className="badge bg-secondary-subtle text-secondary">{img.source}</span>
+                <div className="product-image-tile_meta">
+                  {img.isPrimary && <span className="tb-order_status stt-complete">Birincil</span>}
+                  <span className="tb-order_status stt-muted">{img.source}</span>
                 </div>
-                <div className="mt-auto d-flex gap-2">
+                <div className="product-image-tile_actions">
                   {!img.isPrimary && (
                     <button
                       type="button"
-                      className="btn btn-sm btn-outline-secondary flex-grow-1"
+                      className="tf-btn style-line btn-sm"
                       onClick={() => void setPrimary(img.id)}
                       disabled={busy}
                     >
@@ -164,12 +197,12 @@ export function ProductImagesPanel({ productId, initialImages }: ProductImagesPa
                   )}
                   <button
                     type="button"
-                    className="btn btn-sm btn-outline-danger"
+                    className="tf-btn style-line btn-sm btn-danger-line"
                     onClick={() => void remove(img.id)}
                     disabled={busy}
                     aria-label="Görseli sil"
                   >
-                    Sil
+                    <i className="icon icon-trash" />
                   </button>
                 </div>
               </div>

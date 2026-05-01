@@ -54,6 +54,12 @@ interface ProductEditFormProps {
   categories: readonly CategoryOption[];
 }
 
+/**
+ * Sectioned product edit form (Genel / Fiyat & Durum / Açıklama). Each
+ * section reads as a vendor `box-info` card with vendor input styles
+ * (see `_form.scss`). Submit hits PATCH /api/admin/products/:id with
+ * the same payload as before — only the chrome changed.
+ */
 export function ProductEditForm({ product, brands, categories }: ProductEditFormProps) {
   const router = useRouter();
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'danger'; message: string } | null>(
@@ -112,36 +118,78 @@ export function ProductEditForm({ product, brands, categories }: ProductEditForm
   });
 
   return (
-    <section>
-      <h2 className="h6 fw-bold mb-3">Genel Bilgiler</h2>
-      <form onSubmit={(e) => void onSubmit(e)} noValidate>
-        <div className="mb-3">
-          <label htmlFor="nameTr" className="form-label">
-            Ürün adı
-          </label>
-          <input id="nameTr" className="form-control" {...register('nameTr')} />
-          {formState.errors.nameTr && (
-            <small className="text-danger">{formState.errors.nameTr.message}</small>
-          )}
-        </div>
+    <form className="product-edit-form" onSubmit={(e) => void onSubmit(e)} noValidate>
+      <section className="dashboard-card mb-4">
+        <h3 className="account-title type-semibold h5 mb-3">Genel Bilgiler</h3>
+        <div className="list-ver">
+          <fieldset>
+            <label htmlFor="nameTr" className="form-label h6 fw-semibold">
+              Ürün adı
+            </label>
+            <input
+              id="nameTr"
+              type="text"
+              placeholder="Örn. Kruvaze Yaka Triko Bluz"
+              aria-invalid={Boolean(formState.errors.nameTr)}
+              {...register('nameTr')}
+            />
+            {formState.errors.nameTr && (
+              <small className="text-danger d-block mt-2">{formState.errors.nameTr.message}</small>
+            )}
+          </fieldset>
 
-        <div className="row g-3 mb-3">
-          <div className="col-md-4">
-            <label htmlFor="priceTl" className="form-label">
+          <div className="row g-3">
+            <fieldset className="col-md-6">
+              <label htmlFor="brandId" className="form-label h6 fw-semibold">
+                Marka
+              </label>
+              <select id="brandId" className="form-select" {...register('brandId')}>
+                <option value="">— Atanmadı —</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
+            <fieldset className="col-md-6">
+              <label htmlFor="categoryId" className="form-label h6 fw-semibold">
+                Kategori
+              </label>
+              <select id="categoryId" className="form-select" {...register('categoryId')}>
+                <option value="">— Atanmadı —</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nameTr}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-card mb-4">
+        <h3 className="account-title type-semibold h5 mb-3">Fiyat & Durum</h3>
+        <div className="row g-3">
+          <fieldset className="col-md-6">
+            <label htmlFor="priceTl" className="form-label h6 fw-semibold">
               Fiyat ({product.currency})
             </label>
             <input
               id="priceTl"
+              type="text"
               inputMode="decimal"
-              className="form-control"
+              placeholder="1299,90"
+              aria-invalid={Boolean(formState.errors.priceTl)}
               {...register('priceTl')}
             />
             {formState.errors.priceTl && (
-              <small className="text-danger">{formState.errors.priceTl.message}</small>
+              <small className="text-danger d-block mt-2">{formState.errors.priceTl.message}</small>
             )}
-          </div>
-          <div className="col-md-4">
-            <label htmlFor="status" className="form-label">
+          </fieldset>
+          <fieldset className="col-md-6">
+            <label htmlFor="status" className="form-label h6 fw-semibold">
               Durum
             </label>
             <select id="status" className="form-select" {...register('status')}>
@@ -151,59 +199,31 @@ export function ProductEditForm({ product, brands, categories }: ProductEditForm
                 </option>
               ))}
             </select>
-          </div>
-          <div className="col-md-4">
-            <label htmlFor="brandId" className="form-label">
-              Marka
-            </label>
-            <select id="brandId" className="form-select" {...register('brandId')}>
-              <option value="">— Atanmadı —</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          </fieldset>
         </div>
+      </section>
 
-        <div className="mb-3">
-          <label htmlFor="categoryId" className="form-label">
-            Kategori
+      <section className="dashboard-card mb-4">
+        <h3 className="account-title type-semibold h5 mb-3">Açıklama</h3>
+        <fieldset>
+          <label htmlFor="descriptionMd" className="form-label h6 fw-semibold">
+            Markdown destekli açıklama
           </label>
-          <select id="categoryId" className="form-select" {...register('categoryId')}>
-            <option value="">— Atanmadı —</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nameTr}
-              </option>
-            ))}
-          </select>
+          <textarea id="descriptionMd" rows={8} {...register('descriptionMd')} />
+        </fieldset>
+      </section>
+
+      {feedback && (
+        <div className={`alert alert-${feedback.tone} mb-3`} role="status">
+          <span className="h6 fw-normal">{feedback.message}</span>
         </div>
+      )}
 
-        <div className="mb-3">
-          <label htmlFor="descriptionMd" className="form-label">
-            Açıklama (markdown)
-          </label>
-          <textarea
-            id="descriptionMd"
-            rows={6}
-            className="form-control"
-            {...register('descriptionMd')}
-          />
-        </div>
-
-        {feedback && (
-          <div className={`alert alert-${feedback.tone} small mb-3`} role="status">
-            {feedback.message}
-          </div>
-        )}
-
-        <button type="submit" className="btn btn-primary" disabled={formState.isSubmitting}>
-          {formState.isSubmitting ? 'Kaydediliyor…' : 'Kaydet'}
-        </button>
-      </form>
-    </section>
+      <button type="submit" className="tf-btn animate-btn" disabled={formState.isSubmitting}>
+        <i className="icon icon-check-1 me-2" />
+        {formState.isSubmitting ? 'Kaydediliyor…' : 'Kaydet'}
+      </button>
+    </form>
   );
 }
 
