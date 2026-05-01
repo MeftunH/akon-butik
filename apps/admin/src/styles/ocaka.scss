@@ -1,0 +1,24 @@
+// Ocaka theme bundle for the admin app — same per-component
+// `meta.load-css` strategy as apps/web/src/styles/ocaka.scss. Admin only
+// needs the chrome (header/footer/topbar), forms, buttons, hover, and
+// the dashboard `_sections.scss` patterns; we still pull the broader
+// product / shop scss in case admin product-edit screens reuse it.
+@use 'sass:meta';
+
+$vendor: '../../../../vendor/ochaka-theme/reactjs/public/scss';
+
+@include meta.load-css('#{$vendor}/abstracts/index');
+@include meta.load-css('#{$vendor}/reset');
+@include meta.load-css('#{$vendor}/component/header');
+@include meta.load-css('#{$vendor}/component/footer');
+@include meta.load-css('#{$vendor}/component/button');
+@include meta.load-css('#{$vendor}/component/form');
+@include meta.load-css('#{$vendor}/component/nice-select');
+@include meta.load-css('#{$vendor}/component/box-icon');
+@include meta.load-css('#{$vendor}/component/hover');
+@include meta.load-css('#{$vendor}/component/product');
+@include meta.load-css('#{$vendor}/component/accordion');
+@include meta.load-css('#{$vendor}/component/cart');
+@include meta.load-css('#{$vendor}/component/shop');
+@include meta.load-css('#{$vendor}/component/tabs');
+@include meta.load-css('#{$vendor}/sections');
