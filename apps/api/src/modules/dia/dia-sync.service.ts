@@ -3,12 +3,10 @@ import type { DiaClient, Stokkart } from '@akonbutik/dia-client';
 import { DiaApiError, DiaTransportError } from '@akonbutik/dia-client';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
-// NestJS reads decorator-emitted metadata from the class constructor at
-// instantiation time; `import type` would tree-shake the runtime
-// reference and the DI container can't bind by class.
-
-import type { PrismaService } from '../prisma/prisma.service';
-import type { RevalidationService } from '../storefront/revalidation.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { PrismaService } from '../prisma/prisma.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { RevalidationService } from '../storefront/revalidation.service';
 
 import { DIA_CLIENT } from './dia.tokens';
 import { aggregateStokkarts } from './mapping/aggregate-stokkarts';
