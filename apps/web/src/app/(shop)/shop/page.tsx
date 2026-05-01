@@ -1,7 +1,11 @@
 import type { ProductSummary } from '@akonbutik/types';
-import { ProductGrid } from '@akonbutik/ui';
+import { Pagination } from '@akonbutik/ui';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+
+import { CategoriesStrip } from './_components/CategoriesStrip';
+import { ShopFilters } from './_components/ShopFilters';
+import { ShopProductsIsland } from './_components/ShopProductsIsland';
 
 import { api } from '@/lib/api';
 
@@ -16,6 +20,16 @@ interface ProductListResponse {
   pageSize: number;
 }
 
+interface Taxonomy {
+  id: string;
+  slug: string;
+  name: string;
+  productCount: number;
+}
+
+const PRICE_MIN = 0;
+const PRICE_MAX = 1_000_000; // 10000.00 TL — sane upper bound for the slider; refine when DB has wider range.
+
 export const metadata: Metadata = {
   title: 'Mağaza',
   description: 'Akon Butik koleksiyonundaki tüm ürünler — DIA stoğuyla canlı.',
@@ -25,6 +39,8 @@ export const revalidate = 300;
 
 export default async function ShopPage({ searchParams }: Props) {
   const params = await searchParams;
+
+  // Build the catalog query from the URL params (matches API DTO 1:1).
   const queryString = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (Array.isArray(v)) v.forEach((x) => queryString.append(k, x));
@@ -32,11 +48,33 @@ export default async function ShopPage({ searchParams }: Props) {
   }
   if (!queryString.has('pageSize')) queryString.set('pageSize', '24');
 
-  const result = await api<ProductListResponse>(`/catalog/products?${queryString.toString()}`);
+  const [result, categories, brands] = await Promise.all([
+    api<ProductListResponse>(`/catalog/products?${queryString.toString()}`),
+    api<readonly Taxonomy[]>('/catalog/categories'),
+    api<readonly Taxonomy[]>('/catalog/brands'),
+  ]);
 
   const page = Number.parseInt(typeof params.page === 'string' ? params.page : '1', 10);
   const pageSize = result.pageSize;
   const lastPage = Math.max(1, Math.ceil(result.total / pageSize));
+
+  // Aggregate sizes + colors across the visible page (cheap; for a global
+  // facet count we'd add a dedicated /catalog/facets endpoint in Phase 6).
+  const sizes = Array.from(new Set(result.items.flatMap((p) => p.availableSizes))).sort();
+  const colors = Array.from(
+    new Set(result.items.flatMap((p) => p.availableColors.map((c) => c.name))),
+  ).sort();
+
+  const buildPageHref = (p: number): string => {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (k === 'page') continue;
+      if (Array.isArray(v)) v.forEach((x) => qs.append(k, x));
+      else if (typeof v === 'string') qs.append(k, v);
+    }
+    qs.set('page', p.toString());
+    return `/shop?${qs.toString()}`;
+  };
 
   return (
     <>
@@ -61,82 +99,28 @@ export default async function ShopPage({ searchParams }: Props) {
         </div>
       </section>
 
+      <CategoriesStrip categories={categories} />
+
       <section className="flat-spacing-2">
         <div className="container">
-          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <p className="text-muted small mb-0">
-              Sayfa {page} / {lastPage}
-            </p>
-            <p className="text-muted small mb-0">
-              {result.items.length} / {result.total} ürün gösteriliyor
-            </p>
-          </div>
-
-          <ProductGrid
-            products={result.items}
-            columns={4}
-            emptyMessage="Bu filtre için ürün bulunamadı."
+          <ShopFilters
+            categories={categories}
+            brands={brands}
+            sizes={sizes}
+            colors={colors}
+            priceBounds={{ minMinor: PRICE_MIN, maxMinor: PRICE_MAX }}
           />
 
-          {lastPage > 1 && <ShopPagination page={page} lastPage={lastPage} params={params} />}
+          <ShopProductsIsland
+            products={result.items}
+            total={result.total}
+            page={page}
+            lastPage={lastPage}
+          />
+
+          <Pagination page={page} lastPage={lastPage} buildHref={buildPageHref} />
         </div>
       </section>
     </>
-  );
-}
-
-function ShopPagination({
-  page,
-  lastPage,
-  params,
-}: {
-  page: number;
-  lastPage: number;
-  params: Record<string, string | string[] | undefined>;
-}) {
-  const buildHref = (p: number): string => {
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(params)) {
-      if (k === 'page') continue;
-      if (Array.isArray(v)) v.forEach((x) => qs.append(k, x));
-      else if (typeof v === 'string') qs.append(k, v);
-    }
-    qs.set('page', p.toString());
-    return `/shop?${qs.toString()}`;
-  };
-
-  const numbers: number[] = [];
-  for (let i = Math.max(1, page - 2); i <= Math.min(lastPage, page + 2); i++) {
-    numbers.push(i);
-  }
-
-  return (
-    <ul className="wg-pagination justify-content-center mt-5">
-      <li>
-        <Link
-          href={page > 1 ? buildHref(page - 1) : '/shop'}
-          className={`pagination-item ${page === 1 ? 'disabled' : ''}`}
-          aria-disabled={page === 1}
-        >
-          <i className="icon icon-arrow-left" />
-        </Link>
-      </li>
-      {numbers.map((n) => (
-        <li key={n}>
-          <Link href={buildHref(n)} className={`pagination-item ${n === page ? 'active' : ''}`}>
-            {n}
-          </Link>
-        </li>
-      ))}
-      <li>
-        <Link
-          href={page < lastPage ? buildHref(page + 1) : '/shop'}
-          className={`pagination-item ${page === lastPage ? 'disabled' : ''}`}
-          aria-disabled={page === lastPage}
-        >
-          <i className="icon icon-arrow-right" />
-        </Link>
-      </li>
-    </ul>
   );
 }
