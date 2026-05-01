@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
-import type { PrismaService } from '../prisma/prisma.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { PrismaService } from '../prisma/prisma.service';
 
 import { EMAIL_TRANSPORT, type EmailTransport } from './email.port';
 import { renderOrderConfirmation } from './templates';

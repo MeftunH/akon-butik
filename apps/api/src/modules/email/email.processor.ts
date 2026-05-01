@@ -2,7 +2,8 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import type { Job } from 'bullmq';
 
-import type { EmailService } from './email.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { EmailService } from './email.service';
 
 export const EMAIL_QUEUE = 'email';
 

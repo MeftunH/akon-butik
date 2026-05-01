@@ -1,14 +1,17 @@
 import type { CartSnapshot, OrderSummary } from '@akonbutik/types';
 import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { ConfigService } from '@nestjs/config';
 import type { Queue } from 'bullmq';
 
 import type { Env } from '../../config/env';
 import { CART_REPOSITORY, type CartRepository } from '../cart/ports/cart.repository';
 import { EMAIL_QUEUE } from '../email/email.processor';
-import type { PaymentsService } from '../payments/payments.service';
-import type { PrismaService } from '../prisma/prisma.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { PaymentsService } from '../payments/payments.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { PrismaService } from '../prisma/prisma.service';
 
 import {
   ORDER_REPOSITORY,
