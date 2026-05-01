@@ -11,8 +11,8 @@ interface SidebarProfileProps {
   role: 'admin' | 'editor';
 }
 
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
+function initialsFor(name: string | null | undefined): string {
+  const parts = (name ?? '').trim().split(/\s+/).filter(Boolean);
   const first = parts[0] ?? '';
   if (parts.length === 0) return 'AK';
   if (parts.length === 1) return first.slice(0, 2).toUpperCase();

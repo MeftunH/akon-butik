@@ -64,12 +64,16 @@ export class AdminAuthController {
   @Get('me')
   @ApiOperation({ summary: 'Return the currently signed-in admin profile' })
   @UseGuards(AdminAuthGuard)
-  me(
+  async me(
     @CurrentAdmin()
-    admin: { id: string; email: string; name: string; role: 'admin' | 'editor' } | null,
-  ) {
+    admin: { id: string; email: string; role: 'admin' | 'editor' } | null,
+  ): Promise<{ id: string; email: string; name: string; role: 'admin' | 'editor' }> {
     if (!admin) throw new UnauthorizedException();
-    return admin;
+    // CurrentAdmin only carries id/email/role from the JWT; fetch the
+    // mutable name + canonical email from the AdminUser row so the chrome
+    // can render the operator's display name and so a renamed admin
+    // doesn't keep an old name from the access token.
+    return this.auth.loadById(admin.id);
   }
 
   @Get('whoami')

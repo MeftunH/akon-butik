@@ -104,8 +104,14 @@ export class AdminAuthService {
     accessToken: string,
   ): Promise<{ id: string; email: string; name: string; role: 'admin' | 'editor' }> {
     const payload = this.cookies.verifyAccessToken(accessToken);
+    return this.loadById(payload.sub);
+  }
+
+  async loadById(
+    id: string,
+  ): Promise<{ id: string; email: string; name: string; role: 'admin' | 'editor' }> {
     const admin = await this.prisma.adminUser.findUnique({
-      where: { id: payload.sub },
+      where: { id },
       select: { id: true, email: true, name: true, role: true },
     });
     if (!admin) throw new UnauthorizedException();

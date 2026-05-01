@@ -9,7 +9,8 @@ import { DashboardChrome } from './_components/DashboardChrome';
 interface AdminProfile {
   id: string;
   email: string;
-  name: string;
+  /** May be null on accounts created before the seed populated `name`. */
+  name?: string | null;
   role: 'admin' | 'editor';
 }
 
@@ -37,11 +38,12 @@ export default async function DashboardLayout({
   if (me === ADMIN_NOT_AUTHENTICATED) redirect('/login');
 
   const roleLabel = me.role === 'admin' ? 'Yönetici' : 'Editör';
+  const displayName = me.name?.trim() || me.email;
 
   return (
     <>
       <AdminTopbar roleLabel={roleLabel} />
-      <DashboardChrome name={me.name} email={me.email} role={me.role}>
+      <DashboardChrome name={displayName} email={me.email} role={me.role}>
         {children}
       </DashboardChrome>
     </>
