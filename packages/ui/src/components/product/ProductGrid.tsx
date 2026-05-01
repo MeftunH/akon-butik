@@ -1,5 +1,5 @@
-import clsx from 'clsx';
 import type { ProductSummary } from '@akonbutik/types';
+import clsx from 'clsx';
 
 import { ProductCard } from './ProductCard';
 
@@ -10,12 +10,18 @@ export interface ProductGridProps {
   emptyMessage?: string;
 }
 
+/**
+ * Product listing grid using vendor `tf-grid-layout` rules. The vendor
+ * scss has tuned breakpoints + spacing for these classes specifically;
+ * dropping back to plain Bootstrap row/col yields a flatter layout that
+ * doesn't match the rest of the site.
+ */
 const COL_CLASS: Record<NonNullable<ProductGridProps['columns']>, string> = {
-  2: 'col-6',
-  3: 'col-md-4 col-6',
-  4: 'col-lg-3 col-md-4 col-6',
-  5: 'col-xl col-lg-3 col-md-4 col-6',
-  6: 'col-xl-2 col-lg-3 col-md-4 col-6',
+  2: 'tf-grid-layout tf-col-2',
+  3: 'tf-grid-layout tf-col-2 md-col-3',
+  4: 'tf-grid-layout tf-col-2 md-col-3 xl-col-4',
+  5: 'tf-grid-layout tf-col-2 md-col-3 xl-col-5',
+  6: 'tf-grid-layout tf-col-2 md-col-3 xl-col-6',
 };
 
 export function ProductGrid({
@@ -28,11 +34,9 @@ export function ProductGrid({
     return <p className="text-center text-muted py-5">{emptyMessage}</p>;
   }
   return (
-    <div className={clsx('row gx-4 gy-4', className)}>
+    <div className={clsx(COL_CLASS[columns], className)}>
       {products.map((p) => (
-        <div key={p.id} className={COL_CLASS[columns]}>
-          <ProductCard product={p} />
-        </div>
+        <ProductCard key={p.id} product={p} />
       ))}
     </div>
   );

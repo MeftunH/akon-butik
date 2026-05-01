@@ -14,9 +14,12 @@ interface Collection {
 }
 
 /**
- * Three-up category showcase. Vendor reference: home-1/Collections.tsx.
- * Linked to /shop?... rather than a real category route until the
- * category taxonomy is curated from the admin panel (Phase 5b).
+ * Three-up category showcase mirroring vendor `Categories.tsx`. The
+ * `box-image_category style-2` block puts the photo full-bleed with a
+ * bottom-aligned action button overlay, which is what the demo
+ * actually looks like — the prior `wg-cls-2` layout I had rendered
+ * the title + button as a sidebar next to the image, which is not
+ * the demo style.
  */
 const COLLECTIONS: readonly Collection[] = [
   {
@@ -38,16 +41,16 @@ const COLLECTIONS: readonly Collection[] = [
 
 export function HomeCollections() {
   return (
-    <section className="s-collection py-5">
+    <section className="flat-spacing pb-0">
       <div className="container">
         <Swiper
           dir="ltr"
           className="swiper tf-swiper"
-          spaceBetween={10}
+          spaceBetween={12}
           breakpoints={{
             0: { slidesPerView: 1 },
             575: { slidesPerView: 2 },
-            768: { slidesPerView: 2, spaceBetween: 15 },
+            768: { slidesPerView: 2, spaceBetween: 16 },
             1200: { slidesPerView: 3, spaceBetween: 24 },
           }}
           modules={[Pagination]}
@@ -55,21 +58,15 @@ export function HomeCollections() {
         >
           {COLLECTIONS.map((item, index) => (
             <SwiperSlide className="swiper-slide" key={index}>
-              <div className="wg-cls-2 d-flex hover-img">
-                <Link href={item.href} className="image img-style">
+              <div className="box-image_category style-2 hover-img">
+                <Link href={item.href} className="box-image_image img-style">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imgSrc} alt={item.title} width={912} height={704} />
+                  <img src={item.imgSrc} alt={item.title} width={512} height={592} />
                 </Link>
-                <div className="cls-content_wrap b-16">
-                  <div className="cls-content">
-                    <Link href={item.href} className="tag_cls h3 link">
-                      {item.title}
-                    </Link>
-                    <Link href={item.href} className="tf-btn animate-btn fw-normal mt-3">
-                      Hemen İncele
-                      <i className="icon icon-arrow-right" />
-                    </Link>
-                  </div>
+                <div className="box-image_content">
+                  <Link href={item.href} className="tf-btn btn-white animate-btn animate-dark">
+                    <span className="h5 fw-medium">{item.title}</span>
+                  </Link>
                 </div>
               </div>
             </SwiperSlide>
