@@ -1,16 +1,10 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Req,
-  Res,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto/register.dto';
+import type { AuthService } from './auth.service';
+import type { LoginDto, RegisterDto } from './dto/register.dto';
 import { JwtCookieService } from './jwt-cookie.service';
 
 @ApiTags('auth')
@@ -22,6 +16,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: 'Create a new customer account' })
   async register(
     @Body() dto: RegisterDto,
@@ -35,6 +30,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in with email + password' })
   async login(
     @Body() dto: LoginDto,
@@ -56,11 +52,7 @@ export class AuthController {
     const cookie = req.headers.cookie ?? '';
     const refreshToken = JwtCookieService.readRefreshCookie(cookie);
     if (!refreshToken) throw new UnauthorizedException();
-    const session = await this.auth.refresh(
-      refreshToken,
-      req.headers['user-agent'],
-      req.ip,
-    );
+    const session = await this.auth.refresh(refreshToken, req.headers['user-agent'], req.ip);
     this.cookies.applyCookies(reply, session.tokens.accessToken, session.tokens.refreshToken);
     return { id: session.userId, email: session.email };
   }

@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { IsEmail, IsString } from 'class-validator';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -37,6 +38,7 @@ export class AdminAuthController {
   ) {}
 
   @Post('login')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in as an admin user' })
   async login(
     @Body() dto: AdminLoginDto,
