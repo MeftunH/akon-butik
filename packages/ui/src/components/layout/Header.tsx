@@ -16,7 +16,9 @@ export interface HeaderProps {
   cartSlot?: ReactNode;
   wishlistSlot?: ReactNode;
   accountSlot?: ReactNode;
-  /** Override outer class — defaults to the sticky absolute Ocaka style. */
+  /** Override outer class — defaults to the sticky in-flow Ocaka style.
+   *  Pass `tf-header header-abs-1` for hero pages where the next section
+   *  is a full-bleed image and the header should overlay it. */
   parentClass?: string;
   /** Use container-fluid instead of container. */
   containerFull?: boolean;
@@ -41,7 +43,7 @@ export function Header({
   cartSlot,
   wishlistSlot,
   accountSlot,
-  parentClass = 'tf-header header-fix header-abs-1',
+  parentClass = 'tf-header header-fix',
   containerFull = false,
 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);

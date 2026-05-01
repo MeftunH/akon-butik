@@ -87,9 +87,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
         )}
 
         {!product.inStock && (
-          <ul className="product-badge_list">
-            <li className="product-badge_item h6 sold-out">Stokta yok</li>
-          </ul>
+          <div className="sold-out-wrap">
+            <span className="text h6 fw-medium text-white">Stokta yok</span>
+          </div>
         )}
       </div>
 

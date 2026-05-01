@@ -40,11 +40,23 @@ export default async function ShopPage({ searchParams }: Props) {
 
   return (
     <>
-      <section className="tf-page-title">
+      <section className="s-page-title">
         <div className="container">
-          <div className="text-center">
-            <h2 className="page-title">Mağaza</h2>
-            <p className="text-muted mb-0">{result.total} ürün — DIA stoğundan güncel</p>
+          <div className="content">
+            <h1 className="title-page">Mağaza</h1>
+            <ul className="breadcrumbs-page">
+              <li>
+                <Link href="/" className="h6 link">
+                  Ana Sayfa
+                </Link>
+              </li>
+              <li className="d-flex">
+                <i className="icon icon-caret-right" />
+              </li>
+              <li>
+                <h6 className="current-page fw-normal">Mağaza</h6>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
@@ -99,30 +111,32 @@ function ShopPagination({
   }
 
   return (
-    <nav aria-label="Sayfalama" className="wg-pagination justify-content-center mt-5 d-flex gap-2">
-      <Link
-        href={page > 1 ? buildHref(page - 1) : '/shop'}
-        className={`pagination-item ${page === 1 ? 'disabled' : ''}`}
-        aria-disabled={page === 1}
-      >
-        <i className="icon icon-arrow-left" />
-      </Link>
-      {numbers.map((n) => (
+    <ul className="wg-pagination justify-content-center mt-5">
+      <li>
         <Link
-          key={n}
-          href={buildHref(n)}
-          className={`pagination-item ${n === page ? 'active' : ''}`}
+          href={page > 1 ? buildHref(page - 1) : '/shop'}
+          className={`pagination-item ${page === 1 ? 'disabled' : ''}`}
+          aria-disabled={page === 1}
         >
-          {n}
+          <i className="icon icon-arrow-left" />
         </Link>
+      </li>
+      {numbers.map((n) => (
+        <li key={n}>
+          <Link href={buildHref(n)} className={`pagination-item ${n === page ? 'active' : ''}`}>
+            {n}
+          </Link>
+        </li>
       ))}
-      <Link
-        href={page < lastPage ? buildHref(page + 1) : '/shop'}
-        className={`pagination-item ${page === lastPage ? 'disabled' : ''}`}
-        aria-disabled={page === lastPage}
-      >
-        <i className="icon icon-arrow-right" />
-      </Link>
-    </nav>
+      <li>
+        <Link
+          href={page < lastPage ? buildHref(page + 1) : '/shop'}
+          className={`pagination-item ${page === lastPage ? 'disabled' : ''}`}
+          aria-disabled={page === lastPage}
+        >
+          <i className="icon icon-arrow-right" />
+        </Link>
+      </li>
+    </ul>
   );
 }
