@@ -57,7 +57,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <div className={clsx('card-product', sizes.length > 0 && 'has-size', className)}>
       <div className="card-product_wrapper">
-        <Link href={href} className="product-img">
+        <Link
+          href={href}
+          className="product-img"
+          style={{ display: 'block', height: '100%', width: '100%' }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="lazyload img-product"

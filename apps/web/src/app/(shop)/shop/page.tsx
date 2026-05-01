@@ -31,6 +31,33 @@ interface Taxonomy {
 const PRICE_MIN = 0;
 const PRICE_MAX = 1_000_000;
 
+/**
+ * Curated Turkish color palette for the shop filter. The FilterSidebar
+ * normally derives the chip list from product variants on the page, but
+ * the DIA sync currently runs in single-SKU mode and doesn't expose a
+ * `renk` column on this tenant — every variant has color=null. Until
+ * admin colour-tags variants by hand (or we ship a name-heuristic
+ * extractor), the sidebar uses this fallback so the renk facet stays
+ * visible. Filter clicks still send `color=...` to the API; results
+ * arrive once variants get coloured.
+ */
+const DEFAULT_COLOR_PALETTE: readonly string[] = [
+  'Siyah',
+  'Beyaz',
+  'Mavi',
+  'Lacivert',
+  'Kırmızı',
+  'Pembe',
+  'Yeşil',
+  'Sarı',
+  'Mor',
+  'Gri',
+  'Kahverengi',
+  'Bej',
+  'Ekru',
+  'Krem',
+] as const;
+
 export const metadata: Metadata = {
   title: 'Mağaza',
   description: 'Akon Butik koleksiyonundaki tüm ürünler — DIA stoğuyla canlı.',
@@ -59,9 +86,10 @@ export default async function ShopPage({ searchParams }: Props) {
   const lastPage = Math.max(1, Math.ceil(result.total / pageSize));
 
   const sizes = Array.from(new Set(result.items.flatMap((p) => p.availableSizes))).sort();
-  const colors = Array.from(
+  const derivedColors = Array.from(
     new Set(result.items.flatMap((p) => p.availableColors.map((c) => c.name))),
   ).sort();
+  const colors = derivedColors.length > 0 ? derivedColors : [...DEFAULT_COLOR_PALETTE];
 
   const buildPageHref = (p: number): string => {
     const qs = new URLSearchParams();
