@@ -34,6 +34,15 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getLocale();
   const messages = await getMessages();
 
+  const organizationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Akon Butik',
+    url: env.NEXT_PUBLIC_SITE_URL,
+    logo: `${env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '')}/logo.png`,
+    sameAs: [] as string[],
+  };
+
   return (
     <html lang={locale}>
       {/*
@@ -51,6 +60,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&display=swap"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
         />
       </head>
       {/*

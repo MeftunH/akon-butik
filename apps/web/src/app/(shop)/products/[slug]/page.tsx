@@ -10,6 +10,7 @@ import { ProductInfoExtras } from './_components/ProductInfoExtras';
 import { ProductSelectionProvider } from './_components/selection-context';
 import { VariantPicker } from './_components/VariantPicker';
 
+import { env } from '@/config/env';
 import { api, ApiError } from '@/lib/api';
 
 interface Props {
@@ -63,7 +64,9 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = await loadProduct(slug);
   if (!product) notFound();
 
-  const jsonLd = {
+  const base = env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+
+  const productLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.nameTr,
@@ -83,13 +86,42 @@ export default async function ProductDetailPage({ params }: Props) {
     },
   };
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: `${base}/` },
+      { '@type': 'ListItem', position: 2, name: 'Mağaza', item: `${base}/shop` },
+      ...(product.category
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: product.category.name,
+              item: `${base}/shop?category=${product.category.slug}`,
+            },
+          ]
+        : []),
+      {
+        '@type': 'ListItem',
+        position: product.category ? 4 : 3,
+        name: product.nameTr,
+        item: `${base}/products/${product.slug}`,
+      },
+    ],
+  };
+
   const firstVariantSku = product.variants[0]?.sku ?? null;
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <section className="s-page-title">
