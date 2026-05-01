@@ -1,10 +1,21 @@
+import type { ProductDetail, ProductSummary } from '@akonbutik/types';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import type { ProductDetail, ProductSummary } from '@akonbutik/types';
 
-import { ListProductsQuery } from './dto/list-products.query';
-import { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case';
-import { ListProductsUseCase } from './use-cases/list-products.use-case';
+// NestJS DI requires the runtime class — `import type` would tree-shake.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { PrismaService } from '../prisma/prisma.service';
+
+import type { ListProductsQuery } from './dto/list-products.query';
+import type { GetProductBySlugUseCase } from './use-cases/get-product-by-slug.use-case';
+import type { ListProductsUseCase } from './use-cases/list-products.use-case';
+
+interface TaxonomySummary {
+  id: string;
+  slug: string;
+  name: string;
+  productCount: number;
+}
 
 @ApiTags('catalog')
 @Controller('catalog')
@@ -12,6 +23,7 @@ export class CatalogController {
   constructor(
     private readonly listProducts: ListProductsUseCase,
     private readonly getProductBySlug: GetProductBySlugUseCase,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Get('products')
@@ -27,5 +39,49 @@ export class CatalogController {
   @ApiParam({ name: 'slug' })
   async detail(@Param('slug') slug: string): Promise<ProductDetail> {
     return this.getProductBySlug.execute(slug);
+  }
+
+  @Get('categories')
+  @ApiOperation({
+    summary: 'List all categories with visible-product counts (for /shop strip + filters)',
+  })
+  async categories(): Promise<readonly TaxonomySummary[]> {
+    const rows = await this.prisma.category.findMany({
+      orderBy: { nameTr: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        nameTr: true,
+        _count: { select: { products: { where: { status: 'visible' } } } },
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.nameTr,
+      productCount: r._count.products,
+    }));
+  }
+
+  @Get('brands')
+  @ApiOperation({
+    summary: 'List all brands with visible-product counts (for /shop filter dropdown)',
+  })
+  async brands(): Promise<readonly TaxonomySummary[]> {
+    const rows = await this.prisma.brand.findMany({
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        _count: { select: { products: { where: { status: 'visible' } } } },
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      productCount: r._count.products,
+    }));
   }
 }
