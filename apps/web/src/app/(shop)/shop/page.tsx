@@ -4,8 +4,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { CategoriesStrip } from './_components/CategoriesStrip';
-import { ShopFilters } from './_components/ShopFilters';
+import { FilterSidebar } from './_components/FilterSidebar';
 import { ShopProductsIsland } from './_components/ShopProductsIsland';
+import { ShopSortBar } from './_components/ShopSortBar';
 
 import { api } from '@/lib/api';
 
@@ -28,7 +29,7 @@ interface Taxonomy {
 }
 
 const PRICE_MIN = 0;
-const PRICE_MAX = 1_000_000; // 10000.00 TL — sane upper bound for the slider; refine when DB has wider range.
+const PRICE_MAX = 1_000_000;
 
 export const metadata: Metadata = {
   title: 'Mağaza',
@@ -40,7 +41,6 @@ export const revalidate = 300;
 export default async function ShopPage({ searchParams }: Props) {
   const params = await searchParams;
 
-  // Build the catalog query from the URL params (matches API DTO 1:1).
   const queryString = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     if (Array.isArray(v)) v.forEach((x) => queryString.append(k, x));
@@ -58,8 +58,6 @@ export default async function ShopPage({ searchParams }: Props) {
   const pageSize = result.pageSize;
   const lastPage = Math.max(1, Math.ceil(result.total / pageSize));
 
-  // Aggregate sizes + colors across the visible page (cheap; for a global
-  // facet count we'd add a dedicated /catalog/facets endpoint in Phase 6).
   const sizes = Array.from(new Set(result.items.flatMap((p) => p.availableSizes))).sort();
   const colors = Array.from(
     new Set(result.items.flatMap((p) => p.availableColors.map((c) => c.name))),
@@ -103,22 +101,28 @@ export default async function ShopPage({ searchParams }: Props) {
 
       <section className="flat-spacing-2">
         <div className="container">
-          <ShopFilters
-            categories={categories}
-            brands={brands}
-            sizes={sizes}
-            colors={colors}
-            priceBounds={{ minMinor: PRICE_MIN, maxMinor: PRICE_MAX }}
-          />
+          <div className="row g-4">
+            <aside className="col-xl-3 col-lg-4">
+              <FilterSidebar
+                categories={categories}
+                brands={brands}
+                sizes={sizes}
+                colors={colors}
+                priceBounds={{ minMinor: PRICE_MIN, maxMinor: PRICE_MAX }}
+              />
+            </aside>
 
-          <ShopProductsIsland
-            products={result.items}
-            total={result.total}
-            page={page}
-            lastPage={lastPage}
-          />
-
-          <Pagination page={page} lastPage={lastPage} buildHref={buildPageHref} />
+            <div className="col-xl-9 col-lg-8">
+              <ShopSortBar
+                total={result.total}
+                page={page}
+                lastPage={lastPage}
+                visibleCount={result.items.length}
+              />
+              <ShopProductsIsland products={result.items} />
+              <Pagination page={page} lastPage={lastPage} buildHref={buildPageHref} />
+            </div>
+          </div>
         </div>
       </section>
     </>
