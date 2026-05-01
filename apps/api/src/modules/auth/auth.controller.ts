@@ -3,8 +3,11 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import type { AuthService } from './auth.service';
-import type { LoginDto, RegisterDto } from './dto/register.dto';
+// NestJS DI requires the runtime class — `import type` would tree-shake.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { AuthService } from './auth.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { LoginDto, RegisterDto } from './dto/register.dto';
 import { JwtCookieService } from './jwt-cookie.service';
 
 @ApiTags('auth')

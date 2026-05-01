@@ -1,19 +1,20 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import type {
-  HealthCheckService,
-  PrismaHealthIndicator} from '@nestjs/terminus';
+// NestJS DI requires runtime classes — `import type` would tree-shake the
+// constructor parameter metadata reflect-metadata reads at boot.
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import {
   HealthCheck,
+  HealthCheckService,
+  PrismaHealthIndicator,
   type HealthCheckResult,
 } from '@nestjs/terminus';
 
-// NestJS DI requires the runtime class.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { PrismaService } from '../prisma/prisma.service';
 
-import type { DiaHealthIndicator } from './dia.health';
-import type { RedisHealthIndicator } from './redis.health';
+import { DiaHealthIndicator } from './dia.health';
+import { RedisHealthIndicator } from './redis.health';
+/* eslint-enable @typescript-eslint/consistent-type-imports */
 
 @ApiTags('health')
 @Controller('health')
