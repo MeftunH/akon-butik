@@ -1,5 +1,6 @@
 // Atoms
 export { Button, type ButtonProps } from './components/Button';
+export { Pagination, type PaginationProps } from './components/Pagination';
 export { Price, type PriceProps } from './components/Price';
 
 // Layout chrome
