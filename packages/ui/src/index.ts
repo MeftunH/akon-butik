@@ -3,18 +3,14 @@ export { Button, type ButtonProps } from './components/Button';
 export { Price, type PriceProps } from './components/Price';
 
 // Layout chrome
-export { Topbar, type TopbarProps } from './components/layout/Topbar';
-export { Header, type HeaderProps, type HeaderNavLink } from './components/layout/Header';
-export { Footer, type FooterProps, type FooterColumn } from './components/layout/Footer';
+export { Footer } from './components/layout/Footer';
+export { Header, type HeaderNavLink, type HeaderProps } from './components/layout/Header';
 export { NewsletterForm, type NewsletterFormProps } from './components/layout/NewsletterForm';
+export { Topbar, type TopbarProps } from './components/layout/Topbar';
 
 // Cart
-export {
-  CartProvider,
-  useCart,
-  type CartLine,
-} from './components/cart/CartContext';
 export { CartBadge, type CartBadgeProps } from './components/cart/CartBadge';
+export { CartProvider, useCart, type CartLine } from './components/cart/CartContext';
 
 // Product
 export { ProductCard, type ProductCardProps } from './components/product/ProductCard';

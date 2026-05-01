@@ -1,11 +1,4 @@
-import {
-  CartBadge,
-  CartProvider,
-  Footer,
-  Header,
-  NewsletterForm,
-  Topbar,
-} from '@akonbutik/ui';
+import { CartBadge, CartProvider, Footer, Header, Topbar } from '@akonbutik/ui';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -17,38 +10,18 @@ const navLinks = [
   { label: 'İletişim', href: '/contact' },
 ];
 
-const footerColumns = [
-  {
-    title: 'Müşteri Hizmetleri',
-    links: [
-      { label: 'İletişim', href: '/contact' },
-      { label: 'Sipariş Takibi', href: '/track-order' },
-      { label: 'İade ve Değişim', href: '/iade-degisim' },
-      { label: 'SSS', href: '/faq' },
-    ],
-  },
-  {
-    title: 'Akon Butik',
-    links: [
-      { label: 'Hakkımızda', href: '/about' },
-      { label: 'Mağazalar', href: '/store-list' },
-      { label: 'Blog', href: '/blog' },
-    ],
-  },
-  {
-    title: 'Yasal',
-    links: [
-      { label: 'KVKK Aydınlatma', href: '/kvkk' },
-      { label: 'Çerez Politikası', href: '/cerezler' },
-      { label: 'Kullanım Koşulları', href: '/kullanim-kosullari' },
-    ],
-  },
+const topbarCategories = [
+  { label: 'Kadın', href: '/shop?category=kadin' },
+  { label: 'Yeni Sezon', href: '/shop?sort=newest' },
 ];
 
 export default function ShopLayout({ children }: { children: ReactNode }) {
   return (
     <CartProvider>
-      <Topbar announcement="450 TL ve üzeri alışverişlerde kargo bedava" />
+      <Topbar
+        announcement="450 ₺ ve üzeri alışverişlerde kargo bedava"
+        categoryLinks={topbarCategories}
+      />
       <Header
         brandName="AKON BUTİK"
         brandHref="/"
@@ -66,13 +39,7 @@ export default function ShopLayout({ children }: { children: ReactNode }) {
         cartSlot={<CartBadge />}
       />
       {children}
-      <Footer
-        brandName="AKON BUTİK"
-        tagline="Şıklığın butik adresi."
-        columns={footerColumns}
-        newsletter={<NewsletterForm />}
-        copyright="Akon Butik. Tüm hakları saklıdır."
-      />
+      <Footer />
     </CartProvider>
   );
 }
