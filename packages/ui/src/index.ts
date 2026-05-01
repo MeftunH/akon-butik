@@ -12,6 +12,14 @@ export { Topbar, type TopbarProps } from './components/layout/Topbar';
 export { CartBadge, type CartBadgeProps } from './components/cart/CartBadge';
 export { CartProvider, useCart, type CartLine } from './components/cart/CartContext';
 
+// Wishlist
+export {
+  WishlistProvider,
+  useWishlist,
+  type WishlistProviderProps,
+} from './components/cart/WishlistContext';
+export { WishlistButton, type WishlistButtonProps } from './components/product/WishlistButton';
+
 // Product
 export { ProductCard, type ProductCardProps } from './components/product/ProductCard';
 export { ProductGrid, type ProductGridProps } from './components/product/ProductGrid';

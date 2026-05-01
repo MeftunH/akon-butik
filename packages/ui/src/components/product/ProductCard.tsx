@@ -4,6 +4,8 @@ import Link from 'next/link';
 
 import { Price } from '../Price';
 
+import { WishlistButton } from './WishlistButton';
+
 export interface ProductCardProps {
   product: ProductSummary;
   className?: string;
@@ -91,6 +93,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
             <span className="text h6 fw-medium text-white">Stokta yok</span>
           </div>
         )}
+
+        <ul className="product-action_list">
+          <li className="wishlist">
+            <WishlistButton productId={product.id} />
+          </li>
+        </ul>
       </div>
 
       <div className="card-product_info">
