@@ -16,6 +16,19 @@ export type UserId = string;
 
 export type ProductStatus = 'visible' | 'hidden' | 'needs_review';
 
+/**
+ * Vendor product card supports a small badge whitelist (sale / hot / new)
+ * — we mirror that here so the storefront ProductCard can render the
+ * matching CSS class. Type is closed-set on purpose; if marketing wants
+ * a custom label, extend this enum first.
+ */
+export type ProductBadgeType = 'sale' | 'hot' | 'new';
+
+export interface ProductBadge {
+  type: ProductBadgeType;
+  text: string;
+}
+
 export interface ProductSummary {
   id: ProductId;
   slug: string;
@@ -23,9 +36,16 @@ export interface ProductSummary {
   brand: { id: string; name: string; slug: string } | null;
   category: { id: string; name: string; slug: string } | null;
   defaultPriceMinor: number;
+  /**
+   * Original "list" price when the product is on sale — strict greater
+   * than `defaultPriceMinor`. Null when not on sale. Used by ProductCard
+   * to render the strikethrough `price-old`.
+   */
+  compareAtPriceMinor: number | null;
   primaryImageUrl: string | null;
   availableSizes: readonly string[];
   availableColors: readonly { name: string; hex: string }[];
+  badges: readonly ProductBadge[];
   inStock: boolean;
   status: ProductStatus;
 }
