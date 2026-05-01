@@ -52,21 +52,13 @@ export interface BlogCategory {
 }
 
 /**
- * Resolves a possibly-relative cover URL against the public-facing API
- * origin. Posts emit paths like `/uploads/seed/blog-1.jpg`, served by the
- * api app. The storefront's `/api/*` rewrite forwards to that same
- * origin, so prefixing the public base url keeps the URL stable across
- * SSR + client hydration without depending on `next/image` remotePatterns.
+ * Returns the cover URL as-is. Posts emit paths like
+ * `/uploads/seed/blog-1.jpg`, served by the api app at port 4000.
+ * Next.js's `/uploads/*` rewrite (apps/web/next.config.ts) proxies
+ * those to the api so the storefront sees them same-origin, which
+ * keeps the CSP `img-src 'self'` directive happy without per-image
+ * prefixing or `next/image` remotePatterns.
  */
 export function resolveBlogImage(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (/^https?:\/\//i.test(url)) return url;
-  // Read raw env at call time, not part of the zod-validated env block,
-  // because the CMS imagery is optional infra in dev.
-  // eslint-disable-next-line no-restricted-syntax
-  const base = (process.env['NEXT_PUBLIC_API_PUBLIC_BASE_URL'] ?? 'http://localhost:4000').replace(
-    /\/$/,
-    '',
-  );
-  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+  return url ?? null;
 }
