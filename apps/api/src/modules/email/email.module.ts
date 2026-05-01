@@ -23,6 +23,6 @@ import { SmtpEmailTransport } from './smtp-email.adapter';
     EmailService,
     EmailProcessor,
   ],
-  exports: [EmailService, BullModule],
+  exports: [EmailService, EMAIL_TRANSPORT, BullModule],
 })
 export class EmailModule {}

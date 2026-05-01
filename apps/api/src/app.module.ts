@@ -14,6 +14,8 @@ import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { CmsModule } from './modules/cms/cms.module';
+import { ContactModule } from './modules/contact/contact.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { DiaModule } from './modules/dia/dia.module';
 import { EmailModule } from './modules/email/email.module';
@@ -69,6 +71,8 @@ import { StorefrontModule } from './modules/storefront/storefront.module';
     PaymentsModule,
     OrdersModule,
     AdminModule,
+    CmsModule,
+    ContactModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

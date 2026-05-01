@@ -21,6 +21,12 @@ export default [
       '**/playwright-report/**',
       'vendor/**',
       '**/next-env.d.ts',
+      // Prisma seed scripts run via tsx outside the typed-project graph;
+      // typed-lint rules can't resolve their imports cleanly. Skip them
+      // here rather than littering eslint-disable directives in the seed
+      // bodies.
+      '**/prisma/seed*.ts',
+      'apps/*/scripts/**',
     ],
   },
   js.configs.recommended,
