@@ -1,0 +1,1156 @@
+// Editorial polish for the admin Orders surface. Vendor classes do the
+// heavy lifting (table-my_order, tb-order_status, account-order_tab,
+// flat-animate-tab); this module adds the few admin-only refinements:
+// rhythm, badge tone variants, the order # display face, the stat strip,
+// the inline-confirm transition row.
+//
+// Tinted neutrals only. Brand red `#c8102e` is reserved for true
+// emphasis (irreversible confirm, refund). No `#000`. Numbers use
+// font-feature-settings: 'tnum' for tabular alignment so amounts stack.
+
+.statStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: oklch(0.88 0.005 260);
+  border: 1px solid oklch(0.88 0.005 260);
+  margin-bottom: 24px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCell {
+  background: oklch(0.99 0.002 260);
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+
+  &[data-tone='accent'] {
+    background: oklch(0.985 0.003 60);
+  }
+
+  &[data-tone='warn'] .statValue {
+    color: oklch(0.42 0.16 28);
+  }
+}
+
+.statLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.01 260);
+  margin: 0;
+}
+
+.statValue {
+  font-size: 28px;
+  line-height: 1.05;
+  font-weight: 600;
+  font-feature-settings:
+    'tnum' 1,
+    'lnum' 1;
+  color: oklch(0.18 0.01 260);
+  margin: 0;
+}
+
+.statHint {
+  font-size: 12px;
+  color: oklch(0.55 0.008 260);
+  margin: 0;
+}
+
+.filterBar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto auto;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+
+  input[type='search'],
+  input[type='date'],
+  select {
+    width: 100%;
+    border: 1px solid var(--line, #e1e4e8);
+    background: var(--white, #fff);
+    padding: 10px 12px;
+    font-size: 14px;
+    line-height: 20px;
+    color: oklch(0.18 0.01 260);
+
+    &:focus-visible {
+      outline: 2px solid oklch(0.42 0.16 28);
+      outline-offset: -2px;
+    }
+  }
+}
+
+.filterTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: oklch(0.97 0.005 260);
+  border: 1px solid oklch(0.88 0.005 260);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: oklch(0.32 0.01 260);
+
+  button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    line-height: 1;
+
+    &:hover {
+      color: oklch(0.42 0.16 28);
+    }
+  }
+}
+
+.filterTagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.filterCheckbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #e1e4e8);
+  background: var(--white, #fff);
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+
+  &[data-active='true'] {
+    background: oklch(0.96 0.02 60);
+    border-color: oklch(0.6 0.16 28);
+    color: oklch(0.32 0.16 28);
+  }
+
+  input {
+    width: 14px;
+    height: 14px;
+    accent-color: oklch(0.55 0.16 28);
+  }
+}
+
+// Denser, more readable orders table — reuses vendor `table-my_order`
+// class on the element, then tightens the typographic rhythm. Inner
+// classes are local to the module; the page passes them through via
+// the `styles` object.
+.tableDense {
+  th,
+  td {
+    padding: 14px 12px !important;
+    vertical-align: middle;
+  }
+
+  th {
+    font-size: 11px !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: oklch(0.5 0.01 260) !important;
+    font-weight: 500 !important;
+  }
+
+  tbody tr:hover {
+    background: oklch(0.985 0.003 260);
+  }
+}
+
+.num {
+  font-feature-settings:
+    'tnum' 1,
+    'lnum' 1;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  font-size: 13px;
+  letter-spacing: 0;
+  color: oklch(0.18 0.01 260);
+  text-decoration: none;
+
+  &:hover {
+    color: oklch(0.42 0.16 28);
+  }
+}
+
+.customerStack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .stackName {
+    font-weight: 600;
+    color: oklch(0.18 0.01 260);
+    line-height: 1.2;
+  }
+
+  .stackEmail {
+    font-size: 12px;
+    color: oklch(0.5 0.01 260);
+    line-height: 1.3;
+  }
+}
+
+.relTime {
+  color: oklch(0.5 0.01 260);
+  font-size: 12px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .relAbs {
+    font-size: 11px;
+    color: oklch(0.62 0.008 260);
+  }
+}
+
+// Status with leading dot — semantic without leaning on emoji or icon font.
+.statusDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+// Empty state — quieter than a SaaS empty card.
+.emptyEditorial {
+  border-top: 1px solid var(--line, #e1e4e8);
+  border-bottom: 1px solid var(--line, #e1e4e8);
+  padding: 64px 24px;
+  text-align: center;
+  background: oklch(0.99 0.002 260);
+
+  h6 {
+    margin-bottom: 4px;
+    color: oklch(0.18 0.01 260);
+  }
+
+  p {
+    color: oklch(0.5 0.01 260);
+    max-width: 360px;
+    margin-inline: auto;
+  }
+}
+
+// Order-detail header strip — large tabular order number, badges row,
+// inline meta. No icon hero, no card frame; relies on the page rhythm.
+.detailHeader {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  padding: 28px 0 24px;
+  border-bottom: 1px solid var(--line, #e1e4e8);
+  margin-bottom: 28px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detailEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.01 260);
+  margin: 0 0 6px;
+}
+
+.detailOrderNumber {
+  font-size: 40px;
+  line-height: 1.05;
+  font-weight: 600;
+  font-feature-settings:
+    'tnum' 1,
+    'lnum' 1;
+  color: oklch(0.16 0.01 260);
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+
+  @media (max-width: 600px) {
+    font-size: 30px;
+  }
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.detailMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  align-items: baseline;
+  font-size: 13px;
+  color: oklch(0.4 0.008 260);
+
+  > span + span::before {
+    content: '·';
+    margin-right: 18px;
+    color: oklch(0.7 0.005 260);
+  }
+
+  .customerLink {
+    color: oklch(0.18 0.01 260);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid oklch(0.7 0.005 260);
+
+    &:hover {
+      border-bottom-color: oklch(0.42 0.16 28);
+      color: oklch(0.42 0.16 28);
+    }
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.printButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: oklch(0.4 0.008 260);
+  cursor: not-allowed;
+
+  &[aria-disabled='true'] {
+    opacity: 0.55;
+  }
+
+  &:hover {
+    color: oklch(0.18 0.01 260);
+  }
+}
+
+// Section eyebrow + heading rhythm.
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sectionEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.01 260);
+  margin: 0;
+  font-weight: 500;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: oklch(0.16 0.01 260);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+// Tab navigation — admin variant. Tighter than the storefront, no icons,
+// reads as section switcher rather than feature tab strip.
+.tabRow {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line, #e1e4e8);
+  margin-bottom: 24px;
+  list-style: none;
+  padding: 0;
+}
+
+.tabButton {
+  background: transparent;
+  border: 0;
+  padding: 14px 18px 12px;
+  margin-bottom: -1px;
+  font-size: 14px;
+  font-weight: 500;
+  color: oklch(0.5 0.01 260);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  letter-spacing: 0.01em;
+  transition: color 120ms ease;
+
+  &:hover {
+    color: oklch(0.18 0.01 260);
+  }
+
+  &[aria-selected='true'] {
+    color: oklch(0.16 0.01 260);
+    border-bottom-color: oklch(0.42 0.16 28);
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(0.55 0.16 28);
+    outline-offset: 2px;
+  }
+
+  .tabCount {
+    margin-left: 8px;
+    padding: 2px 6px;
+    background: oklch(0.94 0.005 260);
+    color: oklch(0.4 0.008 260);
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 999px;
+    line-height: 1;
+  }
+}
+
+// Items table — typographic, with thumb cell.
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: oklch(0.5 0.01 260);
+    text-align: left;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line, #e1e4e8);
+  }
+
+  tbody td {
+    padding: 16px 0;
+    border-bottom: 1px solid oklch(0.94 0.005 260);
+    vertical-align: top;
+  }
+
+  .thumb {
+    width: 64px;
+    height: 80px;
+    background: oklch(0.97 0.005 260);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: oklch(0.62 0.008 260);
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .lineProduct {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .lineMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .lineName {
+      font-weight: 600;
+      color: oklch(0.18 0.01 260);
+      line-height: 1.3;
+    }
+
+    .lineSku {
+      font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+      font-size: 11px;
+      color: oklch(0.5 0.01 260);
+      letter-spacing: 0;
+    }
+
+    .variantRow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .variantChip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: oklch(0.96 0.005 260);
+      border: 1px solid oklch(0.9 0.005 260);
+      font-size: 11px;
+      color: oklch(0.32 0.01 260);
+
+      strong {
+        color: oklch(0.18 0.01 260);
+        font-weight: 600;
+      }
+    }
+  }
+
+  .qty,
+  .unit,
+  .total {
+    font-feature-settings:
+      'tnum' 1,
+      'lnum' 1;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .qty {
+    color: oklch(0.4 0.008 260);
+  }
+
+  .total {
+    font-weight: 600;
+    color: oklch(0.18 0.01 260);
+  }
+}
+
+// Totals stack — right-aligned typographic ledger.
+.totalsStack {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: auto;
+  max-width: 360px;
+
+  > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: baseline;
+    padding-bottom: 10px;
+    font-feature-settings:
+      'tnum' 1,
+      'lnum' 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .label {
+    font-size: 13px;
+    color: oklch(0.5 0.01 260);
+  }
+
+  .value {
+    font-size: 14px;
+    color: oklch(0.18 0.01 260);
+    font-weight: 500;
+  }
+
+  .grand {
+    border-top: 1px solid var(--line, #e1e4e8);
+    padding-top: 14px;
+    margin-top: 4px;
+
+    .label {
+      font-size: 14px;
+      color: oklch(0.18 0.01 260);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: 22px;
+      font-weight: 600;
+      color: oklch(0.16 0.01 260);
+    }
+  }
+
+  .free {
+    color: oklch(0.42 0.14 145);
+    font-style: italic;
+  }
+}
+
+// Right rail blocks — quieter than `.dashboard-card`; lean on rhythm.
+.railBlock {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 22px;
+
+  + .railBlock {
+    margin-top: 18px;
+  }
+}
+
+.railEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.01 260);
+  margin: 0 0 16px;
+  font-weight: 500;
+}
+
+// Address grid — paired blocks with an explicit separator that isn't
+// a side stripe.
+.addressGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--line, #e1e4e8);
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+
+    > div + div {
+      border-top: 1px solid var(--line, #e1e4e8);
+    }
+  }
+}
+
+.addressBlock {
+  padding: 22px;
+  position: relative;
+
+  &:first-child {
+    border-right: 1px solid var(--line, #e1e4e8);
+
+    @media (max-width: 720px) {
+      border-right: 0;
+    }
+  }
+
+  .addressEyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: oklch(0.5 0.01 260);
+    margin: 0 0 12px;
+  }
+
+  address {
+    font-style: normal;
+    line-height: 1.55;
+    color: oklch(0.22 0.01 260);
+    font-size: 14px;
+
+    strong {
+      color: oklch(0.16 0.01 260);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px 32px;
+  margin-top: 24px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: oklch(0.5 0.01 260);
+  }
+
+  .value {
+    font-size: 14px;
+    color: oklch(0.18 0.01 260);
+    word-break: break-word;
+  }
+}
+
+// Payment panel.
+.paymentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--line, #e1e4e8);
+
+  > li {
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+
+    + li {
+      border-top: 1px solid var(--line, #e1e4e8);
+    }
+  }
+
+  .provider {
+    font-weight: 600;
+    color: oklch(0.18 0.01 260);
+    text-transform: capitalize;
+  }
+
+  .txMeta {
+    display: flex;
+    gap: 8px 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: oklch(0.5 0.01 260);
+    margin-top: 4px;
+
+    code {
+      font-size: 11px;
+      color: oklch(0.32 0.01 260);
+    }
+  }
+
+  .amount {
+    font-feature-settings:
+      'tnum' 1,
+      'lnum' 1;
+    font-variant-numeric: tabular-nums;
+    font-size: 16px;
+    font-weight: 600;
+    color: oklch(0.18 0.01 260);
+  }
+}
+
+.rawDetails {
+  margin-top: 16px;
+
+  summary {
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: oklch(0.5 0.01 260);
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: '+ ';
+      color: oklch(0.42 0.16 28);
+      font-weight: 600;
+    }
+  }
+
+  &[open] summary::before {
+    content: '− ';
+  }
+
+  pre {
+    margin-top: 12px;
+    padding: 14px;
+    background: oklch(0.97 0.003 260);
+    border: 1px solid var(--line, #e1e4e8);
+    font-size: 11px;
+    line-height: 1.5;
+    color: oklch(0.22 0.01 260);
+    overflow: auto;
+    max-height: 320px;
+  }
+}
+
+// Audit log — timeline-style preview.
+.auditList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.auditItem {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 12px;
+  position: relative;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: oklch(0.78 0.005 260);
+    margin-top: 6px;
+    grid-column: 1;
+  }
+
+  &[data-tone='accent']::before {
+    background: oklch(0.55 0.16 28);
+  }
+}
+
+.auditCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+  color: oklch(0.4 0.008 260);
+
+  .auditAction {
+    color: oklch(0.16 0.01 260);
+    font-weight: 600;
+  }
+
+  .auditMeta {
+    font-size: 11.5px;
+    color: oklch(0.55 0.008 260);
+  }
+
+  .auditNote {
+    margin-top: 2px;
+    color: oklch(0.32 0.01 260);
+    font-style: italic;
+  }
+}
+
+// Transition control — focused, not a button salad.
+.transitionPanel {
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  padding: 22px;
+}
+
+.transitionEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.01 260);
+  margin: 0 0 4px;
+  font-weight: 500;
+}
+
+.transitionFlow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+
+  .flowFrom,
+  .flowTo {
+    font-size: 14px;
+    font-weight: 600;
+    color: oklch(0.18 0.01 260);
+  }
+
+  .flowArrow {
+    font-size: 14px;
+    color: oklch(0.6 0.008 260);
+  }
+
+  .flowTo {
+    color: oklch(0.42 0.16 28);
+  }
+}
+
+.transitionTargetGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.transitionTarget {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--white, #fff);
+  border: 1px solid var(--line, #e1e4e8);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: oklch(0.18 0.01 260);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &:hover:not([disabled]) {
+    background: oklch(0.985 0.003 260);
+    border-color: oklch(0.78 0.008 260);
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(0.55 0.16 28);
+    outline-offset: 2px;
+  }
+
+  &[data-tone='destructive'] {
+    border-color: oklch(0.85 0.04 28);
+    color: oklch(0.42 0.16 28);
+
+    &:hover:not([disabled]) {
+      background: oklch(0.97 0.025 28);
+      border-color: oklch(0.55 0.16 28);
+    }
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .targetMark {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .targetLabel {
+    font-weight: 600;
+  }
+
+  .targetHint {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 400;
+    color: oklch(0.5 0.01 260);
+    margin-top: 2px;
+  }
+
+  .targetCaret {
+    font-size: 12px;
+    color: oklch(0.55 0.008 260);
+  }
+}
+
+.transitionConfirm {
+  margin-top: 4px;
+  background: oklch(0.985 0.003 260);
+  border: 1px solid var(--line, #e1e4e8);
+  border-top: 0;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &[data-tone='destructive'] {
+    background: oklch(0.985 0.012 28);
+    border-color: oklch(0.85 0.04 28);
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: oklch(0.32 0.01 260);
+  }
+
+  textarea {
+    width: 100%;
+    border: 1px solid var(--line, #e1e4e8);
+    background: var(--white, #fff);
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 64px;
+
+    &:focus-visible {
+      outline: 2px solid oklch(0.55 0.16 28);
+      outline-offset: -2px;
+    }
+  }
+
+  .confirmRow {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .confirmBtn,
+  .cancelBtn {
+    padding: 8px 16px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border: 1px solid var(--line, #e1e4e8);
+    background: var(--white, #fff);
+    color: oklch(0.32 0.01 260);
+  }
+
+  .cancelBtn:hover {
+    background: oklch(0.97 0.005 260);
+  }
+
+  .confirmBtn {
+    background: oklch(0.18 0.01 260);
+    color: oklch(0.99 0.002 260);
+    border-color: oklch(0.18 0.01 260);
+    font-weight: 600;
+
+    &[data-tone='destructive'] {
+      background: oklch(0.42 0.16 28);
+      border-color: oklch(0.42 0.16 28);
+    }
+
+    &:hover:not([disabled]) {
+      background: oklch(0.12 0.01 260);
+    }
+
+    &[data-tone='destructive']:hover:not([disabled]) {
+      background: oklch(0.36 0.16 28);
+    }
+
+    &[disabled] {
+      opacity: 0.7;
+      cursor: progress;
+    }
+  }
+}
+
+.transitionTerminal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: oklch(0.97 0.005 260);
+  border: 1px dashed var(--line, #e1e4e8);
+  font-size: 13px;
+  color: oklch(0.5 0.01 260);
+  margin: 0;
+}
+
+.transitionError {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: oklch(0.97 0.025 28);
+  border-left: 0;
+  border: 1px solid oklch(0.85 0.04 28);
+  color: oklch(0.36 0.16 28);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+// Compact status badge — wraps the vendor `.tb-order_status` so we can
+// drop the leading dot on small surfaces (right rail header, audit feed).
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  border: 1px solid currentColor;
+  background: transparent;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  &[data-tone='pending'] {
+    color: oklch(0.5 0.12 75);
+    background: oklch(0.97 0.04 75);
+    border-color: oklch(0.85 0.05 75);
+  }
+
+  &[data-tone='paid'] {
+    color: oklch(0.42 0.14 145);
+    background: oklch(0.97 0.025 145);
+    border-color: oklch(0.85 0.04 145);
+  }
+
+  &[data-tone='shipping'] {
+    color: oklch(0.42 0.12 240);
+    background: oklch(0.97 0.025 240);
+    border-color: oklch(0.85 0.04 240);
+  }
+
+  &[data-tone='delivered'] {
+    color: oklch(0.36 0.14 145);
+    background: oklch(0.95 0.04 145);
+    border-color: oklch(0.78 0.05 145);
+  }
+
+  &[data-tone='cancelled'] {
+    color: oklch(0.5 0.01 260);
+    background: oklch(0.96 0.005 260);
+    border-color: oklch(0.85 0.005 260);
+  }
+
+  &[data-tone='refunded'] {
+    color: oklch(0.42 0.16 28);
+    background: oklch(0.97 0.025 28);
+    border-color: oklch(0.85 0.04 28);
+  }
+
+  &[data-tone='dia-pushed'] {
+    color: oklch(0.42 0.1 200);
+    background: oklch(0.97 0.02 200);
+    border-color: oklch(0.85 0.03 200);
+  }
+
+  &[data-tone='dia-pending'] {
+    color: oklch(0.5 0.01 260);
+    background: oklch(0.97 0.005 260);
+    border-color: oklch(0.85 0.005 260);
+    border-style: dashed;
+  }
+}
+
+.headerRowResponsive {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
