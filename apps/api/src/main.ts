@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
- 
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -33,15 +32,29 @@ async function bootstrap(): Promise<void> {
 
   // @fastify/helmet ships types for a slightly different Fastify version than
   // @nestjs/platform-fastify carries; the runtime contract is identical.
+  // CSP keeps 'unsafe-inline' on script/style because Swagger UI bundles
+  // its renderer as inline scripts at /api/docs; the storefront and
+  // admin apps set their own (stricter) CSP via next.config.ts headers.
   await app.register(helmet as never, {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"], // tighten in Phase 6
+        scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"],
+        baseUri: ["'self'"],
       },
     },
+    strictTransportSecurity: {
+      maxAge: 31_536_000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   });
 
   app.enableCors({
