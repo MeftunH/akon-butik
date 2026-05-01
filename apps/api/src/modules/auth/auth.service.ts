@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { argon2id, hash, verify } from 'argon2';
 
-import type { PrismaService } from '../prisma/prisma.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { PrismaService } from '../prisma/prisma.service';
 
 import { JwtCookieService } from './jwt-cookie.service';
 
