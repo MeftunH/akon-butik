@@ -16,6 +16,7 @@ import { CartModule } from './modules/cart/cart.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { DiaModule } from './modules/dia/dia.module';
+import { EmailModule } from './modules/email/email.module';
 import { HealthModule } from './modules/health/health.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -58,6 +59,7 @@ import { StorefrontModule } from './modules/storefront/storefront.module';
     QueueModule,
     StorageModule,
     StorefrontModule,
+    EmailModule,
     HealthModule,
     DiaModule,
     AuthModule,

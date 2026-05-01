@@ -1,17 +1,14 @@
-import { InjectQueue } from '@nestjs/bullmq';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
-import { Queue } from 'bullmq';
 import type { CartSnapshot, OrderSummary } from '@akonbutik/types';
+import { InjectQueue } from '@nestjs/bullmq';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import type { ConfigService } from '@nestjs/config';
+import type { Queue } from 'bullmq';
 
+import type { Env } from '../../config/env';
 import { CART_REPOSITORY, type CartRepository } from '../cart/ports/cart.repository';
-import { PaymentsService } from '../payments/payments.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { EMAIL_QUEUE } from '../email/email.processor';
+import type { PaymentsService } from '../payments/payments.service';
+import type { PrismaService } from '../prisma/prisma.service';
 
 import {
   ORDER_REPOSITORY,
@@ -39,7 +36,9 @@ export class CheckoutService {
     @Inject(ORDER_REPOSITORY) private readonly orders: OrderRepository,
     private readonly payments: PaymentsService,
     private readonly prisma: PrismaService,
+    private readonly config: ConfigService<Env, true>,
     @InjectQueue(DIA_PUSH_ORDER_QUEUE) private readonly diaPushQueue: Queue,
+    @InjectQueue(EMAIL_QUEUE) private readonly emailQueue: Queue,
   ) {}
 
   /**
@@ -64,7 +63,7 @@ export class CheckoutService {
       ...(cmd.notes && { notes: cmd.notes }),
     });
 
-    const siteUrl = process.env['STOREFRONT_URL'] ?? 'http://localhost:3001';
+    const siteUrl = this.config.get('STOREFRONT_URL', { infer: true });
     const successCallbackUrl = `${siteUrl}/checkout/callback`;
 
     const init = await this.payments.initCheckout({
@@ -102,12 +101,18 @@ export class CheckoutService {
     await this.payments.markCaptured(payment.id, { mock: true });
     await this.orders.markPaid(orderId);
 
-    await this.diaPushQueue.add(
-      'push',
+    await this.diaPushQueue.add('push', { orderId }, { jobId: `push-${orderId}` });
+
+    await this.emailQueue.add(
+      'order-confirmation',
       { orderId },
-      { jobId: `push-${orderId}` },
+      { jobId: `email-confirm-${orderId}` },
     );
 
-    return (await this.orders.findById(orderId))!;
+    const updated = await this.orders.findById(orderId);
+    if (!updated) {
+      throw new NotFoundException(`Order ${orderId} disappeared after markPaid`);
+    }
+    return updated;
   }
 }

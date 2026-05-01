@@ -52,12 +52,30 @@ const envSchema = z.object({
   IMAGE_STORAGE_ROOT: z.string().min(1).default('./storage'),
   IMAGE_PUBLIC_BASE_URL: z.string().url().default('http://localhost:4000/uploads'),
 
+  // Customer-facing site URL — used to build payment-provider success
+  // callback URLs. Defaults to the dev storefront on port 3001.
+  STOREFRONT_URL: z.string().url().default('http://localhost:3001'),
+
   // Storefront revalidation hook — admin write endpoints POST here so the
   // customer-facing Next.js cache invalidates immediately, instead of
   // waiting for the 5-minute ISR window. Optional; if either field is
   // missing the API's RevalidationService no-ops with a warning.
   STOREFRONT_REVALIDATE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
   REVALIDATE_TOKEN: z.preprocess(emptyToUndefined, z.string().min(8).optional()),
+
+  // Email transport.
+  //   Dev: Mailhog at smtp://localhost:1025 (no auth) — see infra/docker/
+  //   Prod: real SMTP provider (SendGrid, AWS SES, SMTP2GO, etc.)
+  // If SMTP_HOST is missing the EmailService writes a warning and skips
+  // delivery — keeps tests + early-stage envs free of transport churn.
+  SMTP_HOST: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  SMTP_PORT: z.coerce.number().int().positive().default(1025),
+  SMTP_USER: z.preprocess(emptyToUndefined, z.string().optional()),
+  SMTP_PASS: z.preprocess(emptyToUndefined, z.string().optional()),
+  SMTP_SECURE: z
+    .preprocess((v) => v === 'true' || v === '1' || v === true, z.boolean())
+    .default(false),
+  EMAIL_FROM: z.string().default('Akon Butik <noreply@akonbutik.com>'),
 
   CORS_ORIGINS: z
     .string()
