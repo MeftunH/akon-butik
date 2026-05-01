@@ -6,8 +6,9 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 // NestJS reads decorator-emitted metadata from the class constructor at
 // instantiation time; `import type` would tree-shake the runtime
 // reference and the DI container can't bind by class.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-import { PrismaService } from '../prisma/prisma.service';
+
+import type { PrismaService } from '../prisma/prisma.service';
+import type { RevalidationService } from '../storefront/revalidation.service';
 
 import { DIA_CLIENT } from './dia.tokens';
 import { aggregateStokkarts } from './mapping/aggregate-stokkarts';
@@ -62,6 +63,7 @@ export class DiaSyncService {
   constructor(
     @Inject(DIA_CLIENT) private readonly dia: DiaClient,
     private readonly prisma: PrismaService,
+    private readonly revalidation: RevalidationService,
   ) {}
 
   // ─── Categories ───────────────────────────────────────────────────────────
@@ -82,7 +84,7 @@ export class DiaSyncService {
         // not a DiaApiError. Match on either shape so the sync survives.
         const is404 =
           (err instanceof DiaApiError && err.diaCode === '404') ||
-          (err instanceof DiaTransportError && /\b404\b/.test(String((err as Error).message)));
+          (err instanceof DiaTransportError && /\b404\b/.test(err.message));
         if (is404) {
           this.logger.warn(
             'scf_stokkartkategorisi_listele not available on this DIA tenant; skipping category sync',
@@ -349,12 +351,19 @@ export class DiaSyncService {
         data: {
           status: 'success',
           finishedAt: new Date(),
-          stats: stats as unknown as Prisma.InputJsonValue,
+          stats: stats,
         },
       });
       this.logger.log(
         `dia-sync:${entity} ok in ${durationMs.toString()}ms (insert=${stats.inserted.toString()} update=${stats.updated.toString()} unmatched=${stats.unmatched.toString()})`,
       );
+      // Bust the storefront index pages so a fresh sync's price/stock
+      // changes are visible immediately. PDPs (revalidate: 300) refresh
+      // on the next ISR tick — the per-product invalidation is a Phase 6
+      // optimisation that requires returning slugs from the upsert path.
+      if (stats.inserted + stats.updated > 0) {
+        await this.revalidation.revalidate({ paths: ['/', '/shop'] });
+      }
       return { syncLogId: log.id, ...stats, durationMs };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -400,14 +409,14 @@ function slugify(name: string): string {
  * (kuruş). Returns 0 when the input is missing or unparseable.
  */
 function parseDiaDecimalToMinor(input: string | number | undefined): number {
-  if (input === undefined || input === null) return 0;
+  if (input === undefined) return 0;
   const n = typeof input === 'number' ? input : Number.parseFloat(input);
   if (!Number.isFinite(n) || n < 0) return 0;
   return Math.round(n * 100);
 }
 
 function parseDiaInt(input: string | number | undefined): number {
-  if (input === undefined || input === null) return 0;
+  if (input === undefined) return 0;
   const n = typeof input === 'number' ? input : Number.parseFloat(input);
   if (!Number.isFinite(n)) return 0;
   return Math.trunc(n);

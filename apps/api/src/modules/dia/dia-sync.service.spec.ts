@@ -1,7 +1,7 @@
-import type { DiaClient, Stokkart } from '@akonbutik/dia-client';
 import { PrismaClient } from '@akonbutik/database';
+import type { DiaClient, Stokkart } from '@akonbutik/dia-client';
 
-import { PrismaService } from '../prisma/prisma.service';
+import type { PrismaService } from '../prisma/prisma.service';
 
 import { DiaSyncService } from './dia-sync.service';
 
@@ -51,24 +51,26 @@ describe('DiaSyncService (integration)', () => {
   const fakeDia: Pick<DiaClient, 'scf'> = {
     scf: {
       stokkartIterate: () => {
+         
         async function* gen(): AsyncGenerator<readonly Stokkart[], void, undefined> {
           yield stokkarts;
         }
         return gen();
       },
-      kategoriListele: async () => [
-        { _key: '1', kategorikodu: 'TESTCAT', aciklama: 'Test Kategori' },
-      ],
-      markaListele: async () => [
-        { _key: '1', markakodu: 'TESTBR', aciklama: 'Test Marka' },
-      ],
+      kategoriListele: () =>
+        Promise.resolve([{ _key: '1', kategorikodu: 'TESTCAT', aciklama: 'Test Kategori' }]),
+      markaListele: () =>
+        Promise.resolve([{ _key: '1', markakodu: 'TESTBR', aciklama: 'Test Marka' }]),
     } as unknown as DiaClient['scf'],
   };
 
   beforeAll(async () => {
     prisma = new PrismaClient() as unknown as PrismaService;
     await (prisma as unknown as PrismaClient).$connect();
-    svc = new DiaSyncService(fakeDia as DiaClient, prisma);
+    const noopRevalidation = {
+      revalidate: () => Promise.resolve(),
+    } as unknown as ConstructorParameters<typeof DiaSyncService>[2];
+    svc = new DiaSyncService(fakeDia as DiaClient, prisma, noopRevalidation);
 
     // Reset only the rows this test owns
     await prisma.productVariant.deleteMany({
@@ -115,7 +117,7 @@ describe('DiaSyncService (integration)', () => {
     expect(product?.brand?.diaMarkaKodu).toBe('TESTBR');
     expect(product?.category?.diaKategoriKodu).toBe('TESTCAT');
     expect(product?.variants).toHaveLength(2);
-    const sizes = product!.variants.map((v) => v.size).sort();
+    const sizes = (product?.variants ?? []).map((v) => v.size).sort();
     expect(sizes).toEqual(['S', 'XS']);
 
     const log = await prisma.diaSyncLog.findFirst({
