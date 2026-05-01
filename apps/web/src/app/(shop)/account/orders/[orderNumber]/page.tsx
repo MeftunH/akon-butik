@@ -1,4 +1,4 @@
-import { Price } from '@akonbutik/ui';
+import { OrderTimeline, Price, type OrderTimelineStep } from '@akonbutik/ui';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
@@ -11,15 +11,112 @@ import {
 
 const STATUS_LABELS: Record<string, { label: string; tone: string }> = {
   pending: { label: 'Bekliyor', tone: 'bg-warning-subtle text-warning' },
-  paid: { label: 'Ödendi', tone: 'bg-success-subtle text-success' },
-  shipped: { label: 'Kargoda', tone: 'bg-info-subtle text-info' },
+  paid: { label: 'Ödendi', tone: 'bg-info-subtle text-info' },
+  fulfilling: { label: 'Hazırlanıyor', tone: 'bg-primary-subtle text-primary' },
+  shipped: { label: 'Kargoda', tone: 'bg-primary-subtle text-primary' },
   delivered: { label: 'Teslim Edildi', tone: 'bg-success-subtle text-success' },
   cancelled: { label: 'İptal', tone: 'bg-secondary-subtle text-secondary' },
+  refunded: { label: 'İade', tone: 'bg-secondary-subtle text-secondary' },
   failed: { label: 'Başarısız', tone: 'bg-danger-subtle text-danger' },
 };
 
+const HAPPY_PATH = ['pending', 'paid', 'fulfilling', 'shipped', 'delivered'] as const;
+
 interface OrderDetailPageProps {
   params: Promise<{ orderNumber: string }>;
+}
+
+function formatDate(iso: string | null): string | null {
+  if (!iso) return null;
+  return new Date(iso).toLocaleString('tr-TR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+/**
+ * Build the OrderTimeline steps for the storefront customer view.
+ * Cancelled / refunded paths short-circuit to a 2-step view ("Sipariş
+ * Verildi" + "İptal/İade Edildi"). Happy path renders all five
+ * canonical steps with completion derived from `status`'s position in
+ * the chain.
+ */
+function buildTimeline(order: CustomerOrder): readonly OrderTimelineStep[] {
+  if (order.status === 'cancelled') {
+    return [
+      {
+        key: 'placed',
+        title: 'Sipariş Verildi',
+        date: formatDate(order.createdAt),
+        completed: true,
+        icon: 'icon-check-1',
+      },
+      {
+        key: 'cancelled',
+        title: 'Sipariş İptal Edildi',
+        completed: true,
+        icon: 'icon-close',
+      },
+    ];
+  }
+  if (order.status === 'refunded') {
+    return [
+      {
+        key: 'placed',
+        title: 'Sipariş Verildi',
+        date: formatDate(order.createdAt),
+        completed: true,
+        icon: 'icon-check-1',
+      },
+      {
+        key: 'refunded',
+        title: 'Sipariş İade Edildi',
+        completed: true,
+        icon: 'icon-arrow-counter-clockwise',
+      },
+    ];
+  }
+
+  const idx = HAPPY_PATH.indexOf(order.status as (typeof HAPPY_PATH)[number]);
+  const reachedIndex = idx === -1 ? 0 : idx;
+
+  return [
+    {
+      key: 'placed',
+      title: 'Sipariş Verildi',
+      date: formatDate(order.createdAt),
+      completed: reachedIndex >= 0,
+      icon: 'icon-check-1',
+    },
+    {
+      key: 'paid',
+      title: 'Ödeme Alındı',
+      date: formatDate(order.paidAt),
+      completed: reachedIndex >= 1,
+      icon: 'icon-credit-card',
+    },
+    {
+      key: 'fulfilling',
+      title: 'Hazırlanıyor',
+      completed: reachedIndex >= 2,
+      icon: 'icon-package',
+    },
+    {
+      key: 'shipped',
+      title: 'Kargoya Verildi',
+      completed: reachedIndex >= 3,
+      icon: 'icon-truck',
+    },
+    {
+      key: 'delivered',
+      title: 'Teslim Edildi',
+      completed: reachedIndex >= 4,
+      icon: 'icon-check-circle',
+    },
+  ];
 }
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
@@ -34,43 +131,49 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     label: order.status,
     tone: 'bg-secondary-subtle text-secondary',
   };
-  const date = new Date(order.createdAt).toLocaleString('tr-TR');
+  const date = formatDate(order.createdAt);
+  const timelineSteps = buildTimeline(order);
 
   return (
-    <article>
+    <article className="account-order_detail">
       <div className="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
         <div>
           <h1 className="h3 fw-bold mb-1">Sipariş #{order.orderNumber}</h1>
-          <p className="text-muted small mb-0">{date}</p>
+          <p className="text-main-2 small mb-0">{date}</p>
         </div>
         <div className="text-end">
           <span className={`badge ${status.tone} fs-6`}>{status.label}</span>
           {order.diaSiparisKodu && (
-            <p className="text-muted small mb-0 mt-1">
-              DIA: <code>{order.diaSiparisKodu}</code>
+            <p className="text-main-2 small mb-0 mt-1">
+              DIA Sipariş Kodu: <code>{order.diaSiparisKodu}</code>
             </p>
           )}
         </div>
       </div>
 
+      <section className="account-order_track mb-4 p-4 rounded-3 border bg-white">
+        <h2 className="h5 fw-bold mb-3">Sipariş Durumu</h2>
+        <OrderTimeline steps={timelineSteps} />
+      </section>
+
       <section className="mb-4">
-        <h2 className="h6 fw-bold mb-3">Ürünler</h2>
+        <h2 className="h5 fw-bold mb-3">Ürünler</h2>
         <div className="table-responsive">
-          <table className="table align-middle">
+          <table className="table-my_order w-100 align-middle">
             <thead>
               <tr>
-                <th scope="col">Ürün</th>
-                <th scope="col">Adet</th>
-                <th scope="col">Birim</th>
-                <th scope="col">Tutar</th>
+                <th className="tb-order_product">Ürün</th>
+                <th>Adet</th>
+                <th>Birim</th>
+                <th className="tb-order_price text-end">Tutar</th>
               </tr>
             </thead>
             <tbody>
               {order.items.map((line) => (
-                <tr key={line.id}>
-                  <td>
+                <tr key={line.id} className="tb-order-item">
+                  <td className="tb-order_product">
                     <div className="fw-semibold">{line.productNameSnap}</div>
-                    <div className="small text-muted">
+                    <div className="small text-main-2">
                       {line.variantSku}
                       {line.size && ` · ${line.size}`}
                       {line.color && ` · ${line.color}`}
@@ -80,7 +183,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                   <td>
                     <Price amount={{ amountMinor: line.unitPriceMinor, currency: 'TRY' }} />
                   </td>
-                  <td>
+                  <td className="tb-order_price text-end fw-semibold">
                     <Price amount={{ amountMinor: line.totalPriceMinor, currency: 'TRY' }} />
                   </td>
                 </tr>
@@ -91,7 +194,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 <th colSpan={3} className="text-end fw-normal">
                   Ara Toplam
                 </th>
-                <td>
+                <td className="text-end">
                   <Price amount={{ amountMinor: order.subtotalMinor, currency: 'TRY' }} />
                 </td>
               </tr>
@@ -99,9 +202,9 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 <th colSpan={3} className="text-end fw-normal">
                   Kargo
                 </th>
-                <td>
+                <td className="text-end">
                   {order.shippingMinor === 0 ? (
-                    <span className="text-success">Ücretsiz</span>
+                    <span className="text-success fw-semibold">Ücretsiz</span>
                   ) : (
                     <Price amount={{ amountMinor: order.shippingMinor, currency: 'TRY' }} />
                   )}
@@ -111,7 +214,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 <th colSpan={3} className="text-end">
                   Toplam
                 </th>
-                <td className="fw-bold">
+                <td className="text-end fw-bold">
                   <Price amount={{ amountMinor: order.totalMinor, currency: 'TRY' }} size="lg" />
                 </td>
               </tr>
@@ -134,12 +237,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       {order.notes && (
         <section className="mb-4">
           <h2 className="h6 fw-bold mb-2">Sipariş Notu</h2>
-          <p className="text-muted">{order.notes}</p>
+          <p className="text-main">{order.notes}</p>
         </section>
       )}
 
-      <Link href="/account/orders" className="btn btn-link px-0">
-        ← Tüm Siparişler
+      <Link href="/account/orders" className="tf-btn style-line">
+        <i className="icon icon-arrow-left me-2" /> Tüm Siparişler
       </Link>
     </article>
   );
@@ -147,7 +250,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
 function AddressBlock({ address }: { address: OrderAddressSnapshot }) {
   return (
-    <address className="mb-0 small text-body">
+    <address className="mb-0 small text-body bg-light rounded-3 p-3 border">
       <strong>{address.adSoyad}</strong>
       <br />
       {address.acikAdres}
