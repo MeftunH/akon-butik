@@ -1,1 +1,7 @@
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env)"
+elif [ -d "$HOME/.local/share/fnm/aliases/default/bin" ]; then
+  PATH="$HOME/.local/share/fnm/aliases/default/bin:$PATH"
+fi
+
 pnpm lint-staged
