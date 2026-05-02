@@ -4,7 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { ADMIN_NOT_AUTHENTICATED, fetchAdmin } from '../../../../lib/admin-fetch';
 
 import { ProductEditForm } from './ProductEditForm';
-import { ProductImagesPanel } from './ProductImagesPanel';
+import styles from './ProductEditForm.module.scss';
 
 interface AdminProductDetail {
   id: string;
@@ -60,14 +60,17 @@ const STATUS_LABELS: Record<AdminProductDetail['status'], string> = {
   needs_review: 'İncelemede',
 };
 
-const STATUS_CLASS: Record<AdminProductDetail['status'], string> = {
-  visible: 'stt-complete',
-  hidden: 'stt-muted',
-  needs_review: 'stt-pending',
+const STATUS_TONE: Record<AdminProductDetail['status'], 'visible' | 'hidden' | 'review'> = {
+  visible: 'visible',
+  hidden: 'hidden',
+  needs_review: 'review',
 };
 
-const formatTl = (minor: number): string =>
-  `₺${(minor / 100).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+const TL = new Intl.NumberFormat('tr-TR', {
+  style: 'currency',
+  currency: 'TRY',
+  minimumFractionDigits: 2,
+});
 
 export default async function ProductEditPage({ params }: PageProps) {
   const { id } = await params;
@@ -86,105 +89,50 @@ export default async function ProductEditPage({ params }: PageProps) {
   if (!product) notFound();
 
   return (
-    <div className="my-account-content">
-      <nav aria-label="breadcrumb" className="mb-3 h6">
-        <ol className="breadcrumb mb-0">
-          <li className="breadcrumb-item">
-            <Link href="/products" className="text-decoration-none link">
-              Ürünler
-            </Link>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            {product.nameTr}
-          </li>
-        </ol>
+    <div className={styles.page}>
+      <nav aria-label="breadcrumb" className={styles.breadcrumb}>
+        <Link href="/products">Ürünler</Link>
+        <span aria-hidden>/</span>
+        <span aria-current="page">{product.nameTr}</span>
       </nav>
 
-      <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-        <div>
-          <h2 className="account-title type-semibold mb-1">{product.nameTr}</h2>
-          <div className="d-flex flex-wrap align-items-center gap-2 h6 text-main">
-            <code>{product.slug}</code>
+      <header className={styles.hero}>
+        <div className={styles.heroPrimary}>
+          <p className={styles.heroEyebrow}>Ürün düzenleme</p>
+          <h1 className={styles.heroTitle}>{product.nameTr}</h1>
+          <div className={styles.heroMeta}>
+            <span>
+              <code>{product.slug}</code>
+            </span>
             {product.diaParentKey && (
               <span>
-                · DIA: <code>{product.diaParentKey}</code>
+                DIA: <code>{product.diaParentKey}</code>
               </span>
             )}
-            {product.diaSyncedAt && (
-              <span>· Son senkron: {new Date(product.diaSyncedAt).toLocaleString('tr-TR')}</span>
-            )}
+            <span>ID: {product.id.slice(0, 8)}</span>
+            <Link
+              className={styles.heroLink}
+              href={`/products/${product.slug}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Mağazada görüntüle ↗
+            </Link>
           </div>
         </div>
-        <div className="d-flex flex-column align-items-end gap-2">
-          <span className={`tb-order_status ${STATUS_CLASS[product.status]}`}>
+        <div className={styles.heroSecondary}>
+          <span
+            className={styles.heroStatus}
+            data-tone={STATUS_TONE[product.status]}
+            aria-label={`Durum: ${STATUS_LABELS[product.status]}`}
+          >
             {STATUS_LABELS[product.status]}
           </span>
-          <span className="h5 fw-bold mb-0">{formatTl(product.defaultPriceMinor)}</span>
+          <span className={styles.heroPrice}>{TL.format(product.defaultPriceMinor / 100)}</span>
         </div>
-      </div>
+      </header>
 
-      <div className="row g-4">
-        <div className="col-lg-7">
-          <ProductEditForm product={product} brands={brands} categories={categories} />
-
-          <section className="dashboard-card mt-4">
-            <h3 className="account-title type-semibold h5 mb-2">Variantlar</h3>
-            <p className="h6 text-main mb-3">
-              Variant verisi DIA senkronundan gelir; admin panelden düzenlenmez.
-            </p>
-            {product.variants.length === 0 ? (
-              <div className="dashboard-empty">
-                <i className="icon icon-list mb-2" aria-hidden />
-                <h6 className="fw-semibold mb-1">Variant yok</h6>
-                <p className="h6 text-main mb-0">
-                  DIA senkronu çalıştırarak variantları getirebilirsiniz.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-auto">
-                <table className="table-my_order">
-                  <thead>
-                    <tr>
-                      <th>SKU</th>
-                      <th>DIA Stokkart</th>
-                      <th>Beden</th>
-                      <th>Renk</th>
-                      <th>Stok</th>
-                      <th>Fiyat Override</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {product.variants.map((v) => (
-                      <tr key={v.id} className="tb-order-item">
-                        <td>
-                          <code>{v.sku}</code>
-                        </td>
-                        <td>
-                          <code>{v.diaStokkartkodu}</code>
-                        </td>
-                        <td className="h6">{v.size ?? '—'}</td>
-                        <td className="h6">{v.color ?? '—'}</td>
-                        <td className="h6 fw-semibold">{v.stockQty}</td>
-                        <td className="h6">
-                          {v.priceOverrideMinor !== null ? (
-                            formatTl(v.priceOverrideMinor)
-                          ) : (
-                            <span className="text-main">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        </div>
-
-        <div className="col-lg-5">
-          <ProductImagesPanel productId={product.id} initialImages={product.images} />
-        </div>
-      </div>
+      <ProductEditForm product={product} brands={brands} categories={categories} />
     </div>
   );
 }

@@ -1,0 +1,147 @@
+// RichTextEditor: minimum viable WYSIWYG.
+// Toolbar reads as a thin tooltype rail: monospaced glyphs, hairline
+// dividers, no icons. The contenteditable surface uses the same OKLCH
+// neutral palette as every other field on the page.
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  background: oklch(0.985 0.002 95);
+  border: 1px solid oklch(0.92 0.003 95);
+
+  &[data-invalid='true'] {
+    border-color: oklch(0.55 0.18 25);
+    background: oklch(0.985 0.012 25);
+  }
+
+  &:focus-within {
+    border-color: oklch(0.25 0.005 95);
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid oklch(0.92 0.003 95);
+  background: oklch(0.97 0.002 95);
+}
+
+.toolButton {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 4px 9px;
+  min-width: 32px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(0.42 0.005 95);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  &:hover {
+    background: oklch(0.94 0.003 95);
+    color: oklch(0.18 0.005 95);
+  }
+
+  &:active {
+    background: oklch(0.9 0.003 95);
+  }
+
+  &[data-glyph='bold'] {
+    font-weight: 800;
+  }
+  &[data-glyph='italic'] {
+    font-style: italic;
+  }
+}
+
+.editor {
+  padding: 16px 18px;
+  min-height: 220px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: oklch(0.18 0.005 95);
+  outline: none;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  // Empty-state placeholder via CSS attribute so the contenteditable
+  // surface stays a single DOM node, no virtual placeholder hack.
+  &[data-empty='true']::before {
+    content: attr(data-placeholder);
+    color: oklch(0.62 0.004 95);
+    pointer-events: none;
+    display: block;
+  }
+
+  // Editorial typography inside the contenteditable so the operator
+  // sees how the description will render on the storefront product
+  // page, not a generic textarea.
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 18px 0 8px;
+    color: oklch(0.18 0.005 95);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 14px 0 6px;
+    color: oklch(0.22 0.005 95);
+  }
+
+  p {
+    margin: 0 0 10px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong {
+    font-weight: 700;
+    color: oklch(0.18 0.005 95);
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  a {
+    color: oklch(0.42 0.16 25);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  ul,
+  ol {
+    margin: 8px 0 10px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  blockquote {
+    margin: 10px 0;
+    padding: 6px 14px;
+    border-left: 1px solid oklch(0.78 0.005 95);
+    color: oklch(0.42 0.005 95);
+    font-style: italic;
+
+    p {
+      margin: 0;
+    }
+  }
+}

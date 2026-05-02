@@ -1,6 +1,179 @@
-// ProductEditForm — sectioned product editor, embedded into the
-// EditLayout primitive. Inputs read like a buyer's spreadsheet:
-// square corners, hairline borders, generous vertical rhythm.
+// ProductEditForm: sectioned single-column product editor.
+// Color strategy: restrained. Brand-tinted neutrals (warm grey leaning
+// toward 95deg, the same hue family as the storefront cream) plus one
+// brand red as accent. No literal #000 or #fff anywhere; every
+// neutral is OKLCH-tinted so they sit alongside the storefront cream
+// without a colour clash. Type ratio: 12 → 14 → 16 → 20 → 26 (each
+// step ≥1.25). Spacing varies (no 8px-everything monotony).
+
+:root {
+  // Hoist a few admin-edit tokens here so RichTextEditor and
+  // InlineCreateSelect can rely on the same values; they're a subset
+  // of the dashboard chrome's design tokens but localised so this
+  // page doesn't touch the global token sheet.
+}
+
+.page {
+  --edit-bg: oklch(0.985 0.002 95);
+  --edit-bg-2: oklch(0.965 0.003 95);
+  --edit-bg-3: oklch(0.94 0.003 95);
+  --edit-line: oklch(0.92 0.003 95);
+  --edit-line-strong: oklch(0.78 0.005 95);
+  --edit-text: oklch(0.18 0.005 95);
+  --edit-text-2: oklch(0.42 0.005 95);
+  --edit-text-3: oklch(0.62 0.004 95);
+  --edit-accent: oklch(0.42 0.16 25);
+  --edit-accent-soft: oklch(0.985 0.012 25);
+  --edit-success: oklch(0.5 0.1 155);
+  --edit-warn: oklch(0.62 0.13 75);
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--edit-text-2);
+
+  a {
+    color: var(--edit-text-2);
+    text-decoration: none;
+    transition: color 120ms ease;
+
+    &:hover {
+      color: var(--edit-text);
+    }
+  }
+
+  span[aria-hidden] {
+    color: var(--edit-text-3);
+  }
+
+  span[aria-current] {
+    color: var(--edit-text);
+    font-weight: 500;
+  }
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px 32px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--edit-line);
+}
+
+.heroPrimary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.heroEyebrow {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--edit-text-3);
+  font-weight: 600;
+  margin: 0;
+}
+
+.heroTitle {
+  font-size: 26px;
+  line-height: 1.18;
+  font-weight: 600;
+  color: var(--edit-text);
+  margin: 0;
+  // Keep titles on a single visual line on big screens but wrap cleanly
+  // on small ones; max 32 characters per line on hero scale reads
+  // editorial rather than databasey.
+  max-width: 32ch;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: 13px;
+  color: var(--edit-text-2);
+  margin-top: 4px;
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: var(--edit-text);
+    background: var(--edit-bg-2);
+    padding: 2px 6px;
+  }
+}
+
+.heroLink {
+  font-size: 13px;
+  color: var(--edit-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 120ms ease;
+
+  &:hover {
+    border-bottom-color: var(--edit-accent);
+  }
+}
+
+.heroSecondary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.heroStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--edit-line);
+
+  &[data-tone='visible'] {
+    color: var(--edit-success);
+    border-color: oklch(0.85 0.06 155);
+    background: oklch(0.985 0.02 155);
+  }
+
+  &[data-tone='hidden'] {
+    color: var(--edit-text-2);
+    border-color: var(--edit-line);
+    background: var(--edit-bg-2);
+  }
+
+  &[data-tone='review'] {
+    color: var(--edit-warn);
+    border-color: oklch(0.85 0.06 75);
+    background: oklch(0.985 0.02 75);
+  }
+}
+
+.heroPrice {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--edit-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+// ─── Form ───
 
 .editForm {
   display: flex;
@@ -10,7 +183,11 @@
 .fieldGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 24px;
+  gap: 22px 28px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .field {
@@ -23,7 +200,7 @@
     font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--text-2, #8a8c8a);
+    color: var(--edit-text-2);
     font-weight: 600;
   }
 
@@ -31,39 +208,41 @@
   textarea,
   select {
     width: 100%;
-    background: var(--bg-2, #f5f5f5);
-    border: 1px solid var(--line, #ededed);
+    background: var(--edit-bg);
+    border: 1px solid var(--edit-line);
     border-radius: 0;
     padding: 12px 14px;
     font-size: 14px;
     line-height: 20px;
-    color: var(--black, #000);
+    color: var(--edit-text);
     font-family: inherit;
     transition:
       background-color 120ms ease,
-      border-color 120ms ease,
-      outline-color 120ms ease;
+      border-color 120ms ease;
 
     &::placeholder {
-      color: var(--text-3, #acafab);
+      color: var(--edit-text-3);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--black, #000);
-      outline-offset: -2px;
-      border-color: transparent;
-      background: var(--white, #fff);
+      outline: none;
+      border-color: var(--edit-text);
+      background: oklch(0.99 0.002 95);
     }
 
     &[aria-invalid='true'] {
-      border-color: var(--primary, #c8102e);
-      background: rgba(200, 16, 46, 0.025);
+      border-color: oklch(0.55 0.18 25);
+      background: var(--edit-accent-soft);
     }
 
     &[readonly] {
-      background: var(--white, #fff);
-      color: var(--text, #5f615e);
+      background: var(--edit-bg-2);
+      color: var(--edit-text-2);
       cursor: default;
+
+      &:focus-visible {
+        border-color: var(--edit-line-strong);
+      }
     }
   }
 
@@ -89,39 +268,47 @@
 
 .fieldError {
   font-size: 13px;
-  color: var(--primary, #c8102e);
+  color: oklch(0.45 0.16 25);
   margin-top: 2px;
   line-height: 1.45;
 }
 
 .fieldHint {
   font-size: 12px;
-  color: var(--text-2, #8a8c8a);
-  line-height: 1.45;
+  color: var(--edit-text-2);
+  line-height: 1.5;
 }
+
+// ─── Price field ───
+// Hairline border, no ring on focus, currency glyph in a hairline-
+// separated pill. Tabular numerics so prices align column-wise when
+// the operator scans.
 
 .priceRow {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: stretch;
   gap: 0;
-  border: 1px solid var(--line, #ededed);
-  background: var(--bg-2, #f5f5f5);
+  border: 1px solid var(--edit-line);
+  background: var(--edit-bg);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 
   &:focus-within {
-    outline: 2px solid var(--black, #000);
-    outline-offset: -2px;
-    background: var(--white, #fff);
+    border-color: var(--edit-text);
+    background: oklch(0.99 0.002 95);
   }
 
   .priceCurrency {
     display: flex;
     align-items: center;
     padding: 0 14px;
-    border-right: 1px solid var(--line, #ededed);
+    border-right: 1px solid var(--edit-line);
     font-size: 16px;
     font-weight: 600;
-    color: var(--text, #5f615e);
+    color: var(--edit-text-2);
+    background: var(--edit-bg-2);
   }
 
   input {
@@ -129,11 +316,20 @@
     background: transparent;
     font-variant-numeric: tabular-nums;
     font-size: 16px;
+    letter-spacing: -0.01em;
 
     &:focus-visible {
       outline: none;
+      border: 0;
+      background: transparent;
     }
   }
+}
+
+.priceLive {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--edit-text);
 }
 
 .slugRow {
@@ -150,8 +346,10 @@
 
 .slugHint {
   font-size: 12px;
-  color: var(--text-2, #8a8c8a);
+  color: var(--edit-text-2);
 }
+
+// ─── Status rail ───
 
 .statusRail {
   display: grid;
@@ -168,26 +366,26 @@
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  background: var(--white, #fff);
-  border: 1px solid var(--line, #ededed);
+  background: var(--edit-bg);
+  border: 1px solid var(--edit-line);
   cursor: pointer;
   transition:
     border-color 120ms ease,
     background-color 120ms ease;
 
   input[type='radio'] {
-    accent-color: var(--primary, #c8102e);
+    accent-color: var(--edit-accent);
     margin-top: 4px;
     flex: 0 0 auto;
   }
 
   &:hover {
-    border-color: var(--text-3, #acafab);
+    border-color: var(--edit-line-strong);
   }
 
   &[data-active='true'] {
-    border-color: var(--black, #000);
-    background: var(--bg-2, #f5f5f5);
+    border-color: var(--edit-text);
+    background: var(--edit-bg-2);
   }
 }
 
@@ -201,14 +399,143 @@
 .statusOptionTitle {
   font-size: 14px;
   font-weight: 600;
-  color: var(--black, #000);
+  color: var(--edit-text);
 }
 
 .statusOptionDesc {
   font-size: 12px;
-  color: var(--text, #5f615e);
-  line-height: 1.45;
+  color: var(--edit-text-2);
+  line-height: 1.5;
 }
+
+// ─── Variants ───
+
+.variantTableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--edit-line);
+  background: var(--edit-bg);
+}
+
+.variantTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead {
+    background: var(--edit-bg-2);
+    border-bottom: 1px solid var(--edit-line);
+  }
+
+  th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--edit-text-2);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--edit-line);
+    color: var(--edit-text);
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--edit-text);
+    }
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:hover {
+    background: var(--edit-bg-2);
+  }
+}
+
+.numericHeader {
+  text-align: right !important;
+}
+
+.numericCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.variantEmpty {
+  padding: 28px 24px;
+  text-align: center;
+  background: var(--edit-bg-2);
+  border: 1px solid var(--edit-line);
+}
+
+.variantEmptyTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--edit-text);
+  margin: 0 0 6px;
+}
+
+.variantEmptyBody {
+  font-size: 13px;
+  color: var(--edit-text-2);
+  margin: 0;
+  max-width: 50ch;
+  margin-inline: auto;
+  line-height: 1.5;
+}
+
+// ─── Danger row inside Yayın ───
+
+.dangerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 28px;
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid oklch(0.86 0.06 25);
+  background: var(--edit-accent-soft);
+}
+
+.dangerTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--edit-accent);
+  margin: 0 0 4px;
+}
+
+.dangerCopy {
+  font-size: 13px;
+  color: var(--edit-text-2);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 56ch;
+}
+
+.dangerButton {
+  appearance: none;
+  background: transparent;
+  border: 1px solid oklch(0.78 0.1 25);
+  color: var(--edit-accent);
+  padding: 9px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+// ─── Sticky save bar ───
 
 .saveBar {
   position: sticky;
@@ -219,19 +546,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background: var(--white, #fff);
-  border: 1px solid var(--line, #ededed);
+  background: var(--edit-bg);
+  border: 1px solid var(--edit-line);
   border-bottom: 0;
   margin: 24px 0 0;
   z-index: 5;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -16px 0 100% 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.04), transparent);
-    pointer-events: none;
-  }
+  box-shadow: 0 -8px 24px -16px oklch(0.18 0.005 95 / 0.18);
 }
 
 .saveBarFeedback {
@@ -254,39 +574,39 @@
   }
 
   &[data-tone='success'] {
-    color: #2c8153;
+    color: var(--edit-success);
 
     .feedbackDot {
-      background: #2c8153;
+      background: var(--edit-success);
     }
   }
 
   &[data-tone='danger'] {
-    color: var(--primary, #c8102e);
+    color: oklch(0.45 0.16 25);
 
     .feedbackDot {
-      background: var(--primary, #c8102e);
+      background: oklch(0.55 0.18 25);
     }
   }
 
   &[data-tone='muted'] {
-    color: var(--text, #5f615e);
+    color: var(--edit-text-2);
 
     .feedbackDot {
-      background: var(--text-3, #acafab);
+      background: var(--edit-text-3);
     }
   }
 }
 
 .saveButton {
   appearance: none;
-  background: var(--black, #000);
-  color: var(--white, #fff);
+  background: oklch(0.22 0.005 95);
+  color: oklch(0.99 0.002 95);
   border: 0;
   padding: 12px 24px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
@@ -294,21 +614,21 @@
   gap: 10px;
   white-space: nowrap;
   transition:
-    background-color 120ms ease,
+    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 120ms ease;
 
   &:hover:not(:disabled) {
-    background: var(--primary, #c8102e);
+    background: var(--edit-accent);
   }
 
   &:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 
   &[data-busy='true'] {
     cursor: progress;
-    background: var(--text, #5f615e);
+    background: var(--edit-text-2);
   }
 }
 

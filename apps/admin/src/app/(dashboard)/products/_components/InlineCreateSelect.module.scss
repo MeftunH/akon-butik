@@ -1,0 +1,144 @@
+// InlineCreateSelect: select with an inline-create affordance.
+// Visual rules: same hairline border as every other input, no card
+// chrome around the create row (it expands into the same field
+// rectangle the select occupied so the form doesn't reflow).
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: oklch(0.55 0.005 95);
+    font-weight: 600;
+  }
+
+  select,
+  input {
+    width: 100%;
+    background: oklch(0.985 0.002 95);
+    border: 1px solid oklch(0.92 0.003 95);
+    border-radius: 0;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 20px;
+    color: oklch(0.18 0.005 95);
+    font-family: inherit;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease;
+
+    &::placeholder {
+      color: oklch(0.62 0.004 95);
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: oklch(0.25 0.005 95);
+      background: oklch(0.99 0.002 95);
+    }
+
+    &[aria-invalid='true'] {
+      border-color: oklch(0.55 0.18 25);
+      background: oklch(0.985 0.012 25);
+    }
+  }
+
+  select {
+    appearance: none;
+    padding-right: 36px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%235f615e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+}
+
+.trigger {
+  align-self: flex-start;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: oklch(0.42 0.005 95);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: oklch(0.78 0.005 95);
+
+  &:hover {
+    color: oklch(0.18 0.005 95);
+    text-decoration-color: oklch(0.42 0.005 95);
+  }
+}
+
+.createRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+
+  input {
+    min-width: 0;
+  }
+}
+
+.saveButton {
+  appearance: none;
+  background: oklch(0.22 0.005 95);
+  color: oklch(0.985 0.002 95);
+  border: 0;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
+
+  &:hover:not(:disabled) {
+    background: oklch(0.42 0.16 25);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.cancelButton {
+  appearance: none;
+  background: transparent;
+  color: oklch(0.42 0.005 95);
+  border: 1px solid oklch(0.92 0.003 95);
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
+
+  &:hover:not(:disabled) {
+    color: oklch(0.18 0.005 95);
+    border-color: oklch(0.78 0.005 95);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.error {
+  font-size: 13px;
+  color: oklch(0.45 0.16 25);
+  line-height: 1.45;
+}
