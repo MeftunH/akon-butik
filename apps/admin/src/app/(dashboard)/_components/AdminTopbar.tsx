@@ -14,10 +14,13 @@ interface AdminTopbarProps {
  * Pure presentation — no JS — so it stays a server component.
  */
 export function AdminTopbar({ roleLabel }: AdminTopbarProps): React.JSX.Element {
+  // Compact date: "2 Mayıs Cum" — drop the long weekday and the "yönetim
+  // merkezi · yetkili kullanıcılar" tagline that was reading as filler. The
+  // header underneath already carries the brand wordmark and "ADMIN" rail.
   const today = new Date().toLocaleDateString('tr-TR', {
-    weekday: 'long',
     day: 'numeric',
     month: 'long',
+    weekday: 'short',
   });
 
   return (
@@ -25,13 +28,9 @@ export function AdminTopbar({ roleLabel }: AdminTopbarProps): React.JSX.Element 
       <div className="container">
         <div className={styles.topbarInner}>
           <div className={styles.topbarLeft}>
-            <span className={styles.topbarMark}>Akon Butik</span>
-            <span className={styles.topbarRule} aria-hidden="true" />
-            <span className={styles.topbarLine}>Yönetim merkezi · yetkili kullanıcılar için</span>
+            <span className={styles.topbarMeta}>{today}</span>
           </div>
           <div className={styles.topbarRight}>
-            <span className={styles.topbarMeta}>{today}</span>
-            <span className={styles.topbarRule} aria-hidden="true" />
             <span className={styles.topbarMeta}>{roleLabel}</span>
           </div>
         </div>

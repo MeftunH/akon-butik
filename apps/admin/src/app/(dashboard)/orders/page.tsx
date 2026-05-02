@@ -223,8 +223,20 @@ export default async function OrdersPage({ searchParams }: PageProps) {
             </thead>
             <tbody>
               {visible.map((o) => {
-                const absLabel =
+                const fullLabel =
                   formatDateTime(o.createdAt) ?? new Date(o.createdAt).toLocaleString('tr-TR');
+                // Compact label that fits in a narrow column: "30 Nis"
+                // (drop year for the same calendar year, drop time). The
+                // full timestamp lives on the time element's title attr.
+                const created = new Date(o.createdAt);
+                const sameYear = created.getFullYear() === new Date(nowMs).getFullYear();
+                const absLabel = sameYear
+                  ? created.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
+                  : created.toLocaleDateString('tr-TR', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    });
                 const initialRel = formatRelative(o.createdAt, nowMs) ?? '—';
                 return (
                   <tr key={o.id} className="tb-order-item">
@@ -249,7 +261,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
                     <td>
                       <DiaBadge diaCode={o.diaSiparisKodu} />
                     </td>
-                    <td>
+                    <td title={fullLabel}>
                       <OrderRelativeTime
                         iso={o.createdAt}
                         initialLabel={initialRel}

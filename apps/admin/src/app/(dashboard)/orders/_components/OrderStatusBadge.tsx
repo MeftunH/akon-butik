@@ -30,9 +30,13 @@ interface DiaBadgeProps {
 
 export function DiaBadge({ diaCode }: DiaBadgeProps) {
   if (diaCode) {
+    // Show only the trailing 6 characters of the DIA receipt id; full code
+    // is in the title attribute. Eliminates the cell-overflow that pushed
+    // the badge into the YAŞ column.
+    const tail = diaCode.length > 6 ? diaCode.slice(-6) : diaCode;
     return (
       <span className={styles.badge} data-tone="dia-pushed" title={`DIA: ${diaCode}`}>
-        DIA · {diaCode}
+        DIA · {tail}
       </span>
     );
   }

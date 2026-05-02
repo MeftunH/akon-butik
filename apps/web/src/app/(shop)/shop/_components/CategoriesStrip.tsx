@@ -79,7 +79,10 @@ export function CategoriesStrip({ categories }: CategoriesStripProps) {
                 href={`/shop?category=${cat.slug}`}
                 className="widget-collection style-circle hover-img"
               >
-                <div className="collection_image img-style">
+                <div
+                  className="collection_image img-style"
+                  style={{ aspectRatio: '1', width: '100%', display: 'block' }}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     className="lazyload"
@@ -87,6 +90,7 @@ export function CategoriesStrip({ categories }: CategoriesStripProps) {
                     alt={cat.name}
                     width={400}
                     height={400}
+                    style={{ display: 'block' }}
                   />
                 </div>
                 <p className="collection_name h6 link fw-medium">

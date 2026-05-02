@@ -58,14 +58,38 @@
     transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.card:hover {
+.card[data-status='ready']:hover {
   border-color: oklch(0.4 0.04 25);
   transform: translateY(-1px);
 }
 
-.card:focus-visible {
+.card[data-status='ready']:focus-visible {
   outline: 2px solid oklch(0.45 0.18 25);
   outline-offset: 2px;
+}
+
+.card[data-status='upcoming'] {
+  background: oklch(0.972 0.004 25);
+  border-color: oklch(0.93 0.008 25);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.card[data-status='upcoming'] .cardTitle,
+.card[data-status='upcoming'] .cardEyebrow {
+  color: oklch(0.55 0.014 25);
+}
+
+.card[data-status='upcoming'] .cardTitleRow .icon {
+  color: oklch(0.6 0.04 25);
+}
+
+.card[data-status='upcoming'] .cardDescription {
+  color: oklch(0.5 0.014 25);
+}
+
+.cardCta[data-status='upcoming'] {
+  color: oklch(0.55 0.014 25);
 }
 
 .cardEyebrow {
