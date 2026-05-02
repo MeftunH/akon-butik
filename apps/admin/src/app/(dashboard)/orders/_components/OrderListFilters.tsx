@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import styles from './orders.module.scss';
-import { ORDER_STATUSES, STATUS_LABELS, type OrderStatus } from './status';
+import type { OrderStatus } from './status';
 
 export interface OrderListFilters {
   status: OrderStatus | 'all';
@@ -179,8 +179,3 @@ export function OrderListFiltersBar({ initial }: OrderListFiltersProps) {
     </>
   );
 }
-
-export const STATUS_PILL_OPTIONS: readonly { key: OrderStatus | 'all'; label: string }[] = [
-  { key: 'all', label: 'Tümü' },
-  ...ORDER_STATUSES.map((s) => ({ key: s, label: STATUS_LABELS[s] })),
-];

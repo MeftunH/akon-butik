@@ -5,16 +5,12 @@ import { redirect } from 'next/navigation';
 import { ADMIN_NOT_AUTHENTICATED, fetchAdmin } from '../../../lib/admin-fetch';
 
 import { formatDateTime, formatRelative, formatTl, isSameDayAs } from './_components/format';
-import {
-  OrderListFiltersBar,
-  STATUS_PILL_OPTIONS,
-  type OrderListFilters,
-} from './_components/OrderListFilters';
+import { OrderListFiltersBar, type OrderListFilters } from './_components/OrderListFilters';
 import { OrderListStatStrip } from './_components/OrderListStatStrip';
 import { OrderRelativeTime } from './_components/OrderRelativeTime';
 import styles from './_components/orders.module.scss';
 import { DiaBadge, OrderStatusBadge } from './_components/OrderStatusBadge';
-import { isOrderStatus, type OrderStatus } from './_components/status';
+import { isOrderStatus, STATUS_PILL_OPTIONS, type OrderStatus } from './_components/status';
 
 interface AdminOrder {
   id: string;

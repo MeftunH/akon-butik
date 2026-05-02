@@ -84,3 +84,14 @@ export const TRANSITION_HINT: Partial<Record<OrderStatus, string>> = {
 
 export const isOrderStatus = (value: string): value is OrderStatus =>
   (ORDER_STATUSES as readonly string[]).includes(value);
+
+/**
+ * Filter pills above the orders table. Lives here (not in
+ * OrderListFilters.tsx) because the table is a server component that
+ * iterates this array; a `'use client'` module would expose only a
+ * module-reference proxy, breaking `.map()` at render time.
+ */
+export const STATUS_PILL_OPTIONS: readonly { key: OrderStatus | 'all'; label: string }[] = [
+  { key: 'all', label: 'Tümü' },
+  ...ORDER_STATUSES.map((s) => ({ key: s, label: STATUS_LABELS[s] })),
+];
