@@ -1,0 +1,284 @@
+// ProductImagesPanel — drag-drop gallery + uploader. Editorial tone:
+// square dropzone, hairline borders, no glassy chrome. Tints derive
+// from the same neutral palette as ProductEditForm so the section
+// reads as one continuous edit surface.
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 22px;
+  background: var(--bg-2, #f5f5f5);
+  border: 1px dashed var(--line, #ededed);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  i {
+    font-size: 28px;
+    color: var(--text-2, #8a8c8a);
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--bg-3, #efefef);
+    border-color: var(--text-3, #acafab);
+  }
+}
+
+.dropzoneCompact {
+  padding: 14px 18px;
+
+  i {
+    font-size: 22px;
+  }
+}
+
+.dropzoneActive {
+  background: oklch(0.96 0.02 25);
+  border-color: #c8102e;
+}
+
+.dropzoneText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dropzoneTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black, #111);
+}
+
+.dropzoneHint {
+  font-size: 12px;
+  color: var(--text-2, #8a8c8a);
+}
+
+.error {
+  padding: 10px 14px;
+  background: oklch(0.96 0.04 25);
+  border: 1px solid oklch(0.78 0.12 25);
+  color: oklch(0.36 0.16 25);
+  font-size: 13px;
+}
+
+.uploadList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uploadRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 10px 14px;
+  background: var(--bg-2, #f5f5f5);
+  border: 1px solid var(--line, #ededed);
+}
+
+.uploadInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.uploadFilename {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--black, #111);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uploadSize {
+  font-size: 12px;
+  color: var(--text-2, #8a8c8a);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.uploadProgress {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: var(--bg-3, #efefef);
+  overflow: hidden;
+}
+
+.uploadProgressBar {
+  height: 100%;
+  background: var(--black, #111);
+  transition: width 200ms ease-out;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1, #fff);
+  border: 1px solid var(--line, #ededed);
+  cursor: grab;
+  transition:
+    transform 160ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+
+  &:hover {
+    border-color: var(--text-3, #acafab);
+
+    .tileHandle,
+    .tileActions {
+      opacity: 1;
+    }
+  }
+
+  &[data-dragging='true'] {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+
+  &[data-drop-target='true'] {
+    border-color: #c8102e;
+    transform: translateY(-2px);
+  }
+}
+
+.tileImage {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--bg-2, #f5f5f5);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.tileHandle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--black, #111);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+
+.tileBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: var(--black, #111);
+  color: var(--white, #fff);
+
+  &[data-tone='primary'] {
+    background: #c8102e;
+  }
+}
+
+.tileActions {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid var(--line, #ededed);
+  opacity: 0.85;
+  transition: opacity 120ms ease;
+}
+
+.tileActionButton {
+  flex: 1;
+  padding: 6px 8px;
+  background: transparent;
+  border: 1px solid var(--line, #ededed);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--black, #111);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &:hover {
+    background: var(--bg-2, #f5f5f5);
+    border-color: var(--text-3, #acafab);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.tileActionDanger {
+  &:hover {
+    background: oklch(0.96 0.04 25);
+    border-color: oklch(0.78 0.12 25);
+    color: oklch(0.36 0.16 25);
+  }
+}
+
+.emptyGallery {
+  padding: 36px 24px;
+  text-align: center;
+  background: var(--bg-2, #f5f5f5);
+  border: 1px solid var(--line, #ededed);
+}
+
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--black, #111);
+  margin-bottom: 4px;
+}
+
+.emptyBody {
+  font-size: 13px;
+  color: var(--text-2, #8a8c8a);
+  margin: 0;
+  max-width: 48ch;
+  margin-inline: auto;
+}
