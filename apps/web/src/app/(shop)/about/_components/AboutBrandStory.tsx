@@ -6,7 +6,7 @@
  */
 export function AboutBrandStory() {
   return (
-    <section className="s-about flat-spacing">
+    <section className="s-about flat-spacing-2">
       <div className="container">
         <div className="tf-grid-layout tf-col-2 md-col-3 xl-col-4">
           <div className="item_2 image d-none d-md-block">
@@ -22,13 +22,10 @@ export function AboutBrandStory() {
           <div className="wd-2-cols">
             <div className="content-blog text-md-start">
               <div className="box-intro">
-                <p
-                  className="brand-name fw-medium"
-                  style={{ letterSpacing: '0.18em', textTransform: 'uppercase' }}
-                >
+                <p className="fw-medium mb-2 text-main-2" style={ABOUT_EYEBROW_STYLE}>
                   Markamız
                 </p>
-                <h2 className="slogan h3 fw-normal">
+                <h2 className="slogan h3 fw-normal mb-3">
                   Sakarya&apos;nın kalbinde, kadın giyimine adanmış bir butik.
                 </h2>
                 <p className="intro-text">
@@ -37,7 +34,7 @@ export function AboutBrandStory() {
                   giyim markasıdır. Şık ve günlük parçaları, modaya değil kişisel stile yarayacak
                   şekilde bir araya getiriyoruz.
                 </p>
-                <p className="intro-text">
+                <p className="intro-text mb-0">
                   Tek bir vitrinden, tek bir adresten. Her hafta yeni gelen kombinleri Instagram
                   hesabımız <span className="fw-medium">@akonbutik</span> üzerinden ilk biz
                   paylaşırız; mağazamıza gelen müşterilerimizle yüz yüze sohbet etmeyi, bedeni
@@ -91,3 +88,17 @@ export function AboutBrandStory() {
     </section>
   );
 }
+
+/**
+ * Shared eyebrow style across the /about sections so every band reads
+ * with the same letter-spacing / size / case treatment. Defined here
+ * (rather than as a CSS class) because the page only has five sections
+ * and a single inline style object is lighter than threading a new
+ * vendor SCSS override.
+ */
+const ABOUT_EYEBROW_STYLE: React.CSSProperties = {
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase',
+  fontSize: 12,
+  lineHeight: 1.4,
+};

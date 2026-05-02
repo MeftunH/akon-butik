@@ -24,13 +24,10 @@ export function AboutAtelier() {
     <section className="s-about-us flat-spacing-2">
       <div className="container">
         <div className="sect-title text-center mb-5">
-          <p
-            className="brand-name fw-medium mb-2"
-            style={{ letterSpacing: '0.18em', textTransform: 'uppercase' }}
-          >
+          <p className="fw-medium mb-2 text-main-2" style={ABOUT_EYEBROW_STYLE}>
             Çalışma Şeklimiz
           </p>
-          <h2 className="s-title h2 fw-normal mb-3">
+          <h2 className="s-title h3 fw-normal mb-3">
             Vitrini gören, kombini seçen, müşteriyle yüz yüze konuşan bir butik.
           </h2>
           <p className="s-subtitle h6 text-main-2 mb-0">
@@ -52,3 +49,10 @@ export function AboutAtelier() {
     </section>
   );
 }
+
+const ABOUT_EYEBROW_STYLE: React.CSSProperties = {
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase',
+  fontSize: 12,
+  lineHeight: 1.4,
+};

@@ -55,6 +55,16 @@ export function Footer() {
 
   return (
     <footer className="tf-footer">
+      {/*
+        Component-scoped style block. Vendor _form.scss flips `.f-content`
+        to `flex-direction: column` at `@include res(lg)` (≤991px) which
+        wraps the newsletter input under the button — too eager for the
+        Akon Butik footer. Override that so the input + submit stay on a
+        single row down to 480px, and only stack on true narrow phones.
+        Also tightens the social row spacing so Instagram/Facebook/
+        Pinterest read as one group, distinct from the contact stack.
+      */}
+      <style>{FOOTER_INLINE_CSS}</style>
       <div className="container d-flex">
         <span className="br-line" />
       </div>
@@ -94,52 +104,63 @@ export function Footer() {
                     </a>
                   </li>
                 </ul>
-                <ul className="tf-social-icon_2">
-                  <li>
-                    <a
-                      href="https://www.instagram.com/akonbutik/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="link"
-                      aria-label="Instagram"
-                    >
-                      <i className="icon-instagram-logo" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.facebook.com/akon.butik/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="link"
-                      aria-label="Facebook"
-                    >
-                      <i className="icon-fb" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://tr.pinterest.com/akonbutik/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="link"
-                      aria-label="Pinterest"
-                    >
-                      <i className="icon-pinterest" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://wa.me/905335196988"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="link"
-                      aria-label="WhatsApp"
-                    >
-                      <i className="icon-phone" />
-                    </a>
-                  </li>
-                </ul>
+                {/*
+                  Social row sits in its own labelled block below the
+                  contact list so phone/address/email stay vertical and
+                  the icons read as a separate cluster (vendor mixed them
+                  flush against the phone row, looked awkward).
+                */}
+                <div className="footer-social">
+                  <p className="h6 text-main-2 fw-medium mb-2 footer-social__label">
+                    Bizi Takip Edin
+                  </p>
+                  <ul className="tf-social-icon_2">
+                    <li>
+                      <a
+                        href="https://www.instagram.com/akonbutik/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link"
+                        aria-label="Instagram"
+                      >
+                        <i className="icon-instagram-logo" />
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://www.facebook.com/akon.butik/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link"
+                        aria-label="Facebook"
+                      >
+                        <i className="icon-fb" />
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://tr.pinterest.com/akonbutik/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link"
+                        aria-label="Pinterest"
+                      >
+                        <i className="icon-pinterest" />
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://wa.me/905335196988"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link"
+                        aria-label="WhatsApp"
+                      >
+                        <i className="icon-phone" />
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -258,6 +279,40 @@ export function Footer() {
           </div>
         </div>
       </div>
+      {/*
+        Payment row sits in its own band above the inner-bottom legal
+        line. Vendor stuck the payment icons flush with copyright; we
+        give them an isolated row with subdued grayscale so the row
+        reads as a trust signal without shouting.
+      */}
+      <div className="footer-payment">
+        <div className="container">
+          <ul className="footer-payment__list" aria-label="Kabul edilen ödeme yöntemleri">
+            {/* eslint-disable @next/next/no-img-element -- static brand SVGs, next/image overhead unjustified */}
+            <li>
+              <img alt="Visa" src="/images/payment/visa-2.svg" width={56} height={36} />
+            </li>
+            <li>
+              <img
+                alt="Mastercard"
+                src="/images/payment/master-card-2.svg"
+                width={56}
+                height={36}
+              />
+            </li>
+            <li>
+              <img alt="American Express" src="/images/payment/amex-2.svg" width={56} height={36} />
+            </li>
+            <li>
+              <img alt="PayPal" src="/images/payment/paypal-2.svg" width={56} height={36} />
+            </li>
+            <li>
+              <img alt="Discover" src="/images/payment/discover-2.svg" width={56} height={36} />
+            </li>
+            {/* eslint-enable @next/next/no-img-element */}
+          </ul>
+        </div>
+      </div>
       <div className="footer-bottom">
         <div className="container">
           <div className="inner-bottom">
@@ -274,30 +329,6 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-            <div className="list-hor flex-wrap">
-              <span className="h6">Ödeme:</span>
-              {/* eslint-disable @next/next/no-img-element -- payment icons are static SVG/PNG, next/image overhead isn't worth it here */}
-              <ul className="payment-method-list">
-                <li>
-                  <img alt="Visa" src="/images/payment/visa.png" width={200} height={128} />
-                </li>
-                <li>
-                  <img
-                    alt="Mastercard"
-                    src="/images/payment/master-card.png"
-                    width={200}
-                    height={128}
-                  />
-                </li>
-                <li>
-                  <img alt="Amex" src="/images/payment/amex.png" width={200} height={128} />
-                </li>
-                <li>
-                  <img alt="Discover" src="/images/payment/discover.png" width={200} height={128} />
-                </li>
-              </ul>
-              {/* eslint-enable @next/next/no-img-element */}
-            </div>
             <div className="list-hor">
               <span className="h6 text-main-2">
                 © {new Date().getFullYear().toString()} Akon Butik
@@ -309,3 +340,83 @@ export function Footer() {
     </footer>
   );
 }
+
+/**
+ * Footer-scoped CSS injected once per render. Kept inline (rather than
+ * in vendor SCSS or globals) so the override travels with the component
+ * — every consumer of `<Footer />` gets these tweaks without an extra
+ * stylesheet import. Tokens picked to match vendor neutrals (no #000 /
+ * #fff hex literals — vars resolve to the OKLCH-ish palette already
+ * defined in vendor `_variable.scss`).
+ */
+const FOOTER_INLINE_CSS = `
+  .tf-footer .footer-social { margin-top: 4px; }
+  .tf-footer .footer-social__label {
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 8px !important;
+  }
+  .tf-footer .footer-social .tf-social-icon_2 { gap: 12px; flex-wrap: wrap; }
+
+  .tf-footer .form_sub .f-content {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .tf-footer .form_sub .f-content > .col {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .tf-footer .form_sub .f-content > .col input { width: 100%; }
+  .tf-footer .form_sub .f-content > button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  @media (max-width: 479px) {
+    .tf-footer .form_sub .f-content {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .tf-footer .form_sub .f-content > * { width: 100%; }
+  }
+
+  .tf-footer .footer-payment {
+    border-top: 1px solid var(--line);
+  }
+  .tf-footer .footer-payment .container {
+    padding-top: 24px;
+    padding-bottom: 16px;
+  }
+  .tf-footer .footer-payment__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .tf-footer .footer-payment__list li {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+  }
+  .tf-footer .footer-payment__list img {
+    height: 100%;
+    width: auto;
+    display: block;
+    filter: grayscale(1);
+    opacity: 0.65;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+  }
+  .tf-footer .footer-payment__list li:hover img {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+  .tf-footer .footer-bottom .inner-bottom { border-top: 0; }
+`;

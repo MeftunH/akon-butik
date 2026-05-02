@@ -35,8 +35,8 @@ export function HomeCategories() {
     <section className="flat-spacing">
       <div className="container">
         <div className="sect-title text-center wow fadeInUp">
-          <h1 className="title mb-8">Popüler Kategoriler</h1>
-          <p className="s-subtitle h6">Sezonun en çok tercih edilen parçaları</p>
+          <h2 className="title h2 mb-8 fw-normal">Popüler Kategoriler</h2>
+          <p className="s-subtitle h6 text-main-2">Sezonun en çok tercih edilen parçaları</p>
         </div>
         <Swiper
           dir="ltr"

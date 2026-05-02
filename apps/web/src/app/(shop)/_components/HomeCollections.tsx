@@ -64,7 +64,11 @@ export function HomeCollections() {
               </Link>
               <div className="cls-content_wrap b-16">
                 <div className="cls-content">
-                  <Link href={item.href} className="tag_cls h3 link">
+                  <Link
+                    href={item.href}
+                    className="tag_cls h5 link fw-medium"
+                    style={{ letterSpacing: '0.02em' }}
+                  >
                     {item.title}
                   </Link>
                   <span className="br-line type-vertical" />

@@ -7,17 +7,20 @@ import Link from 'next/link';
  */
 export function AboutCta() {
   return (
-    <section className="s-about-cta flat-spacing">
+    <section className="s-about-cta flat-spacing-2">
       <div className="container">
         <div
           className="text-center"
           style={{
-            borderTop: '1px solid #e7e3da',
-            borderBottom: '1px solid #e7e3da',
+            borderTop: '1px solid var(--line)',
+            borderBottom: '1px solid var(--line)',
             padding: '64px 16px',
           }}
         >
-          <h2 className="h2 fw-normal mb-3">Yeni sezon vitrinde.</h2>
+          <p className="fw-medium mb-2 text-main-2" style={ABOUT_EYEBROW_STYLE}>
+            Yeni Sezon
+          </p>
+          <h2 className="h3 fw-normal mb-3">Yeni sezon vitrinde.</h2>
           <p className="h6 fw-normal text-main-2 mb-4">
             Bu hafta atölyeden çıkan parçaları görmek için mağazaya göz atın.
           </p>
@@ -30,3 +33,10 @@ export function AboutCta() {
     </section>
   );
 }
+
+const ABOUT_EYEBROW_STYLE: React.CSSProperties = {
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase',
+  fontSize: 12,
+  lineHeight: 1.4,
+};

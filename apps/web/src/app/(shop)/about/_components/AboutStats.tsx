@@ -6,27 +6,25 @@
  */
 export function AboutStats() {
   return (
-    <section className="s-about-stats flat-spacing">
+    <section className="s-about-stats flat-spacing-2">
       <div className="container">
         <div className="row g-4 align-items-end">
           <div className="col-12 col-lg-5">
-            <p
-              className="brand-name fw-medium mb-2"
-              style={{ letterSpacing: '0.18em', textTransform: 'uppercase' }}
-            >
+            <p className="fw-medium mb-2 text-main-2" style={ABOUT_EYEBROW_STYLE}>
               Bizi Bulun
             </p>
             <p
-              className="display-3 mb-1 fw-semibold"
+              className="mb-1 fw-semibold"
               style={{
                 letterSpacing: '-0.02em',
                 lineHeight: 1.05,
-                color: '#c8102e',
+                fontSize: 'clamp(40px, 6vw, 64px)',
+                color: 'var(--akon-primary)',
               }}
             >
               Çark Caddesi
             </p>
-            <p className="h5 fw-normal mb-0 text-main-2">
+            <p className="h6 fw-normal mb-0 text-main-2">
               Sakarya, Adapazarı. Tek vitrin, tek adres.
             </p>
           </div>
@@ -34,7 +32,7 @@ export function AboutStats() {
           <div className="col-12 col-lg-7">
             <div className="row g-4">
               <div className="col-sm-4">
-                <p className="h2 fw-semibold mb-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <p className="h3 fw-semibold mb-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   No. 13
                 </p>
                 <p className="h6 fw-normal text-main-2 mb-0">
@@ -42,13 +40,13 @@ export function AboutStats() {
                 </p>
               </div>
               <div className="col-sm-4">
-                <p className="h2 fw-semibold mb-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <p className="h3 fw-semibold mb-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   81
                 </p>
                 <p className="h6 fw-normal text-main-2 mb-0">ilin tamamına anlaşmalı kargo.</p>
               </div>
               <div className="col-sm-4">
-                <p className="h2 fw-semibold mb-1">Haftalık</p>
+                <p className="h3 fw-semibold mb-1">Haftalık</p>
                 <p className="h6 fw-normal text-main-2 mb-0">
                   yeni kombin, Instagram&apos;da @akonbutik.
                 </p>
@@ -60,3 +58,10 @@ export function AboutStats() {
     </section>
   );
 }
+
+const ABOUT_EYEBROW_STYLE: React.CSSProperties = {
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase',
+  fontSize: 12,
+  lineHeight: 1.4,
+};

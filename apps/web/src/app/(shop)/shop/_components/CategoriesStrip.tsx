@@ -49,8 +49,17 @@ export function CategoriesStrip({ categories }: CategoriesStripProps) {
   if (categories.length === 0) return null;
 
   return (
-    <section className="flat-spacing pb-0">
+    <section className="flat-spacing-2 pt-0">
       <div className="container">
+        <div className="sect-title text-center mb-4">
+          <p
+            className="brand-name fw-medium mb-2 text-main-2"
+            style={{ letterSpacing: '0.18em', textTransform: 'uppercase', fontSize: 12 }}
+          >
+            Kategoriler
+          </p>
+          <h2 className="title h3 fw-normal mb-0">Kategoriye göre keşfedin</h2>
+        </div>
         <Swiper
           dir="ltr"
           className="swiper tf-swiper"
@@ -80,7 +89,7 @@ export function CategoriesStrip({ categories }: CategoriesStripProps) {
                     height={400}
                   />
                 </div>
-                <p className="collection_name h5 link">
+                <p className="collection_name h6 link fw-medium">
                   {cat.name} <span className="count text-main-2">({cat.productCount})</span>
                 </p>
               </Link>

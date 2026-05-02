@@ -26,8 +26,8 @@ export function HomeBestSellers({ products }: HomeBestSellersProps) {
     <section>
       <div className="container">
         <div className="sect-title text-center wow fadeInUp">
-          <h1 className="title mb-8">Çok Satanlar</h1>
-          <p className="s-subtitle h6">
+          <h2 className="title h2 mb-8 fw-normal">Çok Satanlar</h2>
+          <p className="s-subtitle h6 text-main-2">
             Sezonun en sevilen parçaları, stoğumuzdaki güncel renk ve bedenlerle.
           </p>
         </div>
