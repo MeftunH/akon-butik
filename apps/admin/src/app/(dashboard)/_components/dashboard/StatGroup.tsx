@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import styles from './dashboard.module.scss';
-import { formatNumber } from './format';
+import { formatNumber, formatTl } from './format';
 
 interface OrderForStats {
   status: string;
@@ -11,6 +11,12 @@ interface OrderForStats {
 interface StatGroupProps {
   orders: readonly OrderForStats[];
   totalOrders: number;
+  /** Sum of today's order totals (status in paid|fulfilling|shipped). */
+  todayRevenueMinor: number;
+  /** How many orders contributed to `todayRevenueMinor`. */
+  todayPaidCount: number;
+  /** Products waiting for human review (DIA-imported, missing copy/photos). */
+  needsReviewCount: number;
   now?: Date;
 }
 
@@ -48,13 +54,17 @@ function buildSpark(orders: readonly OrderForStats[], now: Date): readonly DayBu
 
 /**
  * Asymmetric stat composition: a hero "pending" card with tabular numerals,
- * a 7-day spark trail, and a delta vs yesterday; flanked by two compact
- * rows for fulfilling and total counts. Deliberately NOT three identical
- * cards (the SaaS reflex this redesign rejects).
+ * a 7-day spark trail, and a delta vs yesterday; flanked by a stack of
+ * compact rows for today's revenue, fulfilling count, and the needs-review
+ * backlog. Deliberately NOT four identical cards (the SaaS reflex this
+ * redesign rejects).
  */
 export function StatGroup({
   orders,
   totalOrders,
+  todayRevenueMinor,
+  todayPaidCount,
+  needsReviewCount,
   now = new Date(),
 }: StatGroupProps): React.JSX.Element {
   const pending = orders.filter((o) => o.status === 'pending');
@@ -92,6 +102,15 @@ export function StatGroup({
 
   const last7 = buckets.reduce((acc, b) => acc + b.count, 0);
 
+  const fulfillingSub =
+    totalOrders > 0 ? `Toplam ${formatNumber(totalOrders)} kayıt içinde.` : 'Henüz kayıt yok.';
+  const reviewSub =
+    needsReviewCount === 0 ? 'Tüm ürünler temiz görünüyor.' : 'Açıklama, görsel veya fiyat eksik.';
+  const todayPaidSub =
+    todayPaidCount === 0
+      ? 'Bugün ödenmiş sipariş yok.'
+      : `${formatNumber(todayPaidCount)} sipariş üzerinden.`;
+
   return (
     <section className={styles.statGroup} aria-label="Sipariş özeti">
       <Link href="/orders?status=pending" className={styles.statHero}>
@@ -125,20 +144,37 @@ export function StatGroup({
       </Link>
 
       <div className={styles.statSide}>
+        <Link
+          href="/orders?status=paid"
+          className={`${styles.statRow} ${styles.statRowAccent}`.trim()}
+        >
+          <span>
+            <span className={styles.statRowLabel}>Bugünkü Ciro</span>
+            <span className={styles.statRowSub}>{todayPaidSub}</span>
+          </span>
+          <span className={styles.statRowNumber}>{formatTl(todayRevenueMinor)}</span>
+        </Link>
+
         <Link href="/orders?status=paid" className={styles.statRow}>
           <span>
             <span className={styles.statRowLabel}>Hazırlanıyor</span>
-            <span className={styles.statRowSub}>Ödendi, kargoya hazır.</span>
+            <span className={styles.statRowSub}>{fulfillingSub}</span>
           </span>
           <span className={styles.statRowNumber}>{formatNumber(fulfilling.length)}</span>
         </Link>
 
-        <Link href="/orders" className={styles.statRow}>
+        <Link href="/products?status=needs_review" className={styles.statRow}>
           <span>
-            <span className={styles.statRowLabel}>Toplam Sipariş</span>
-            <span className={styles.statRowSub}>Sistemdeki tüm kayıtlar.</span>
+            <span className={styles.statRowLabel}>İncelenmeli</span>
+            <span className={styles.statRowSub}>{reviewSub}</span>
           </span>
-          <span className={styles.statRowNumber}>{formatNumber(totalOrders)}</span>
+          <span
+            className={`${styles.statRowNumber} ${
+              needsReviewCount > 0 ? (styles.statRowNumberAlert ?? '') : ''
+            }`.trim()}
+          >
+            {formatNumber(needsReviewCount)}
+          </span>
         </Link>
       </div>
     </section>
