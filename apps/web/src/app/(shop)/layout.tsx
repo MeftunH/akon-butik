@@ -1,6 +1,8 @@
-import { CartBadge, CartProvider, Footer, Header, Topbar, WishlistProvider } from '@akonbutik/ui';
+import { CartBadge, CartProvider, Footer, Header, WishlistProvider } from '@akonbutik/ui';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+
+import { Topbar } from './_components/Topbar';
 
 const navLinks = [
   { label: 'Ana Sayfa', href: '/' },
@@ -19,10 +21,7 @@ export default function ShopLayout({ children }: { children: ReactNode }) {
   return (
     <CartProvider>
       <WishlistProvider>
-        <Topbar
-          announcement="450 ₺ ve üzeri alışverişlerde kargo bedava"
-          categoryLinks={topbarCategories}
-        />
+        <Topbar categoryLinks={topbarCategories} />
         <Header
           brandName="AKON BUTİK"
           brandHref="/"

@@ -1,0 +1,182 @@
+/* Storefront duyuru bandı.
+   Brand-tinted dark wine to match the admin chrome (oklch 0.18 0.04 25)
+   instead of the previous `bg-black`. No side stripes, no em dashes. */
+
+.shell {
+  background: oklch(0.18 0.04 25);
+  color: oklch(0.92 0.012 25);
+  position: relative;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 9px 0;
+  position: relative;
+}
+
+.left {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.message {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(0.95 0.01 25);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.message > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.cta {
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: oklch(0.97 0.004 25);
+  flex: none;
+}
+
+.cta:hover {
+  color: oklch(0.99 0 0);
+}
+
+.categoryLinks {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.categoryLink {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: oklch(0.92 0.012 25);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid oklch(0.5 0.06 25);
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.categoryLink:hover {
+  border-color: oklch(0.78 0.012 25);
+  color: oklch(0.99 0 0);
+}
+
+.right {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+
+.helpLink {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(0.92 0.012 25);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.helpLink:hover {
+  color: oklch(0.99 0 0);
+}
+
+.divider {
+  width: 1px;
+  height: 12px;
+  background: oklch(0.5 0.06 25);
+  display: inline-block;
+}
+
+.dismiss {
+  background: transparent;
+  border: 1px solid transparent;
+  color: oklch(0.85 0.012 25);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin-left: 8px;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.dismiss:hover {
+  color: oklch(0.99 0 0);
+  border-color: oklch(0.5 0.06 25);
+}
+
+.dismiss:focus-visible {
+  outline: 2px solid oklch(0.78 0.012 25);
+  outline-offset: 2px;
+}
+
+.dismiss .icon {
+  font-size: 12px;
+}
+
+@media (max-width: 991px) {
+  .right {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .categoryLinks {
+    display: none;
+  }
+  .message {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+}
+
+.dividerWide {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .dividerWide {
+    display: inline-block;
+  }
+  .optionalLink {
+    display: inline-flex;
+  }
+}
+
+.optionalLink {
+  display: none;
+}

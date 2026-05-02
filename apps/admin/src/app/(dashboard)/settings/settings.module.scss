@@ -1,0 +1,335 @@
+/* Site settings — landing card grid + announcement editor.
+   Tone matches the dashboard chrome (warm neutrals, brand-red accents
+   reserved for active states and primary CTAs). No side stripes. */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+  max-width: 720px;
+}
+
+.heroEyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.018 25);
+  margin: 0;
+}
+
+.heroTitle {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: oklch(0.16 0.03 25);
+  margin: 0;
+}
+
+.heroLead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: oklch(0.4 0.018 25);
+  max-width: 560px;
+}
+
+.cardGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  background: oklch(0.985 0.004 25);
+  border: 1px solid oklch(0.9 0.012 25);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 160ms ease,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card:hover {
+  border-color: oklch(0.4 0.04 25);
+  transform: translateY(-1px);
+}
+
+.card:focus-visible {
+  outline: 2px solid oklch(0.45 0.18 25);
+  outline-offset: 2px;
+}
+
+.cardEyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: oklch(0.5 0.018 25);
+}
+
+.cardTitleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cardTitleRow .icon {
+  font-size: 20px;
+  color: oklch(0.45 0.18 25);
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: oklch(0.16 0.03 25);
+}
+
+.cardDescription {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: oklch(0.4 0.018 25);
+}
+
+.cardCta {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(0.45 0.18 25);
+}
+
+.cardCta .icon {
+  font-size: 14px;
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card:hover .cardCta .icon {
+  transform: translateX(3px);
+}
+
+/* ---------- Announcement form ---------- */
+.formShell {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(0.45 0.018 25);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.backLink:hover {
+  color: oklch(0.18 0.03 25);
+}
+
+.formCard {
+  background: oklch(0.985 0.004 25);
+  border: 1px solid oklch(0.9 0.012 25);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(0.32 0.018 25);
+}
+
+.fieldHint {
+  font-size: 12px;
+  color: oklch(0.5 0.018 25);
+  margin: 0;
+}
+
+.input,
+.textarea {
+  font: inherit;
+  color: oklch(0.16 0.03 25);
+  background: oklch(0.99 0.004 25);
+  border: 1px solid oklch(0.86 0.012 25);
+  padding: 10px 12px;
+  width: 100%;
+  transition: border-color 160ms ease;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: 0;
+  border-color: oklch(0.45 0.18 25);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: oklch(0.96 0.008 25);
+  border: 1px solid oklch(0.9 0.012 25);
+}
+
+.toggleControl {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex: none;
+  display: inline-block;
+}
+
+.toggleInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.toggleTrack {
+  position: absolute;
+  inset: 0;
+  background: oklch(0.84 0.012 25);
+  border-radius: 999px;
+  transition: background-color 200ms ease;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: oklch(0.99 0.004 25);
+  border-radius: 50%;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toggleInput:checked ~ .toggleTrack {
+  background: oklch(0.45 0.18 25);
+}
+
+.toggleInput:checked ~ .toggleThumb {
+  transform: translateX(18px);
+}
+
+.toggleInput:focus-visible ~ .toggleTrack {
+  box-shadow:
+    0 0 0 2px oklch(0.99 0.004 25),
+    0 0 0 4px oklch(0.45 0.18 25);
+}
+
+.toggleMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: oklch(0.16 0.03 25);
+}
+
+.toggleHint {
+  font-size: 12px;
+  color: oklch(0.45 0.018 25);
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid oklch(0.92 0.01 25);
+}
+
+.statusLine {
+  font-size: 12px;
+  color: oklch(0.45 0.018 25);
+}
+
+.statusLine[data-tone='success'] {
+  color: oklch(0.42 0.12 150);
+}
+
+.statusLine[data-tone='error'] {
+  color: oklch(0.45 0.18 25);
+}
+
+.submit {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 11px 24px;
+  border: 1px solid oklch(0.45 0.18 25);
+  background: oklch(0.45 0.18 25);
+  color: oklch(0.99 0.004 25);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: oklch(0.4 0.2 25);
+  border-color: oklch(0.4 0.2 25);
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.submit:focus-visible {
+  outline: 2px solid oklch(0.45 0.18 25);
+  outline-offset: 2px;
+}
+
+.errorText {
+  margin: 0;
+  font-size: 12px;
+  color: oklch(0.45 0.18 25);
+}

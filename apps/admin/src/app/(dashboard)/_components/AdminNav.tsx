@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import styles from './AdminChrome.module.scss';
 
 interface NavLink {
-  href: '/' | '/products' | '/orders' | '/sync';
+  href: '/' | '/products' | '/orders' | '/sync' | '/settings';
   label: string;
   icon: string;
   description?: string;
@@ -71,6 +71,18 @@ const NAV_GROUPS: readonly NavGroup[] = [
         label: 'DIA Senkron',
         icon: 'icon-arrow-right',
         description: 'Stok ve katalog senkronizasyonu',
+        roles: ['admin'],
+      },
+    ],
+  },
+  {
+    heading: 'Ayarlar',
+    items: [
+      {
+        href: '/settings',
+        label: 'Site Ayarları',
+        icon: 'icon-setting',
+        description: 'Duyuru bandı ve site geneli ayarlar',
         roles: ['admin'],
       },
     ],

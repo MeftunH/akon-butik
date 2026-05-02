@@ -24,6 +24,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { StorefrontModule } from './modules/storefront/storefront.module';
 
@@ -73,6 +74,7 @@ import { StorefrontModule } from './modules/storefront/storefront.module';
     AdminModule,
     CmsModule,
     ContactModule,
+    SettingsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
